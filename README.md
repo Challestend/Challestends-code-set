@@ -1,4 +1,1 @@
-# challestends-code-set
-Challestend's code set.
-
-It seems that I've made some mistakes.
+Mainly a place to store my codes.
