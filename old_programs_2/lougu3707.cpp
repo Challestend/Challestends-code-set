@@ -2,10 +2,11 @@
 #define re register
 #define maxn 100000
 #define maxm 100000
+#define sum(a) (1LL*(a)*((a)+1)/2)
+#define sqrsum(a) (1LL*(a)*((a)+1)*(2*(a)+1)/6)
 
 int n,m;
-long long sum[maxn<<2|1][2],sqrsum[maxn<<2|1],prodsum[maxn<<2|1];
-long long add[maxn<<2|1][2],c[maxn<<2|1],upd[maxn<<2|1][2];
+double sum[maxn<<2|1][2],sqrsum[maxn<<2|1],prodsum[maxn<<2|1],add[maxn<<2|1][2],c[maxn<<2|1],upd[maxn<<2|1][2];
 double sx,sy,ss,ps,a,b;
 
 inline void read(int& x){
@@ -20,15 +21,15 @@ inline void read(int& x){
 
 inline void pushdown(int cur,int ln,int rn){
     if(c[cur]){
-        sqrsum[cur<<1]=1LL*ln*upd[cur][0]*upd[cur][0]+1LL*ln*(ln-1)*upd[cur][0]+1LL*ln*(ln-1)*(2*ln-1)/6;
-        sqrsum[cur<<1|1]=1LL*rn*(upd[cur][0]+ln)*(upd[cur][0]+ln)+1LL*rn*(rn-1)*(upd[cur][0]+ln)+1LL*rn*(rn-1)*(2*rn-1)/6;
-        prodsum[cur<<1]=1LL*ln*upd[cur][0]*upd[cur][1]+1LL*ln*(ln-1)*(upd[cur][0]+upd[cur][1])/2+1LL*ln*(ln-1)*(2*ln-1)/6;
-        prodsum[cur<<1|1]=1LL*rn*(upd[cur][0]+ln)*(upd[cur][1]+ln)+1LL*rn*(rn-1)*(upd[cur][0]+upd[cur][1]+2*ln)/2+1LL*rn*(rn-1)*(2*rn-1)/6;
+        sqrsum[cur<<1]=1LL*ln*upd[cur][0]*upd[cur][0]+1LL*ln*(ln-1)*upd[cur][0]+sqrsum(ln-1);
+        sqrsum[cur<<1|1]=1LL*rn*(upd[cur][0]+ln)*(upd[cur][0]+ln)+1LL*rn*(rn-1)*(upd[cur][0]+ln)+sqrsum(ln-1);
+        prodsum[cur<<1]=1LL*ln*upd[cur][0]*upd[cur][1]+sum(ln-1)*(upd[cur][0]+upd[cur][1])+sqrsum(rn-1);
+        prodsum[cur<<1|1]=1LL*rn*(upd[cur][0]+ln)*(upd[cur][1]+ln)+sum(rn-1)*(upd[cur][0]+upd[cur][1]+2*ln)+sqrsum(rn-1);
         for(int i=0;i<2;++i){
-            sum[cur<<1][i]=1LL*ln*upd[cur][i]+1LL*ln*(ln-1)/2;
+            sum[cur<<1][i]=1LL*ln*upd[cur][i]+sum(ln-1);
             add[cur<<1][i]=0;
             upd[cur<<1][i]=upd[cur][i];
-            sum[cur<<1|1][i]=1LL*rn*(upd[cur][0]+ln)+1LL*rn*(rn-1)/2;
+            sum[cur<<1|1][i]=1LL*rn*(upd[cur][0]+ln)+sum(rn-1);
             add[cur<<1|1][i]=0;
             upd[cur<<1|1][i]=upd[cur][0]+ln;
         }
@@ -94,10 +95,10 @@ void update_add(int L,int R,int x,int y,int cur,int l,int r){
 void update_upd(int L,int R,int x,int y,int cur,int l,int r){
     if(l>=L&&r<=R){
         int curn=r-l+1;
-        prodsum[cur]=1LL*curn*x*y+1LL*curn*(curn-1)*(x+y)/2+1LL*(curn)*(curn-1)*(2*curn-1)/6;
-        sqrsum[cur]=1LL*curn*x*x+1LL*curn*(curn-1)*x+1LL*curn*(curn-1)*(2*curn-1)/6;
-        sum[cur][0]=1LL*curn*x+curn*(curn-1)/2;
-        sum[cur][1]=1LL*curn*y+curn*(curn-1)/2;
+        prodsum[cur]=1LL*curn*x*y+1LL*sum(curn-1)*(x+y)+sqrsum(curn-1);
+        sqrsum[cur]=1LL*curn*x*x+2LL*sum(curn-1)*x+sqrsum(curn-1);
+        sum[cur][0]=1LL*curn*x+sum(curn-1);
+        sum[cur][1]=1LL*curn*y+sum(curn-1);
         add[cur][0]=0;
         add[cur][1]=0;
         c[cur]=1;

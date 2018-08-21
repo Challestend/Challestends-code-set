@@ -100,7 +100,7 @@ int main(){
         h[g[i]]=i;
     }
     for(re int i=1,ver=0;i<=n0;++i)
-        for(int j=1;j<=cnt[h[i]];++j){
+        for(re int j=1;j<=cnt[h[i]];++j){
             update(h[i],j,root[i-1],1,n);
             root[++ver]=vc;
         }
