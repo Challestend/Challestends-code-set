@@ -1,5 +1,6 @@
 #include<cstdio>
 #define re register
+#define maxn 1000000
 #define mod 1000000007
 
 namespace cltstream{
@@ -28,19 +29,21 @@ namespace cltstream{
     }
 }
 
-int n,x,a,b,ans;
+int n,ans;
+int a[maxn+1];
 
 int main(){
     cltstream::read(n);
-    for(re int i=1;i<=n;++i)
-        cltstream::read(x),a=(1LL*a+1LL*x)%mod,b=(1LL*b+1LL*x*x%mod)%mod;
-    printf("%d %d\n",a,b);
-    ans=1LL*a*a%mod;
-    printf("%d\n",ans);
-    ans=1LL*ans*a%mod;
-    printf("%d\n",ans);
-    ans=1LL*ans-3LL*a*b%mod;
-    printf("%d\n",ans);
+    for(re int i=1;i<=n;++i){
+        cltstream::read(a[i]);
+        a[0]=(1LL*a[0]+1LL*a[i])%mod;
+    }
+    ans=1LL*a[0]*a[0]%mod;
+    ans=1LL*ans*a[0]%mod;
+    for(re int i=1;i<=n;++i){
+        int x=1LL*a[i]*a[i]%mod;
+        ans=(1LL*ans-3LL*x*a[0]+2LL*x*a[i])%mod;
+    }
     cltstream::write((1LL*ans+1LL*mod)%mod);
     return 0;
 }
