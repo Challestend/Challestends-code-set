@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>【P1541】乌龟棋 - 洛谷 </title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="renderer" content="webkit">
+<meta name="csrf-token" content="1537279390:TZL/1cQlE/bRwsgrcNWE+fS0bUYpRKMBZ5Z7/BJpoUg=">
+<link rel="shortcut icon" type="image/x-icon" href="https://cdn.luogu.org/images/favicon3.ico" media="screen"/>
+<link rel="stylesheet" href="https://cdn.luogu.org/css/amazeui.min.css"/>
+<link rel="stylesheet" href="https://cdn.luogu.org/css/katex.min.css"/>
+<link rel="stylesheet" href="https://cdn.luogu.org/css/luogu3.css?ver=20180623">
+<link rel="stylesheet" href="https://cdn.luogu.org/css/highlight_tomorrow.css">
+<link rel="stylesheet" href="https://cdn.luogu.org/markdown-palettes/markdown-palettes.css?ver=20180322">
+<script src="https://cdn.luogu.org/js/jquery-2.1.1.min.js"></script>
+<script src="https://cdn.luogu.org/js/luogu3_pre.js?ver=20180127"></script>
+</head>
+<body class="am-with-topbar-fixed-top">
+<!--[if lte IE 9]>
+<p class="browsehappy">你正在使用<strong>过时</strong>的浏览器，洛谷暂不支持。 请 <a href="http://browsehappy.com/"
+                                                                 target="_blank">升级浏览器</a>
+    以获得更好的体验！</p>
+<![endif]-->
+<header class="am-topbar lg-header am-topbar-fixed-top ">
+<div class="am-topbar-brand" myuid="">
+<a data-pjax href="/" class="lg-nav-logo"></a>
+</div>
+<button class="am-topbar-btn am-topbar-toggle
+        am-btn am-btn-sm am-btn-success am-show-sm-only" data-am-collapse="{target: '#topbar-collapse'}">
+<span class="am-sr-only">导航切换</span>
+<span class="am-icon-bars"></span>
+</button>
+<div class="am-collapse am-topbar-collapse" id="topbar-collapse">
+<ul class="am-nav am-nav-pills am-topbar-nav am-topbar-left lg-header-list">
+<li><a target="_blank" href="https://class.luogu.com.cn" class="lg-header-li lg-md-hide">洛谷网校</a></li>
+</ul>
+<ul class="am-nav am-nav-pills am-topbar-nav am-topbar-right lg-header-list">
+<li class="am-dropdown" data-am-dropdown>
+<a class="am-dropdown-toggle lg-header-li" data-am-dropdown-toggle href="javascript:">
+<span class="am-icon-puzzle-piece"></span>
+应用
+<span class="am-icon-caret-down"></span>
+</a>
+<ul class="am-dropdown-content">
+<li><a data-pjax href="/app/upload">图片上传</a></li>
+<li><a target="_blank" href="/app/ide_frame">在线 IDE</a></li>
+<li><a data-pjax href="/paste">云剪贴板</a></li>
+<li><a data-pjax href="/app/userproblem">举办比赛<br>个人私有题库</a></li>
+<li><a data-pjax href="/team/apply">创建团队</a></li>
+<li><a data-pjax href="/discuss/lists?forumname=service">反馈问题<br>提交各类申请</a></li>
+</ul>
+</li>
+<li>
+<div class="am-topbar-form am-topbar-right am-form-inline lg-hide">
+<div class="am-input-group am-input-group-secondary am-input-group-sm">
+<input type="text" id="topbar-search-text" class="am-form-field am-input-sm am-radius" placeholder="题目搜索">
+<a class="am-input-group-label" id="topbar-search"><span class="am-icon-search"></span></a>
+</div>
+</div>
+</li>
+<script>
+
+                    $("#topbar-search").click(function() {
+                        goto_url("/problemnew/lists", {
+                            name: $("#topbar-search-text").val()
+                        });
+                    });
+					$("#topbar-search-text").keyup(function (event) {
+						if (event.keyCode == 13) {
+							if($(this).val()=='')return;
+							goto_url('/problemnew/lists', {name: $(this).val()})
+						}
+					})
+
+                </script>
+<li class="am-hide-sm-only"><a data-pjax href="/login/loginpage" class="lg-header-li"><span class="am-icon-sign-in"></span> 登录</a></li>
+<li class="am-hide-sm-only"><a data-pjax href="/login/reg" class="lg-header-li"><span class="am-icon-user-plus"></span> 注册</a></li>
+</ul>
+</div>
+</header>
+<div class="am-cf lg-main">
+<div class="lg-rail-sidebar">
+<div class="lg-sidebar am-offcanvas" id="lg-offcanvas">
+<div class="am-offcanvas-bar lg-offcanvas-bar">
+<ul class="am-list lg-sidebar-list">
+<li class="am-show-sm-only"><a data-pjax href="/login/loginpage" class="lg-bg-bluedark lg-sidebar-username"><span class="am-icon-sign-in"></span> 登录</a></li>
+<li class="am-show-sm-only"><a data-pjax href="/login/reg" class="lg-bg-bluedark lg-sidebar-username"><span class="am-icon-user-plus"></span> 注册</a></li>
+<li class="lg-nav-home ">
+<a data-pjax href="/" class="lg-nav-btn" title="首页">
+<span class="am-icon-home "></span>
+<span class="lg-sidebar-small">首页</span>
+</a>
+</li>
+<li class="lg-nav-problem">
+<a data-pjax href="/problemnew/lists" class="lg-nav-btn" title="题目">
+<span class="am-icon-book"></span>
+<span class="lg-sidebar-small">题目</span>
+</a>
+</li>
+<li class="lg-nav-training">
+<a data-pjax href="/training/mainpage" class="lg-nav-btn" title="试炼场">
+<span class="am-icon-lightbulb-o"></span>
+<span class="lg-sidebar-small">试炼场</span>
+</a>
+</li>
+<li class="lg-nav-contest">
+<a data-pjax href="/contest/lists" class="lg-nav-btn" title="比赛">
+<span class="am-icon-bar-chart"></span>
+<span class="lg-sidebar-small">比赛</span>
+</a>
+</li>
+<li class="lg-nav-record">
+<a data-pjax href="/recordnew/lists?uid=" class="lg-nav-btn" title="评测记录">
+<span class="am-icon-pie-chart"></span>
+<span class="lg-sidebar-small">评测记录</span>
+</a>
+</li>
+<li class="lg-nav-discuss">
+<a data-pjax href="/discuss/lists" class="lg-nav-btn" title="讨论">
+<span class="am-icon-comments"></span>
+<span class="lg-sidebar-small">讨论</span>
+</a>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="lg-content">
+<div class="lg-toolbar" data-am-sticky>
+<h1><a href="/recordnew/lists?uid=&pid=P1541" target="_blank"><strong class=""><i class="am-icon-minus"></i></strong></a> P1541 乌龟棋</h1>
+</div>
+<div class="am-g lg-main-content">
+<div class="am-u-md-4 lg-right" name="problemright">
+<section class="am-panel am-panel-default lg-summary" id="psummary">
+<div class="lg-summary-content">
+<ul class="am-list am-list-static lg-summary-list">
+<li>
+<ul class="am-avg-sm-2"><li><span class="lg-bignum-num">5.9<small>K</small></span><span class="lg-bignum-text">通过</span></li><li><span class="lg-bignum-num">9.9<small>K</small></span><span class="lg-bignum-text">提交</span></li></ul>
+</li>
+<li>
+<strong>题目提供者</strong>
+<span class="lg-right"><a class='lg-fg-gray' href="/space/show?uid=19" target="_blank">CCF_NOI</a></span>
+</li>
+<li>
+<strong>评测方式</strong>
+<span class="lg-right"><b>云端评测</b></span>
+</li>
+<li><strong>标签</strong>
+<span class="lg-tag am-badge am-radius lg-bg-pink am-hide" data-tagid="3">动态规划,动规,dp</span>
+<span class="lg-tag am-badge am-radius lg-bg-pink am-hide" data-tagid="111">枚举,暴力</span>
+<span class="lg-tag am-badge am-radius lg-bg-pink am-hide" data-tagid="54">递归</span>
+<span class="lg-tag am-badge am-radius lg-bg-bluelight" data-tagid="83">NOIp提高组</span>
+<span class="lg-tag am-badge am-radius lg-bg-green" data-tagid="27">2010</span>
+<style>.lg-tag { cursor: pointer; }</style>
+<script>
+                                $(".lg-tag").click(function() {
+                                    window.open("/problemnew/lists?tag=" + $(this).attr('data-tagid'));
+                                })
+                            </script>
+</li>
+<li><strong>难度</strong>
+<span class="lg-right"><span class="am-badge am-radius lg-bg-green">普及+/提高</span></span>
+</li>
+<li><strong>时空限制</strong>
+<span class="lg-right">1000ms / 128MB</span>
+</li>
+</ul>
+</div>
+<p>
+<button class="am-btn am-btn-danger am-btn-sm" id="submit" pid="P1541">
+<i class="am-icon-paper-plane"></i> 提交
+</button>
+<a target="_blank" href="/problemnew/solution/P1541" class="am-btn am-btn-primary am-btn-sm">
+<i class="am-icon-book"></i> 题解
+</a>
+<a data-pjax href="/recordnew/lists?pid=P1541" class="am-btn am-btn-primary am-btn-sm" title="查看本题提交记录">
+<i class="am-icon-pie-chart"></i>
+</a>
+<button class="am-btn am-btn-primary am-btn-sm lg-pointer" name="showtag" title="显示算法标签">
+<i class="am-icon-tags"></i>
+</button>
+</p>
+<li>提示：收藏到任务计划后，可在首页查看。</li>
+</section>
+<section class="am-panel am-panel-default lg-summary">
+<h2>最新讨论
+<a onclick="$('#discuss-lists').show();$(this).hide();" class="am-btn am-btn-primary am-btn-sm lg-right" title="查看本题讨论">
+显示
+</a>
+</h2>
+<ul class="am-list am-list-static lg-summary-list" style="display: none" id="discuss-lists">
+<li><a data-pjax href="/discuss/show?postid=60676" class="am-padding-0">题目描述有毒</a>
+</li>
+<li><a data-pjax href="/discuss/show?postid=51919" class="am-padding-0">可否拆成01做？</a>
+</li>
+<li><a data-pjax href="/discuss/show?postid=46887" class="am-padding-0">数据保证M张牌数字加起来等…</a>
+</li>
+<li><a data-pjax href="/discuss/show?postid=45599" class="am-padding-0">好像又略水</a>
+</li>
+<li><a data-pjax href="/discuss/show?postid=45060" class="am-padding-0">大佬！！！ 求改错！！！</a>
+</li>
+<li><a data-pjax href="/discuss/show?postid=44916" class="am-padding-0">求大佬改错！！！</a>
+</li>
+<div style="overflow: auto">
+<a data-pjax href="/discuss/lists?forumname=P1541" class="am-btn am-btn-primary am-btn-sm lg-right">进入讨论版</a>
+</div>
+</ul>
+</section>
+<section class="am-panel am-panel-default lg-summary am-hide-sm">
+<h2>推荐的相关题目
+<a onclick="$('#recommendation-list').show();$(this).hide();" class="am-btn am-btn-primary am-btn-sm lg-right" title="查看推荐题目">
+显示
+</a>
+</h2>
+<ul class="am-list am-list-static lg-summary-list" id="recommendation-list" style="display: none">
+<li>
+<a class='colored' href="/problemnew/show/P1063" target="_blank"><b>P1063</b> 能量项链</a>
+</li>
+<li>
+<a class='colored' href="/problemnew/show/P1156" target="_blank"><b>P1156</b> 垃圾陷阱</a>
+</li>
+<li>
+<a class='colored' href="/problemnew/show/P1525" target="_blank"><b>P1525</b> 关押罪犯</a>
+</li>
+<li>
+<a class='colored' href="/problemnew/show/P1026" target="_blank"><b>P1026</b> 统计单词个数</a>
+</li>
+<li>
+<a class='colored' href="/problemnew/show/P1052" target="_blank"><b>P1052</b> 过河</a>
+</li>
+</ul>
+</section>
+</div>
+<div class="am-u-md-8 lg-right" name="problemleft">
+<div class="lg-content-left">
+<div class="lg-article am-g">
+<h2>题目背景</h2>
+<p>小明过生日的时候，爸爸送给他一副乌龟棋当作礼物。</p>
+<h2>题目描述</h2>
+<p>乌龟棋的棋盘是一行$N$个格子，每个格子上一个分数（非负整数）。棋盘第1格是唯一的起点，第$N$格是终点，游戏要求玩家控制一个乌龟棋子从起点出发走到终点。</p>
+<p>乌龟棋中$M$张爬行卡片，分成4种不同的类型（$M$张卡片中不一定包含所有$4$种类型的卡片，见样例），每种类型的卡片上分别标有$1,2,3,4$四个数字之一，表示使用这种卡片后，乌龟棋子将向前爬行相应的格子数。游戏中，玩家每次需要从所有的爬行卡片中选择一张之前没有使用过的爬行卡片，控制乌龟棋子前进相应的格子数，每张卡片只能使用一次。</p>
+<p>游戏中，乌龟棋子自动获得起点格子的分数，并且在后续的爬行中每到达一个格子，就得到该格子相应的分数。玩家最终游戏得分就是乌龟棋子从起点到终点过程中到过的所有格子的分数总和。</p>
+<p>很明显，用不同的爬行卡片使用顺序会使得最终游戏的得分不同，小明想要找到一种卡片使用顺序使得最终游戏得分最多。</p>
+<p>现在，告诉你棋盘上每个格子的分数和所有的爬行卡片，你能告诉小明，他最多能得到多少分吗？</p>
+<h2>输入输出格式</h2>
+<strong>输入格式：</strong><br>
+<p><p>每行中两个数之间用一个空格隔开。</p>
+<p>第$1$行$2$个正整数$N,M$，分别表示棋盘格子数和爬行卡片数。</p>
+<p>第$2$行$N$个非负整数，$a_1,a_2,…,a_N$，其中$a_i$表示棋盘第$i$个格子上的分数。</p>
+<p>第$3$行$M$个整数，$b_1,b_2,…,b_M$，表示M张爬行卡片上的数字。</p>
+<p>输入数据保证到达终点时刚好用光$M$张爬行卡片。</p></p>
+<strong>输出格式：</strong><br>
+<p><p>$1$个整数，表示小明最多能得到的分数。</p></p>
+<h2>输入输出样例</h2>
+<div class="am-g">
+<div class="am-u-md-6 copy-region">
+<strong>输入样例#1：</strong>
+<a class="am-badge am-radius lg-bg-orange sample-copy">复制</a>
+<pre>9 5
+6 10 14 2 8 8 18 5 17
+1 3 1 2 1
+</pre>
+</div>
+<div class="am-u-md-6 copy-region">
+<strong>输出样例#1：</strong>
+<a class="am-badge am-radius lg-bg-orange sample-copy">复制</a>
+<pre>73
+</pre>
+</div>
+</div>
+<h2>说明</h2>
+<p>每个测试点$1s$</p>
+<p>小明使用爬行卡片顺序为$1,1,3,1,2$,得到的分数为$6+10+14+8+18+17=73$。注意，由于起点是$1$，所以自动获得第$1$格的分数$6$。</p>
+<p>对于$30\%$的数据有$1≤N≤30,1≤M≤12$。</p>
+<p>对于$50\%$的数据有$1≤N≤120,1≤M≤50$，且$4$种爬行卡片，每种卡片的张数不会超过$20$。</p>
+<p>对于$100\%$的数据有$1≤N≤350,1≤M≤120$，且$4$种爬行卡片，每种卡片的张数不会超过$40$；$0≤a_i≤100,1≤i≤N,1≤b_i≤4,1≤i≤M$。</p>
+</div>
+<div class='lg-article-sub am-g' id="sub"></div>
+</div>
+</div>
+</div>
+<div class="am-modal am-modal-prompt" tabindex="-1" id="confirm">
+<div class="am-modal-dialog">
+<div class="am-modal-hd" id="memtitle">提示</div>
+<div class="am-modal-bd" id="memadmin">
+标程仅供做题后或实在无思路时参考。<br>
+请自觉、自律地使用该功能并请对自己的学习负责。<br>
+如果发现恶意抄袭标程，将按照I类违反进行处理。<br>
+</div>
+<div class="am-modal-footer">
+<span class="am-modal-btn" data-am-modal-cancel>取消</span>
+<span class="am-modal-btn" data-am-modal-confirm>确定</span>
+</div>
+</div>
+</div>
+<script>
+        $(document).ready(function () {
+            $("#expandstd").click(function () {
+                $('#confirm').modal({
+                    relatedTarget: this,
+                    onConfirm: function (e) {
+                        $("#stdcode").slideDown();
+                        $("#expandstd").hide();
+                    }
+                });
+            });
+            $("#submit").click(
+                function () {
+                    hide_artile();
+                    window.location.href = "#sub";
+                    $(document).scrollTop($(document).scrollTop() - 80);
+                    var pid = $(this).attr("pid");
+                    $.get("/problem/ajax_submit?pid=" + pid, function (data) {
+                        var arr = eval('(' + data + ')');
+                        if (arr['code'] == 201) {
+                            $('.lg-article-sub').html(arr['more']['html']);
+                        }
+                        else if (arr['code'] == 200) {
+
+                        }
+                        else {
+                            if (arr['code'] == 0 || arr['code'] == -3) {
+                                backarticle();
+                            }
+                            show_alert("提交失败", arr['message']);
+                        }
+                    });
+                }
+            );
+            $("button[title].am-btn,a[title].am-btn").poshytip({
+                className: 'tip-twitter',
+                showTimeout: 1,
+                alignTo: 'target',
+                alignX: 'center',
+                alignY: 'bottom'
+            });
+            $('[name=showtag]').click(function () {
+                $('.am-badge.am-hide').removeClass('am-hide');
+            });
+            $(".sample-copy").click(function() {
+                var element = $(this).parents(".copy-region").find("pre");
+                var text = $(element).text();
+                var $temp = $("<textarea>");
+                $("body").append($temp);
+                $temp.val(text).select();
+                document.execCommand("copy");
+                $temp.remove();
+                $(this).text("复制成功").removeClass("lg-bg-orange");
+
+                var e = this;
+                setTimeout(function() {
+                    $(e).text("复制").addClass("lg-bg-orange");
+                }, 500);
+            });
+        });
+    </script>
+</div>
+</div>
+<a href="#" class="am-show-sm-only lg-menu" data-am-offcanvas="{target: '#lg-offcanvas'}">
+<span class="am-icon-btn am-icon-th-list"></span>
+</a>
+<div class="lg-footer">
+<div class="lg-footer-top"></div>
+<div class="lg-index-tool am-g">
+<div class="am-u-md-3 am-hide-sm">
+<img src="https://cdn.luogu.org/images/logo_white_3.png" width="175" class="lg-inline-up">
+</div>
+<div class="am-u-md-4 am-hide-sm"><h1 style="color: #999;margin: 0">在洛谷，<br>享受Coding的欢乐</h1></div>
+<div class="am-u-md-5 am-md-text-right">
+<a href="/wiki/show?name=关于洛谷">关于洛谷</a> |
+<a href="/wiki/show?name=帮助">帮助中心</a> |
+<a href="/wiki/show?name=洛谷社区规则">洛谷社区规则</a> |
+<a href="/wiki/show?name=洛谷用户协议">用户协议</a> |
+<a href="/discuss/lists?forumname=miaomiaowu">小黑屋</a> |
+<a href="/wiki/show?name=联系我们">联系我们</a><br>
+2013-2018 , 洛谷 ©
+Developed by the <a href="https://github.com/luogu-dev" target="_blank">Luogu Dev Team</a><br>
+All rights reserved <a href="http://www.miitbeian.gov.cn/"> 陕ICP备17005722号-1</a>.
+<script src="//s23.cnzz.com/stat.php?id=5476811&web_id=5476811" language="JavaScript"></script>
+<br>
+Master: <b>TrySail</b> /
+DB: <b>Index</b> /
+CGI: <b>戸山香澄</b>
+</div>
+</div>
+</div>
+<div class="am-modal am-modal-alert" tabindex="-1" id="lg-alert">
+<div class="am-modal-dialog">
+<div class="am-modal-hd" id="lg-alert-title"></div>
+<div class="am-modal-bd" id="lg-alert-message"></div>
+<div class="am-modal-footer">
+<span class="am-modal-btn">确定</span>
+</div>
+</div>
+</div>
+<script src="/js/ace/ace.js"></script>
+<script src="https://cdn.luogu.org/js/vendor.js" data-manual></script>
+<script src="https://cdn.luogu.org/js/jsmind.js" data-manual></script>
+<script src="https://cdn.luogu.org/js/amazeui.min.js"></script>
+<script src="https://cdn.luogu.org/js/highcharts.js"></script>
+<script src="/static/katex/katex.min.js"></script>
+<script src="/static/katex/contrib/auto-render.min.js"></script>
+<script src="https://cdn.luogu.org/markdown-palettes/markdown-palettes.js?ver=20180322"></script>
+<script src="https://cdn.luogu.org/js/luogu3.js?ver=20180102-4"></script>
+</body>
+</html>
