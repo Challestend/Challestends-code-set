@@ -1,2 +1,2 @@
-# Challestends-code-set
+# challestends-code-set
 Mainly a place to store my codes.
