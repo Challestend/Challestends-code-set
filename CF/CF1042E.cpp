@@ -3,6 +3,8 @@
 #define re register
 #define maxn 1000
 #define maxm 1000
+#define mod 998244353
+#define sqr(a) ((a)*(a))
 
 namespace cltstream{
     template <typename _tp>
@@ -35,12 +37,21 @@ struct cell{
     int x,y,val;
 };
 cell a[maxn*maxm+1];
-int v0,cnt=1;
-long long xsum,xsqr,ysum,ysqr,sum,ans1,ans2=1;
-long long f[maxn*maxm+1];
+int f[maxn*maxm+1];
+int cnt,fs,xs,ys,ss,fa,xa,ya,sa,res;
 
 bool cmp(cell p,cell q){
-    return p.val<q.val;
+    return p.val<q.val||(p.val==q.val&&p.x+p.y-r-c<q.x+q.y-r-c);
+}
+
+int cltpow(long long x,int y){
+    if(y==1)
+        return x;
+    int res=cltpow(x,y>>1);
+    res=1LL*res*res%mod;
+    if(y&1)
+        res=1LL*res*x%mod;
+    return res;
 }
 
 int main(){
@@ -50,29 +61,31 @@ int main(){
         for(re int j=1;j<=m;++j){
             a[(i-1)*m+j].x=i;
             a[(i-1)*m+j].y=j;
-            cltstream::read(a[i*(n-1)+j].val);
+            cltstream::read(a[(i-1)*m+j].val);
         }
     cltstream::read(r);
     cltstream::read(c);
-    v0=a[(r-1)*m+c].val;
     std::sort(a+1,a+n*m+1,cmp);
-    a[0].val=-1;
-    for(re int i=1;i<=n*m&&a[i-1].val<v0;++i){
-        if(a[i].val>a[i-1].val&&i>1){
-            f[i]=(i-1)*(a[i].x*a[i].x+a[i].y*a[i].y)-2LL*xsum*a[i].x-2LL*ysum*a[i].y+xsqr+ysqr;
-            ans2*=ans1;
-            cnt=i;
+    for(re int i=1;i<=n*m;++i){
+        if(a[i].val>a[i-1].val){
+            cnt=i-1;
+            fs=(1LL*fs+fa)%mod;
+            xs=(1LL*xs+xa)%mod;
+            ys=(1LL*ys+ya)%mod;
+            ss=(1LL*ss+sa)%mod;
+            fa=xa=ya=sa=0;
         }
-        else
-            f[i]=f[i-1];
-        sum+=f[i];
-        ans1+=cnt;
-        xsum+=a[i].x;
-        xsqr+=a[i].x*a[i].x;
-        ysum+=a[i].y;
-        ysqr+=a[i].y*a[i].y;
-        printf("%d %lld %lld %lld\n",i,sum,ans2,ans1);
+        res=(1LL*fs+1LL*cnt*(sqr(a[i].x)+sqr(a[i].y))%mod)%mod;
+        res=(1LL*res-2LL*xs*a[i].x%mod-2LL*ys*a[i].y%mod+ss+mod)%mod;
+        f[i]=1LL*res*cltpow(cnt,mod-2)%mod;
+        if(a[i].x==r&&a[i].y==c){
+            cltstream::write(f[i]);
+            break;
+        }
+        fa=(1LL*fa+f[i])%mod;
+        xa=(1LL*xa+a[i].x)%mod;
+        ya=(1LL*ya+a[i].y)%mod;
+        sa=(1LL*sa+sqr(a[i].x)+sqr(a[i].y))%mod;
     }
-    printf("%lld/%lld\n",sum,ans2);
     return 0;
 }

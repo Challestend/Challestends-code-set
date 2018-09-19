@@ -1,78 +1,84 @@
 #include<cstdio>
-#define re register
-#define maxn 1000000
-#define mod 1000000007
+#include<iostream>
+#include<queue>
+using namespace std;
 
-namespace cltstream{
-    template <typename _tp>
-    inline void read(_tp& x){
-        int sn=1;
-        char c=getchar();
-        for(;c!=45&&(c<48||c>57);c=getchar());
-        if(c==45)
-            sn=-1,c=getchar();
-        for(x=0;c>=48&&c<=57;x=10*x+(c^48),c=getchar());
-        x*=sn;
-    }
+const int maxn=10000,maxm=100000;
 
-    template <typename _tp>
-    inline void write(_tp x){
-        if(x<0)
-            putchar(45),x=-x;
-        if(!x)
-            putchar(48);
-        else{
-            int digit[20];
-            for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-            for(;digit[0];putchar(digit[digit[0]--]^48));
+int n,m,e,time,sum;
+int a[maxn+1<<1];
+int des[maxm+1<<1],suc[maxm+1<<1],las[maxn+1<<1];
+int dfn[maxn+1],low[maxn+1],st[maxn+1],ex[maxn+1],f[maxn+1];
+int ind[maxn+1],ans[maxn+1];
+queue<int> h;
+
+void dfs(int cur){
+    dfn[cur]=low[cur]=++time;
+    st[++st[0]]=cur;
+    ex[cur]=1;
+    for(int i=las[cur];i;i=suc[i]){
+        int x=des[i];
+        if(!dfn[x]){
+            dfs(x);
+            low[cur]=min(low[cur],low[x]);
         }
+        else
+            if(ex[x])
+                low[cur]=min(low[cur],dfn[x]);
     }
-}
-
-int n;
-int f[maxn+1],g[maxn+1],las[maxn+1]={0,1},pow[maxn+1],ans[maxn+1];
-
-inline void breakDown(int x){
-    if(x==1)
-        putchar(49);
-    else{
-        for(re int i=1;g[i]*g[i]<=x;++i)
-            for(;x%g[i]==0;){
-                printf("%d",g[i]);
-                x/=g[i];
-                if(x>1)
-                    printf("*");
-            }
-        if(x>1)
-            printf("%d",x);
+    if(low[cur]==dfn[cur]){
+        sum++;
+        for(;st[st[0]+1]!=cur;){
+            int x=st[st[0]--];
+            ex[x]=0;
+            f[x]=sum;
+            a[n+sum]+=a[x];
+        }
+        ans[sum]=a[n+sum];
     }
 }
 
 int main(){
-    cltstream::read(n);
-    for(re int i=1;i<=n;++i)
-        ans[i]=1;
-    for(re int i=2;i<=n;++i){
-        if(!f[i])
-            g[++g[0]]=i,las[i]=i,pow[i]=1,ans[i]=1;
-        for(re int j=1;j<=g[0]&&i*g[j]<=n;++j){
-            f[i*g[j]]=1;
-            if(i%g[j]){
-                ans[i*g[j]]=ans[i]*(las[i]^pow[i]);
-                las[i*g[j]]=g[j];
-                pow[i*g[j]]=1;
-            }
-            else{
-                ans[i*g[j]]=ans[i];
-                las[i*g[j]]=las[i];
-                pow[i*g[j]]=pow[i]+1;
-                break;
+    scanf("%d%d",&n,&m);
+    for(int i=1;i<=n;i++)
+        scanf("%d",&a[i]);
+    for(int i=1;i<=m;i++){
+        int u,v;
+        scanf("%d%d",&u,&v);
+        des[++e]=v;
+        suc[e]=las[u];
+        las[u]=e;
+    }
+    for(int i=1;i<=n;i++)
+        if(!dfn[i])
+            dfs(i);
+    for(int i=1;i<=n;i++)
+        for(int j=las[i];j;j=suc[j]){
+            int x=des[j];
+            if(f[i]!=f[x]){
+                des[++e]=n+f[x];
+                suc[e]=las[n+f[i]];
+                las[n+f[i]]=e;
+                ind[f[x]]++;
             }
         }
+    for(int i=1;i<=sum;i++)
+        if(!ind[i])
+            h.push(i);
+    for(;!h.empty();){
+        int x=h.front();
+        ans[0]=max(ans[0],ans[x]);
+        h.pop();
+        for(int i=las[n+x];i;i=suc[i]){
+            int y=des[i]-n;
+            ind[y]--;
+            ans[y]=max(ans[y],ans[x]+a[n+y]);
+            if(!ind[y])
+                h.push(y);
+        }
     }
-    for(re int i=1;i<=n;++i)
-        ans[i]*=las[i]^pow[i],
-        ans[i]+=ans[i-1],
-        printf("sumf(%d)=%d\n",i,ans[i]);
+    printf("%d",ans[0]);
+    for(int i=1;i<=n;++i)
+        printf("\nf[%d]=%d",i,f[i]);
     return 0;
 }
