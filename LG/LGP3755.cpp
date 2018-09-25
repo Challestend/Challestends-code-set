@@ -1,8 +1,6 @@
 #include<cstdio>
 #include<algorithm>
 #define re register
-#define PINF 2147483647
-#define NINF int(-2147483648)
 #define maxn 100000
 #define maxc 20
 #define pii std::pair<int,int>
@@ -36,8 +34,8 @@ namespace cltstream{
 }
 
 int n,m,vc;
-ppi p[maxn+1];
-int x[maxn+2],y[maxn+2];
+ppi a[maxn+1];
+int x[maxn+2],y[maxn+2],p[maxn+2];
 long long sum[maxc*maxn+1],lc[maxc*maxn+1],rc[maxc*maxn+1];
 int root[maxn+1];
 
@@ -90,30 +88,28 @@ int main(){
     cltstream::read(n);
     cltstream::read(m);
     for(re int i=1;i<=n;++i){
-        cltstream::read(p[i].first.first);
-        cltstream::read(p[i].first.second);
-        cltstream::read(p[i].second);
-        x[i]=p[i].first.first;
-        y[i]=p[i].first.second;
+        cltstream::read(a[i].first.first);
+        cltstream::read(a[i].first.second);
+        cltstream::read(a[i].second);
+        x[i]=a[i].first.first;
+        y[i]=a[i].first.second;
+        p[i]=a[i].second;
     }
     std::sort(x+1,x+n+1);
     x[0]=std::unique(x+1,x+n+1)-x-1;
     std::sort(y+1,y+n+1);
     y[0]=std::unique(y+1,y+n+1)-y-1;
-    for(re int i=1;i<=n;++i){
-        p[i].first.first=std::lower_bound(x+1,x+x[0]+1,p[i].first.first)-x;
-        p[i].first.second=std::lower_bound(y+1,y+y[0]+1,p[i].first.second)-y;
-    }
-    for(re int i=1;i<=x[0];++i)
-        printf("%d ",x[i]);
-    printf("\n");
-    for(re int i=1;i<=y[0];++i)
-        printf("%d ",y[i]);
-    printf("\n");
     std::sort(p+1,p+n+1);
+    p[0]=std::unique(p+1,p+n+1)-p-1;
+    for(re int i=1;i<=n;++i){
+        a[i].first.first=std::lower_bound(x+1,x+x[0]+1,a[i].first.first)-x;
+        a[i].first.second=std::lower_bound(y+1,y+y[0]+1,a[i].first.second)-y;
+        a[i].second=std::lower_bound(p+1,p+p[0]+1,a[i].second)-p;
+    }
+    std::sort(a+1,a+n+1);
     root[0]=build(1,y[0]);
     for(re int i=1;i<=n;++i)
-        root[i]=update(p[i].first.second,p[i].second,root[i-1],1,y[0]);
+        root[i]=update(a[i].first.second,p[a[i].second],root[i-1],1,y[0]);
     for(re int i=1;i<=m;++i){
         int x1,y1,x2,y2;
         cltstream::read(x1);
@@ -121,11 +117,11 @@ int main(){
         cltstream::read(x2);
         cltstream::read(y2);
         x1=std::lower_bound(x+1,x+x[0]+1,x1)-x;
-        x1=std::lower_bound(p+1,p+n+1,mp(mp(x1,y1),NINF))-p;
         y1=std::lower_bound(y+1,y+y[0]+1,y1)-y;
+        x1=std::lower_bound(a+1,a+n+1,mp(mp(x1,y1),1))-a;
         x2=std::upper_bound(x+1,x+x[0]+1,x2)-x-1;
-        x2=std::upper_bound(p+1,p+n+1,mp(mp(x2,y2),PINF))-p-1;
         y2=std::upper_bound(y+1,y+y[0]+1,y2)-y-1;
+        x2=std::upper_bound(a+1,a+n+1,mp(mp(x2,y2),n+1))-a-1;
         if(x1<=x2&&y1<=y2)
             cltstream::write(getsum(root[x1-1],root[x2],y1,y2,1,y[0]));
         else
