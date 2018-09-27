@@ -63,27 +63,30 @@ int main(){
         cltstream::read(l);
         connect(x,y,l);
     }
-    h.push(n);
-    ex[n]=cnt[n]=1;
-    for(;!h.empty();){
-        int x=h.front();
-        ex[x]=0;
-        h.pop();
-        for(re int i=las[x];i;i=suc[i])
-            if(dis[des[i]]<dis[x]+len[i]){
-                dis[des[i]]=dis[x]+len[i];
-                cnt[des[i]]=cnt[x]+1;
-                if(cnt[des[i]]>n){
-                    putchar(45);
-                    putchar(49);
-                    return 0;
-                }
-                if(!ex[des[i]]){
-                    h.push(des[i]);
-                    ex[des[i]]=1;
-                }
+    for(re int i=n;i>=1;--i)
+        if(i==n||dis[i]==-2e9){
+            h.push(i);
+            ex[i]=cnt[i]=1;
+            for(;!h.empty();){
+                int x=h.front();
+                ex[x]=0;
+                h.pop();
+                for(re int j=las[x];j;j=suc[j])
+                    if(dis[des[j]]<dis[x]+len[j]){
+                        dis[des[j]]=dis[x]+len[j];
+                        cnt[des[j]]=cnt[x]+1;
+                        if(cnt[des[j]]>n){
+                            putchar(45);
+                            putchar(49);
+                            return 0;
+                        }
+                        if(!ex[des[j]]){
+                            h.push(des[j]);
+                        ex[des[j]]=1;
+                        }
+                    }
             }
-    }
+        }
     cltstream::write(dis[1]==-2e9?-2:abs(dis[1]));
     return 0;
 }
