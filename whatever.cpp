@@ -1,45 +1,165 @@
+#include<iostream>
+#include<cstring>
 #include<cstdio>
+#include<algorithm>
+#include<cmath>
+#include<set>
+#define maxn 100600
+#define maxnn 320
 #define re register
-#define maxn 1000000
+#define FOR(i,l,r) for(re int i=l;i<=r;++i)
+using namespace std;
 
-namespace cltstream{
-    template <typename _tp>
-    inline void read(_tp& x){
-        int sn=1;
-        char c=getchar();
-        for(;c!=45&&(c<48||c>57);c=getchar());
-        if(c==45)
-            sn=-1,c=getchar();
-        for(x=0;c>=48&&c<=57;x=(x<<3)+(x<<1)+(c^48),c=getchar());
-        x*=sn;
-    }
+int n,m,c,r,t,g,y,z,x,sq;
+int fa[maxn],rt[maxnn][maxn],a[maxn],b[maxn],pos[maxn],tag[maxnn],maxx[maxnn],minn[maxnn];
+set<int> se[maxnn];
 
-    template <typename _tp>
-    inline void write(_tp x){
-        if(x<0)
-            putchar(45),x=-x;
-        if(!x)
-            putchar(48);
-        else{
-            int digit[20];
-            for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-            for(;digit[0];putchar(digit[digit[0]--]^48));
-        }
-    }
+#ifdef ONLINE_JUDGE
+char ss[1<<17],*A=ss,*B=ss;
+inline char gc(){if(A==B){B=(A=ss)+fread(ss,1,1<<17,stdin);if(A==B)return EOF;}return*A++;}
+template<class T>inline void read(T&x){
+    static char c;static int y;
+    for(c=gc(),x=0;c<48||57<c;c=gc())
+    for(;48<=c&&c<=57;c=gc())x=((x+(x<<2))<<1)+(c^'0');
+}
+#else
+void read(re int&x){scanf("%d",&x);}
+#endif
+
+inline void out(re int a){
+    if(a>=10)out(a/10);
+    putchar(a%10+'0');
 }
 
-int a[maxn+1]={1};
+inline int find(re int x){
+    while(x!=fa[x])x=fa[x]=fa[fa[x]];
+    return x;
+}
 
-int cltpow(int x,int y,int mod){
-    if(y==1)
-        return x;
-    int res=cltpow(x,y>>1,mod);
-    res=1LL*res*res%mod;
-    if(y&1)
-        res=1LL*res*x%mod;
-    return res;
+inline void pre(re int x){
+//	maxx[x]=0;
+	minn[x]=100001;
+	FOR(i,(x-1)*sq+1,min(x*sq,n)){
+//		if(a[i]>maxx[x])
+//		  maxx[x]=a[i];
+		if(a[i]<minn[x])
+		  minn[x]=a[i];
+		if(rt[x][a[i]]!=0){
+			fa[i]=rt[x][a[i]];
+		}
+		else{
+			pos[i]=a[i],
+			rt[x][a[i]]=i,
+			fa[i]=i;
+			se[x].insert(a[i]);
+		}
+	}
+}
+
+inline void del(re int x){
+	FOR(i,(x-1)*sq+1,x*sq){
+		a[i]=pos[find(i)],
+		rt[x][a[i]]=0,
+		a[i]+=tag[x];
+	}
+	FOR(i,(x-1)*sq+1,x*sq)
+	  fa[i]=0;
+	tag[x]=0;
+	se[x].clear();
+}
+
+inline void solve(re int x,re int z){
+	if((maxn-z)*2>=maxn-minn[x]-tag[x]){
+		FOR(i,z-tag[x]+1,maxn){
+			if(rt[x][i]){
+				se[x].erase(i);
+		  		if(rt[x][i-z]!=0){
+		  			fa[rt[x][i]]=rt[x][i-z];
+				}
+				else{
+					rt[x][i-z]=rt[x][i],
+					pos[rt[x][i]]=i-z;
+					se[x].insert(i-z);
+				}
+		  		rt[x][i]=0;
+		  	}
+		}
+		tag[x]+=z;
+	}
+	else{
+		FOR(i,minn[x],z-tag[x]){
+			if(rt[x][i]){
+				se[x].erase(i);
+				if(rt[x][i+z]!=0){
+					fa[rt[x][i]]=rt[x][i+z];
+				}
+				else{
+					rt[x][i+z]=rt[x][i],
+					pos[rt[x][i]]=i+z;
+					se[x].insert(i+z);
+				}
+				rt[x][i]=0;
+			}
+		}
+		minn[x]=max(minn[x],z-tag[x]);
+	}
+}
+
+inline void doit(re int x,re int y,re int z){
+    del(b[x]);
+    FOR(i,x,min(y,b[x]*sq)){
+    	if(a[i]<z)
+		  a[i]+=z;
+	}
+	pre(b[x]);
+    if(b[x]!=b[y]){
+    	del(b[y]);
+    	FOR(i,(b[y]-1)*sq+1,y){
+      	  if(a[i]<z)
+			a[i]+=z;
+		}
+		pre(b[y]);
+	}
+    FOR(i,b[x]+1,b[y]-1){
+    	solve(i,z);
+	}
+}
+
+inline int query(int x,int y,int z){
+	int ans=-1;
+	FOR(i,x,min(y,b[x]*sq))
+	  if(pos[find(i)]+tag[b[x]]<z) ans=max(ans,pos[find(i)]+tag[b[x]]);
+	if(b[x]!=b[y])
+	  FOR(i,(b[y]-1)*sq+1,y)
+	    if(pos[find(i)]+tag[b[y]]<z) ans=max(ans,pos[find(i)]+tag[b[y]]);
+	FOR(i,b[x]+1,b[y]-1){
+		set<int>::iterator it=se[i].lower_bound(z-tag[i]);
+		if(it==se[i].begin())
+		  continue;
+		--it;
+		ans=max(ans,*it+tag[i]);
+	}
+	return ans;
 }
 
 int main(){
-    int n=100;
+//	freopen("a.in","r",stdin);
+//	freopen("a1.out","w",stdout);
+	read(n),read(m);
+	sq=sqrt(n);
+	FOR(i,1,n)
+	  read(a[i]),b[i]=(i-1)/sq+1;
+    FOR(i,1,b[n]){
+    	pre(i);
+	}
+	while(m--){
+		read(t),read(x),read(y),read(z);
+		if(t==1){
+			doit(x,y,z);
+		}
+		else{
+			out(query(x,y,z));
+			puts("");
+		}
+	}
 }
