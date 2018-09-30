@@ -2,9 +2,9 @@
 #include<algorithm>
 #include<set>
 #define re register
-#define maxn 50000
-#define maxm 50000
-#define maxblock 230
+#define maxn 100000
+#define maxm 100000
+#define maxblock 320
 #define maxval 100000
 #define id(a) (((a)-1)/size+1)
 #define max(a,b) ((a)>=(b)?(a):(b))
@@ -122,7 +122,7 @@ inline void update(int x,int y,int z){
     }
     if((x-1)%size){
         clearData(L);
-        for(re int i=x;i<=L*size&&i<=y;++i)
+        for(re int i=x;i<=L*size&&i<=n;++i)
             if(a[i]<z)
                 a[i]+=z;
         init(L);
@@ -149,7 +149,7 @@ inline int getPre(int x,int y,int z){
         return res;
     }
     if((x-1)%size){
-        for(re int i=x;i<=L*size&&i<=y;++i)
+        for(re int i=x;i<=L*size&&i<=n;++i)
             if(val[find(i)]+tag[L]<z)
                 res=max(res,val[f[i]]+tag[L]);
     }
@@ -174,10 +174,12 @@ inline int getPre(int x,int y,int z){
 }
 
 int main(){
+    freopen("LGT47063.in","r",stdin);
+    freopen("LGT47063.out","w",stdout);
     cltstream::read(n);
     cltstream::read(m);
     for(re int i=1;i<=n;++i)
-        cltstream::read(a[i]),d[i]=a[i];
+        cltstream::read(a[i]);
     for(;size*size+2*size+1<=n;++size);
     for(re int i=1;(i-1)*size<n;++i)
         init(i);
@@ -194,5 +196,7 @@ int main(){
             putchar(10);
         }
     }
+    fclose(stdin);
+    fclose(stdout);
     return 0;
 }
