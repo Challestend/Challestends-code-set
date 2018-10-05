@@ -1,10 +1,12 @@
 #include<cstdio>
+#include<cstdlib>
+#include<ctime>
 #include<algorithm>
 #include<set>
 #define re register
-#define maxn 100000
-#define maxm 100000
-#define maxblock 320
+#define maxn 50000
+#define maxm 50000
+#define maxblock 230
 #define maxval 100000
 #define id(a) (((a)-1)/size+1)
 #define max(a,b) ((a)>=(b)?(a):(b))
@@ -36,7 +38,7 @@ namespace cltstream{
     }
 }
 
-int n,m,size;
+int n,m,size,st0;
 int a[maxn+1],val[maxn+1],f[maxn+1];
 int pos[maxblock+1][maxval+1],tag[maxblock+1],maxv[maxblock+1],minv[maxblock+1];
 std::set<int> s[maxblock+1];
@@ -120,23 +122,17 @@ inline void update(int x,int y,int z){
         init(L);
         return;
     }
-    if((x-1)%size){
-        clearData(L);
-        for(re int i=x;i<=L*size&&i<=n;++i)
-            if(a[i]<z)
-                a[i]+=z;
-        init(L);
-    }
-    if(y%size){
-        clearData(R);
-        for(re int i=y;i>(R-1)*size;--i)
-            if(a[i]<z)
-                a[i]+=z;
-        init(R);
-    }
-    L+=((x-1)%size>0);
-    R-=(y%size>0);
-    for(re int i=L;i<=R;++i)
+    clearData(L);
+    for(re int i=x;i<=L*size;++i)
+        if(a[i]<z)
+            a[i]+=z;
+    init(L);
+    clearData(R);
+    for(re int i=y;i>(R-1)*size;--i)
+        if(a[i]<z)
+            a[i]+=z;
+    init(R);
+    for(re int i=L+1;i<R;++i)
         solve(i,z);
 }
 
@@ -148,19 +144,13 @@ inline int getPre(int x,int y,int z){
                 res=max(res,val[f[i]]+tag[L]);
         return res;
     }
-    if((x-1)%size){
-        for(re int i=x;i<=L*size&&i<=n;++i)
-            if(val[find(i)]+tag[L]<z)
-                res=max(res,val[f[i]]+tag[L]);
-    }
-    if(y%size){
-        for(re int i=y;i>(R-1)*size;--i)
-            if(val[find(i)]+tag[R]<z)
-                res=max(res,val[f[i]]+tag[R]);
-    }
-    L+=((x-1)%size>0);
-    R-=(y%size>0);
-    for(re int i=L;i<=R;++i)
+    for(re int i=x;i<=L*size&&i<=n;++i)
+        if(val[find(i)]+tag[L]<z)
+            res=max(res,val[f[i]]+tag[L]);
+    for(re int i=y;i>(R-1)*size;--i)
+        if(val[find(i)]+tag[R]<z)
+            res=max(res,val[f[i]]+tag[R]);
+    for(re int i=L+1;i<R;++i)
         if(z>maxv[i]+tag[i])
             res=max(res,maxv[i]+tag[i]);
         else{
@@ -174,6 +164,7 @@ inline int getPre(int x,int y,int z){
 }
 
 int main(){
+    st0=clock();
     freopen("LGT47063.in","r",stdin);
     freopen("LGT47063.out","w",stdout);
     cltstream::read(n);
@@ -183,8 +174,9 @@ int main(){
     for(;size*size+2*size+1<=n;++size);
     for(re int i=1;(i-1)*size<n;++i)
         init(i);
+    double sum=0;
     for(re int i=1;i<=m;++i){
-        int opt,x,y,z;
+        int opt,x,y,z,st=clock();
         cltstream::read(opt);
         cltstream::read(x);
         cltstream::read(y);
@@ -195,6 +187,12 @@ int main(){
             cltstream::write(getPre(x,y,z));
             putchar(10);
         }
+        int et=clock();
+        printf("The %d-th operation was done in ",i);
+        printf("%0.20lf second(s).\n",double(et-st)/CLOCKS_PER_SEC);
+        sum+=double(et-st)/CLOCKS_PER_SEC;
+        printf("Ave: %0.20lf second(s) per opt.\n",sum/i);
+        printf("%0.20lf second(s) passed.\n",double(et-st0)/CLOCKS_PER_SEC);
     }
     fclose(stdin);
     fclose(stdout);

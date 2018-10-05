@@ -39,7 +39,7 @@ int main(){
         }
     }
     for(re int i=1;i<=n;++i)
-        sigma[0]=(1LL*sigma[0]+1LL*sigma[i]*las[i]%mod)%mod;
+        sigma[0]=(1LL*sigma[i]*las[i]%mod+sigma[0])%mod;
     printf("%d",sigma[0]);
     return 0;
 }

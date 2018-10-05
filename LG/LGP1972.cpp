@@ -1,6 +1,5 @@
 #include<cstdio>
 #include<algorithm>
-#define il inline
 #define re register
 #define maxn 500000
 #define maxm 500000
@@ -40,7 +39,7 @@ struct query{
 };
 query Q[maxm+1];
 
-il bool cmp(query p,query q){
+inline bool cmp(query p,query q){
     return (id(p.l)==id(q.l))?p.r<q.r:p.l<q.l;
 }
 
@@ -49,8 +48,7 @@ int main(){
     for(re int i=1;i<=n;++a[i],++i)
         cltstream::read(a[i]);
     cltstream::read(m);
-    for(;size*size<=m;++size);
-    size=n/(size-1);
+    for(;(size+1)*(size+1)<=n;++size);
     for(re int i=1;i<=m;++i){
         Q[i].id=i;
         cltstream::read(Q[i].l);
