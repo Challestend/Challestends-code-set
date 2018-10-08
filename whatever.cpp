@@ -1,49 +1,33 @@
+#include<iostream>
 #include<cstdio>
-#define re register
+#include<cstring>
+#include<algorithm>
+#include<cmath>
+#define max(a,b) ((a)>(b) ? (a): (b))
+#define min(a,b) ((a)<(b) ? (a): (b))
+#define LL  long long
+using namespace std;
 
-namespace cltstream{
-    template <typename _tp>
-    inline void read(_tp& x){
-        int sn=1;
-        char c=getchar();
-        for(;c!=45&&(c<48||c>57);c=getchar());
-        if(c==45)
-            sn=-1,c=getchar();
-        for(x=0;c>=48&&c<=57;x=(x<<3)+(x<<1)+(c^48),c=getchar());
-        x*=sn;
-    }
+LL i,m,n,j,a[1000001],t,l,r,k;
 
-    template <typename _tp>
-    inline void write(_tp x){
-        if(x<0)
-            putchar(45),x=-x;
-        if(!x)
-            putchar(48);
-        else{
-            int digit[20];
-            for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-            for(;digit[0];putchar(digit[digit[0]--]^48));
-        }
-    }
-}
+int main()
+{
+	scanf("%lld",&t);
+	for(;t;t--)
+	{
+		int ans=0;
+		scanf("%lld%lld%lld",&l,&r,&k);
+		if(l==k && k==0) ans+=1, printf("0 ");
+		if(l<=1) ans+=1,printf("1 ");
+		LL m=k;
 
-int n,m;
-int s2[100][100];
-
-int main(){
-    cltstream::read(n);
-    cltstream::read(m);
-    for(re int i=1;i<=n;++i){
-        s2[i][1]=1;
-        for(re int j=2;j<=i&&j<=m;++j)
-            s2[i][j]=j*s2[i-1][j]+s2[i-1][j-1];
-    }
-    for(re int i=1;i<=n;++i){
-        for(re int j=1;j<=i&&j<=m;++j){
-            cltstream::write(s2[i][j]);
-            putchar(32);
-        }
-        putchar(10);
-    }
-    return 0;
+		for(;m>0;m*=(LL)k)
+		{
+			if(m>=l && m<=r && (!(m%k))) ans+=1, printf("%lld ",m);
+			if(m>=r) break;
+			if(m%k) break;
+		}
+		if(ans) printf("\n");
+		else printf("None.\n");
+	}
 }
