@@ -1,5 +1,8 @@
 #include<cstdio>
 #define re register
+#define maxt 1000000
+#define maxn 1000000
+#define mod 998244353
 
 namespace cltstream{
     // #define ONLINE_JUDGE
@@ -47,17 +50,34 @@ namespace cltstream{
     }
 }
 
+int t,n,m,p,q;
+int inv[maxn+1]={0,1};
 
 int main(){
-    int n;
-    int head=1234,tail=100000;
-    if(head+tail<0)
-        return 0;
-    for(;;){
+    for(re int i=2;i<=maxn;++i)
+        inv[i]=(-1LL*(mod/i)*inv[mod%i]%mod+mod)%mod;
+    for(re int i=maxn;i>=2;--i)
+        inv[i]=1LL*inv[i]*inv[i-1]%mod;
+    cltstream::read(t);
+    for(re int i=1;i<=t;++i){
         cltstream::read(n);
-        if(!n)
-            break;
-        cltstream::write(n,'\n');
+        cltstream::read(m);
+        if(n==1)
+            putchar(m==1?49:48);
+        else
+            if(n==2)
+                cltstream::write(m==1?3LL*inv[2]%mod:0,'\n');
+            else{
+                p=1LL*(n+1)*m%mod;
+                p=1LL*p*(n-m)%mod;
+                p=1LL*p*(n-m-1)%mod;
+                p=1LL*p*inv[2]%mod;
+                p=1LL*p*inv[n]%mod;
+                q=1LL*(n+1)*m%mod;
+                q=1LL*q*(n-m)%mod;
+                q=1LL*q*inv[n]%mod;
+                cltstream::write((1LL*p+1LL*q)%mod,'\n');
+            }
     }
-	return 0;
+    return 0;
 }

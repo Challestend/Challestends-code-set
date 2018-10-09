@@ -2,7 +2,7 @@
 #define re register
 #define maxn 100000
 #define sum(a) (1LL*(a)*((a)+1)/2)
-#define sqrsum(a) (1LL*(a)*((a)+1)*(2*(a)+1)/6)
+#define sqrsum(a) (1LL*(a)*((a)+1)*((a)*2+1)/6)
 
 namespace cltstream{
     template <typename _tp>
@@ -12,7 +12,7 @@ namespace cltstream{
         for(;c!=45&&(c<48||c>57);c=getchar());
         if(c==45)
             sn=-1,c=getchar();
-        for(x=0;c>=48&&c<=57;x=10*x+(c^48),c=getchar());
+        for(x=0;c>=48&&c<=57;x=(x<<3)+(x<<1)+(c^48),c=getchar());
         x*=sn;
     }
 
@@ -31,50 +31,42 @@ namespace cltstream{
 }
 
 int n,m;
-long long A[(maxn<<2)+1],B[(maxn<<2)+1],C[(maxn<<2)+1],add[(maxn<<2)+1];
+int A[(maxn<<2)+1],B[(maxn<<2)+1],add[(maxn<<2)+1];
 
 inline void pushDown(int cur,int l,int r){
     int mid=(l+r)>>1;
-    A[cur<<1]+=1LL*(mid-l+1)*add[cur];
-    B[cur<<1]+=(sum(mid)-sum(l-1))*add[cur];
-    C[cur<<1]+=(sqrsum(mid)-sqrsum(l-1))*add[cur];
-    A[cur<<1|1]+=1LL*(r-mid)*add[cur];
-    B[cur<<1|1]+=(sum(r)-sum(mid))*add[cur];
-    C[cur<<1|1]+=(sqrsum(r)-sqrsum(mid))*add[cur];
+    A[cur<<1]+=(sum(mid)-sum(l-1))*add[cur];
+    B[cur<<1]+=(sqrsum(mid)-sqrsum(l-1))*add[cur];
+    A[cur<<1|1]+=(sum(r)-sum(mid))*add[cur];
+    B[cur<<1|1]+=(sqrsum(r)-sqrsum(mid))*add[cur];
     add[cur]=0;
-}
-
-inline void pushUp(int cur){
-    A[cur]=A[cur<<1]+A[cur<<1|1];
-    B[cur]=B[cur<<1]+B[cur<<1|1];
-    C[cur]=C[cur<<1]+C[cur<<1|1];
 }
 
 void update(int L,int R,int x,int cur,int l,int r){
     if(l>=L&&r<=R){
-        A[cur]+=1LL*(r-l+1)*x;
-        B[cur]+=(sum(r)-sum(l-1))*x;
-        C[cur]+=(sqrsum(r)-sqrsum(l-1))*x;
+        A[cur]+=(sum(r)-sum(l-1))*x;
+        B[cur]+=(sqrsum(r)-sqrsum(l-1))*x;
         add[cur]+=x;
     }
     else{
-        pushDown(cur,l,r);
         int mid=(l+r)>>1;
+        pushDown(cur,l,r);
         if(L<=mid)
             update(L,R,x,cur<<1,l,mid);
         if(R>mid)
             update(L,R,x,cur<<1|1,mid+1,r);
-        pushUp(cur);
+        A[cur]=A[cur<<1]+A[cur<<1|1];
+        B[cur]=B[cur<<1]+B[cur<<1|1];
     }
 }
 
 long long getsum(int L,int R,int cur,int l,int r){
     if(l>=L&&r<=R)
-        return 1LL*(1-L)*(R+1)*A[cur]+1LL*(L+R)*B[cur]-C[cur];
+        return 1LL*(R+1)*A[cur]-B[cur];
     else{
-        pushDown(cur,l,r);
         int mid=(l+r)>>1;
         long long res=0;
+        pushDown(cur,l,r);
         if(L<=mid)
             res+=getsum(L,R,cur<<1,l,mid);
         if(R>mid)
@@ -83,24 +75,31 @@ long long getsum(int L,int R,int cur,int l,int r){
     }
 }
 
-long long gcd(long long a,long long b){
-    return b?gcd(b,a%b):a;
+long long gcd(long long x,long long y){
+    return y?gcd(y,x%y):x;
 }
 
 int main(){
-    cltstream::read(n),cltstream::read(m);
-    for(int i=1;i<=m;++i){
+    cltstream::read(n);
+    cltstream::read(m);
+    --n;
+    for(re int i=1;i<=m;++i){
         char opt=getchar();
         for(;opt!='C'&&opt!='Q';opt=getchar());
         int x,y,z;
+        cltstream::read(x);
+        cltstream::read(y);
+        --y;
         if(opt=='C'){
-            cltstream::read(x),cltstream::read(y),cltstream::read(z);
-            update(x,y-1,z,1,1,n);
+            cltstream::read(z);
+            update(x,y,z,1,1,n);
         }
         else{
-            cltstream::read(x),cltstream::read(y);
-            long long a=getsum(x,y-1,1,1,n),b=1LL*(y-x)*(y-x+1)/2,g=gcd(a,b);
-            cltstream::write(a/g),putchar('/'),cltstream::write(b/g),putchar(10);
+            long long ans1=getsum(x,y,1,1,n),ans2=1LL*(y-x+1)*(y-x+2)>>1,g=gcd(ans1,ans2);
+            cltstream::write(ans1);
+            putchar('/');
+            cltstream::write(ans2);
+            putchar(10);
         }
     }
     return 0;
