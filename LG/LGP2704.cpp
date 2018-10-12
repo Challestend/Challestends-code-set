@@ -1,5 +1,16 @@
+#include<cstdio>
+#include<iostream>
+#include<string>
+#define re register
+#define maxn 100
+#define maxm 10
+#define maxsize 1024
+
 namespace cltstream{
-    #ifdef ONLINE_JUDGE
+    #define LOCAL
+    #ifdef LOCAL
+        #define gc getchar
+    #else
         #define size 1048576
         char str[size+1],*head=str,*tail=str;
         inline char gc(){
@@ -11,8 +22,6 @@ namespace cltstream{
             return *head++;
         }
         #undef size
-    #else
-        #define gc getchar
     #endif
 
     template <typename _tp>
@@ -38,5 +47,24 @@ namespace cltstream{
             for(;digit[0];putchar(digit[digit[0]--]^48));
         }
         putchar(text);
+    }
+}
+
+int n,m,size;
+std::string s;
+int a[maxn+1],valid[maxsize+1]={1},cnt[maxsize+1],f[maxn+1][maxsize+1];
+
+int main(){
+    cltstream::read(n);
+    cltstream::read(m);
+    size=1<<m;
+    for(re int i=1;i<=n;++i){
+        std::cin>>s;
+        for(re int j=1;j<=m;++j)
+            a[i]=(a[i]<<1)|(s[j-1]=='H');
+    }
+    for(re int i=1;i<size;++i){
+        valid[i]=(i&1)?valid[i>>3]&((~i)>>2)&((~i)>>1)):valid[i>>1];
+        cnt[i]=cnt[i>>1]+(i&1);
     }
 }

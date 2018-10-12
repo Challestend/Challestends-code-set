@@ -1,5 +1,15 @@
+#include<cstdio>
+#include<algorithm>
+#include<set>
+#define re register
+#define maxn 100000
+#define min(a,b) ((a)<=(b)?(a):(b))
+
 namespace cltstream{
-    #ifdef ONLINE_JUDGE
+    #define LOCAL
+    #ifdef LOCAL
+        #define gc getchar
+    #else
         #define size 1048576
         char str[size+1],*head=str,*tail=str;
         inline char gc(){
@@ -11,8 +21,6 @@ namespace cltstream{
             return *head++;
         }
         #undef size
-    #else
-        #define gc getchar
     #endif
 
     template <typename _tp>
@@ -39,4 +47,37 @@ namespace cltstream{
         }
         putchar(text);
     }
+}
+
+int n,m,x,y,cnt,ans1,ans2;
+std::pair<int,int> a[maxn+1];
+std::set<int> s;
+
+int main(){
+    cltstream::read(n);
+    cltstream::read(m);
+    cltstream::read(x);
+    for(re int i=1;i<n;++i){
+        cltstream::read(y);
+        a[i].first=y-x;
+        a[i].second=i;
+        x=y;
+    }
+    std::sort(a+1,a+n);
+    for(re int i=1;i<n&&cnt<m;++i)
+        if(!s.count(a[i].second-1)&&!s.count(a[i].second+1)){
+            ++cnt;
+            ans1+=a[i].first;
+            s.insert(a[i].second);
+        }
+    s.clear();
+    cnt=0;
+    for(re int i=2;i<n&&cnt<m;++i)
+        if(!s.count(a[i].second-1)&&!s.count(a[i].second+1)){
+            ++cnt;
+            ans2+=a[i].first;
+            s.insert(a[i].second);
+        }
+    cltstream::write(min(ans1,ans2),'\n');
+    return 0;
 }

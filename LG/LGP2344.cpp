@@ -1,5 +1,15 @@
+#include<cstdio>
+#include<algorithm>
+#define re register
+#define maxn 100000
+#define mod 1000000009
+#define lowbit(a) ((a)&(-(a)))
+
 namespace cltstream{
-    #ifdef ONLINE_JUDGE
+    #define LOCAL
+    #ifdef LOCAL
+        #define gc getchar
+    #else
         #define size 1048576
         char str[size+1],*head=str,*tail=str;
         inline char gc(){
@@ -11,8 +21,6 @@ namespace cltstream{
             return *head++;
         }
         #undef size
-    #else
-        #define gc getchar
     #endif
 
     template <typename _tp>
@@ -39,4 +47,38 @@ namespace cltstream{
         }
         putchar(text);
     }
+}
+
+int n;
+long long a[maxn+1],sum[maxn+1];
+int fwt[maxn+1],f[maxn+1];
+
+inline void update(int L,int x){
+    for(re int i=L;i<=sum[0];i+=lowbit(i))
+        fwt[i]=(fwt[i]+x)%mod;
+}
+
+inline int getsum(int L){
+    int res=0;
+    for(re int i=L;i>=1;i-=lowbit(i))
+        res=(res+fwt[i])%mod;
+    return res;
+}
+
+int main(){
+    cltstream::read(n);
+    for(re int i=1;i<=n;++i){
+        cltstream::read(a[i]);
+        a[i]+=a[i-1];
+        sum[i]=a[i];
+    }
+    std::sort(sum+1,sum+n+1);
+    sum[0]=std::unique(sum+1,sum+n+1)-sum-1;
+    for(re int i=1;i<=n;++i){
+        a[i]=std::lower_bound(sum+1,sum+sum[0]+1,a[i])-sum;
+        f[i]=(getsum(a[i])+(sum[a[i]]>=0))%mod;
+        update(a[i],f[i]);
+    }
+    cltstream::write(f[n],'\n');
+    return 0;
 }

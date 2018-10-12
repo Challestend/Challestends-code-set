@@ -5,24 +5,20 @@
 #define mod 998244353
 
 namespace cltstream{
-    // #define ONLINE_JUDGE
-    #ifdef ONLINE_JUDGE
-        #define size 1048576
+    #define gc getchar
+    #define size 1048576
 
-        char str[size+1],*head=str,*tail=str;
-        inline char gc(){
-            if(head==tail){
-                tail=(head=str)+fread(str,1,size,stdin);
-                if(head==tail)
-                    return EOF;
-            }
-            return *head++;
-        }
+    // char str[size+1],*head=str,*tail=str;
+    // inline char gc(){
+    //     if(head==tail){
+    //         tail=(head=str)+fread(str,1,size,stdin);
+    //         if(head==tail)
+    //             return EOF;
+    //     }
+    //     return *head++;
+    // }
 
-        #undef size
-    #else
-        #define gc getchar
-    #endif
+    #undef size
 
     template <typename _tp>
     inline void read(_tp& x){
@@ -50,7 +46,7 @@ namespace cltstream{
     }
 }
 
-int t,n,m,p,q;
+int t,n,m,ans;
 int inv[maxn+1]={0,1};
 
 int main(){
@@ -63,20 +59,17 @@ int main(){
         cltstream::read(n);
         cltstream::read(m);
         if(n==1)
-            putchar(m==1?49:48);
+            cltstream::write(m==1?1:0,'\n');
         else
             if(n==2)
                 cltstream::write(m==1?3LL*inv[2]%mod:0,'\n');
             else{
-                p=1LL*(n+1)*m%mod;
-                p=1LL*p*(n-m)%mod;
-                p=1LL*p*(n-m-1)%mod;
-                p=1LL*p*inv[2]%mod;
-                p=1LL*p*inv[n]%mod;
-                q=1LL*(n+1)*m%mod;
-                q=1LL*q*(n-m)%mod;
-                q=1LL*q*inv[n]%mod;
-                cltstream::write((1LL*p+1LL*q)%mod,'\n');
+                ans=1LL*(n+1)*m%mod;
+                ans=1LL*ans*(n-m)%mod;
+                ans=1LL*ans*(n-m+1)%mod;
+                ans=1LL*ans*inv[2]%mod;
+                ans=1LL*ans*inv[n]%mod;
+                cltstream::write(ans,'\n');
             }
     }
     return 0;

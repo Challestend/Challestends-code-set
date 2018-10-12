@@ -1,5 +1,14 @@
+#include<cstdio>
+#define re register
+#define maxn 100000
+#define maxlog 31
+#define max(a,b) ((a)>=(b)?(a):(b))
+
 namespace cltstream{
-    #ifdef ONLINE_JUDGE
+    #define LOCAL
+    #ifdef LOCAL
+        #define gc getchar
+    #else
         #define size 1048576
         char str[size+1],*head=str,*tail=str;
         inline char gc(){
@@ -11,8 +20,6 @@ namespace cltstream{
             return *head++;
         }
         #undef size
-    #else
-        #define gc getchar
     #endif
 
     template <typename _tp>
@@ -39,4 +46,25 @@ namespace cltstream{
         }
         putchar(text);
     }
+}
+
+int n;
+int a[maxn+1],f[maxn+1],g[maxlog+1];
+
+int main(){
+    cltstream::read(n);
+    for(re int i=1;i<=n;++i)
+        cltstream::read(a[i]);
+    for(re int i=1;i<=n;++i){
+        for(re int j=0;a[i]>>j;++j)
+            if((a[i]>>j)&1)
+                f[i]=max(f[i],f[g[j]]+1);
+        for(re int j=0;a[i]>>j;++j)
+            if((a[i]>>j)&1)
+                g[j]=f[i]>=f[g[j]]?i:g[j];
+    }
+    for(re int i=1;i<=n;++i)
+        f[0]=max(f[0],f[i]);
+    cltstream::write(f[0],'\n');
+    return 0;
 }

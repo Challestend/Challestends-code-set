@@ -1,7 +1,10 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
+#include<iostream>
+#include<string>
 #define re register
+#define maxn 200
+#define maxm 200
+#define min(a,b) ((a)<=(b)?(a):(b))
 
 namespace cltstream{
     #ifdef ONLINE_JUDGE
@@ -46,17 +49,35 @@ namespace cltstream{
     }
 }
 
+int n,m;
+std::string s1,s2;
+int cost[5],f[maxn+1][maxm+1];
+
 int main(){
-    srand(time(0));
-    freopen("whatever.out","w",stdout);
-    for(re int i=1;i<=200;++i)
-        putchar(rand()%26+'a');
-    putchar(10);
-    for(re int i=1;i<=200;++i)
-        putchar(rand()%26+'a');
-    putchar(10);
-    for(re int i=1;i<=5;++i)
-        printf("%d ",rand()%100+1);
-    putchar(10);
-	return 0;
+    std::cin>>s1>>s2;
+    n=s1.length();
+    m=s2.length();
+    for(re int i=0;i<5;++i)
+        cltstream::read(cost[i]);
+    for(re int i=0;i<=n;++i)
+        f[i][0]=i*cost[0];
+    for(re int i=0;i<=m;++i)
+        f[0][i]=i*cost[3];
+    for(re int i=1;i<=n;++i)
+        for(re int j=1;j<=m;++j)
+            f[i][j]=2e9;
+    for(re int i=1;i<=n;++i)
+        for(re int j=1;j<=m;++j){
+            f[i][j]=min(f[i][j],f[i-1][j]+cost[0]);
+            f[i][j]=min(f[i][j],f[i-1][j-1]+cost[1]);
+            if(s1[i-1]==s2[j-1])
+                f[i][j]=min(f[i][j],f[i-1][j-1]+cost[2]);
+            f[i][j]=min(f[i][j],f[i][j-1]+cost[3]);
+            if(i>=2&&j>=2&&s1[i-1]==s2[j-2]&&s1[i-2]==s2[j-1])
+                f[i][j]=min(f[i][j],f[i-2][j-2]+cost[4]);
+        }
+    for(re int i=0;i<n;++i)
+        f[n][m]=min(f[n][m],f[i][m]+(n-i)*cost[0]-1);
+    cltstream::write(f[n][m],'\n');
+    return 0;
 }

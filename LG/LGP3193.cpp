@@ -1,3 +1,7 @@
+#include<cstdio>
+#define re register
+#define maxm 20
+
 namespace cltstream{
     #ifdef ONLINE_JUDGE
         #define size 1048576
@@ -39,4 +43,55 @@ namespace cltstream{
         }
         putchar(text);
     }
+}
+
+int n,m,mod,ans;
+struct matrix{
+    int a[maxm][maxm];
+
+    inline void init(){
+        for(re int i=0;i<m;++i)
+            for(re int j=0;j<m;++j)
+                a[i][j]=0;
+    }
+
+    matrix(){
+        init();
+    }
+};
+matrix A,B;
+
+inline matrix operator*(matrix& x,matrix& y){
+    matrix z;
+    for(re int i=0;i<m;++i)
+        for(re int j=0;j<m;++j)
+            for(re int k=0;k<m;++k)
+                z.a[i][j]=(z.a[i][j]+x.a[i][k]*y.a[k][j])%mod;
+    return z;
+}
+
+void matpow(int x){
+    if(x){
+        matpow(x>>1);
+        B=B*B;
+        if(x&1)
+            B=B*A;
+    }
+}
+
+int main(){
+    cltstream::read(n);
+    cltstream::read(m);
+    cltstream::read(mod);
+    for(re int i=0;i<m-1;++i)
+        A.a[i][i+1]=1;
+    for(re int i=0;i<m;++i){
+        A.a[m-1][i]=9;
+        B.a[i][i]=1;
+    }
+    matpow(n-1);
+    for(re int i=0;i<m;++i)
+        ans=(ans+B.a[i][m-2]+B.a[i][m-1]*9)%mod;
+    cltstream::write(ans,'\n');
+    return 0;
 }

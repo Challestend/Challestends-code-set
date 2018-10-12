@@ -1,11 +1,18 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
+#define maxn 12
+#define maxm 12
+#define maxsize 4096
+#define mod 100000000
 
 namespace cltstream{
-    #ifdef ONLINE_JUDGE
+    #define LOCAL
+
+    #ifdef LOCAL
+        #define gc getchar
+    #else
         #define size 1048576
+
         char str[size+1],*head=str,*tail=str;
         inline char gc(){
             if(head==tail){
@@ -15,9 +22,8 @@ namespace cltstream{
             }
             return *head++;
         }
+
         #undef size
-    #else
-        #define gc getchar
     #endif
 
     template <typename _tp>
@@ -46,17 +52,32 @@ namespace cltstream{
     }
 }
 
+int n,m,size;
+int a[maxn+1],b[maxsize+1]={1},f[maxn+1][maxsize+1];
+
 int main(){
-    srand(time(0));
-    freopen("whatever.out","w",stdout);
-    for(re int i=1;i<=200;++i)
-        putchar(rand()%26+'a');
-    putchar(10);
-    for(re int i=1;i<=200;++i)
-        putchar(rand()%26+'a');
-    putchar(10);
-    for(re int i=1;i<=5;++i)
-        printf("%d ",rand()%100+1);
-    putchar(10);
-	return 0;
+    cltstream::read(n);
+    cltstream::read(m);
+    size=1<<m;
+    for(re int i=1;i<=n;++i)
+        for(re int j=1;j<=m;++j){
+            int x;
+            cltstream::read(x);
+            a[i]=(a[i]<<1)|x;
+        }
+    for(re int i=1;i<size;++i)
+        b[i]=b[i>>1]&(~(i&(i>>1)&1));
+    for(re int i=0;i<size;++i)
+        if((i|a[1])==a[1]&&b[i])
+            f[1][i]=1;
+    for(re int i=2;i<=n;++i)
+        for(re int j=0;j<size;++j)
+            if((j|a[i])==a[i]&&b[j])
+                for(re int k=0;k<size;++k)
+                    if((k|a[i-1])==a[i-1]&&(k&j)==0)
+                        (f[i][j]+=f[i-1][k])%=mod;
+    for(re int i=1;i<size;++i)
+        (f[n][0]+=f[n][i])%=mod;
+    cltstream::write(f[n][0],'\n');
+    return 0;
 }
