@@ -1,62 +1,22 @@
-#include<cstdio>
-#include<cstdlib>
-#include<ctime>
-#define re register
+#include<bits/stdc++.h>
+using namespace std;
 
-namespace cltstream{
-    #ifdef ONLINE_JUDGE
-        #define size 1048576
-        char str[size+1],*head=str,*tail=str;
-        inline char gc(){
-            if(head==tail){
-                tail=(head=str)+fread(str,1,size,stdin);
-                if(head==tail)
-                    return EOF;
-            }
-            return *head++;
-        }
-        #undef size
-    #else
-        #define gc getchar
-    #endif
+queue<int>q;
+char ans[17]=" DDDBBAAAABABBBB";
 
-    template <typename _tp>
-    inline void read(_tp& x){
-        int sn=1;
-        char c=gc();
-        for(;c!=45&&(c<48||c>57)&&c!=EOF;c=gc());
-        if(c==45&&c!=EOF)
-            sn=-1,c=gc();
-        for(x=0;c>=48&&c<=57&&c!=EOF;x=(x<<3)+(x<<1)+(c^48),c=gc());
-        x*=sn;
-    }
-
-    template <typename _tp>
-    inline void write(_tp x,char text=' '){
-        if(x<0)
-            putchar(45),x=-x;
-        if(!x)
-            putchar(48);
-        else{
-            int digit[20];
-            for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-            for(;digit[0];putchar(digit[digit[0]--]^48));
-        }
-        putchar(text);
-    }
-}
-
-int main(){
-    srand(time(0));
-    freopen("whatever.out","w",stdout);
-    for(re int i=1;i<=200;++i)
-        putchar(rand()%26+'a');
-    putchar(10);
-    for(re int i=1;i<=200;++i)
-        putchar(rand()%26+'a');
-    putchar(10);
-    for(re int i=1;i<=5;++i)
-        printf("%d ",rand()%100+1);
-    putchar(10);
-	return 0;
+int main()
+{
+	srand(time(NULL));
+	int score=0;
+	for (int i=1; i<=15; ++i)
+	{
+		char c=rand()%4+'A';
+		if (c==ans[i]) score+=2,q.push(i);
+		printf("%c",c);
+		if (i%5==0) printf(" ");
+	}
+	puts("");
+	printf("Right:");
+	while (!q.empty()) printf("%d ",q.front()),q.pop();
+	printf("\nScore:%d\n",score);
 }
