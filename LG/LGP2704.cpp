@@ -5,25 +5,10 @@
 #define maxn 100
 #define maxm 10
 #define maxsize 1024
+#define max(a,b) ((a)>=(b)?(a):(b))
 
 namespace cltstream{
-    #define LOCAL
-    #ifdef LOCAL
-        #define gc getchar
-    #else
-        #define size 1048576
-        char str[size+1],*head=str,*tail=str;
-        inline char gc(){
-            if(head==tail){
-                tail=(head=str)+fread(str,1,size,stdin);
-                if(head==tail)
-                    return EOF;
-            }
-            return *head++;
-        }
-        #undef size
-    #endif
-
+    #define gc getchar
     template <typename _tp>
     inline void read(_tp& x){
         int sn=1;
@@ -52,7 +37,7 @@ namespace cltstream{
 
 int n,m,size;
 std::string s;
-int a[maxn+1],valid[maxsize+1]={1},cnt[maxsize+1],f[maxn+1][maxsize+1];
+int a[maxn+1],valid[maxsize+1]={1},cnt[maxsize+1],f[maxn+1][maxsize+1][maxsize+1];
 
 int main(){
     cltstream::read(n);
@@ -64,7 +49,25 @@ int main(){
             a[i]=(a[i]<<1)|(s[j-1]=='H');
     }
     for(re int i=1;i<size;++i){
-        valid[i]=(i&1)?valid[i>>3]&((~i)>>2)&((~i)>>1)):valid[i>>1];
+        valid[i]=(i&1)?valid[i>>3]&((~i)>>2)&((~i)>>1):valid[i>>1];
         cnt[i]=cnt[i>>1]+(i&1);
     }
+    for(re int i=0;i<size;++i)
+        if((i&a[1])==a[1]&&valid[i^a[1]])
+            for(re int j=0;j<size;++j)
+                if((j&a[2])==a[2]&&valid[j^a[2]]&&((i^a[1])&(j^a[2]))==0)
+                    f[2][i][j]=cnt[i^a[1]]+cnt[j^a[2]];
+    for(re int i=3;i<=n;++i)
+        for(re int j=0;j<size;++j)
+            if((j&a[i-2])==a[i-2]&&valid[j^a[i-2]])
+                for(re int k=0;k<size;++k)
+                    if((k&a[i-1])==a[i-1]&&valid[k^a[i-1]]&&((j^a[i-2])&(k^a[i-1]))==0)
+                        for(re int l=0;l<size;++l)
+                            if((l&a[i])==a[i]&&valid[l^a[i]]&&((l^a[i])&(j^a[i-2]))==0&&((l^a[i])&(k^a[i-1]))==0)
+                                f[i][k][l]=max(f[i][k][l],f[i-1][j][k]+cnt[l^a[i]]);
+    for(re int i=0;i<size;++i)
+        for(re int j=0;j<size;++j)
+            f[n][0][0]=max(f[n][0][0],f[n][i][j]);
+    cltstream::write(f[n][0][0],'\n');
+    return 0;
 }

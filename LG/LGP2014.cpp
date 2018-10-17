@@ -1,7 +1,9 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
+#define maxn 300
+#define maxm 300
+#define max(a,b) ((a)>=(b)?(a):(b))
+#define min(a,b) ((a)<=(b)?(a):(b))
 
 namespace cltstream{
     #ifdef ONLINE_JUDGE
@@ -46,27 +48,35 @@ namespace cltstream{
     }
 }
 
-int n=1000,m=1000,maxval=1000;
+int n,m;
+int las[maxn+1],suc[maxn+1],val[maxn+1],size[maxn+1],f[maxn+1][maxm+1],g[maxm+2];
+
+void dfs(int cur){
+    f[cur][size[cur]=1]=val[cur];
+    for(re int i=las[cur];i;i=suc[i]){
+        dfs(i);
+        for(re int j=1;j<=size[cur];++j)
+            for(re int k=1;k<=size[i]&&j+k<=m+1;++k)
+                g[j+k]=max(g[j+k],f[cur][j]+f[i][k]);
+        size[cur]=min(size[cur]+size[i],m+1);
+        for(re int j=2;j<=size[cur];++j){
+            f[cur][j]=max(f[cur][j],g[j]);
+            g[j]=0;
+        }
+    }
+}
 
 int main(){
-    freopen("whatever.out","w",stdout);
-    srand(998244353);
-    cltstream::write(n);
-    cltstream::write(m,'\n');
+    cltstream::read(n);
+    cltstream::read(m);
     for(re int i=1;i<=n;++i){
-        cltstream::write(1LL*rand()*rand()%(2*maxval+1)-maxval,'\n');
-        srand(clock()*rand());
+        int x;
+        cltstream::read(x);
+        suc[i]=las[x];
+        las[x]=i;
+        cltstream::read(val[i]);
     }
-    putchar(10);
-    for(re int i=1;i<=m;++i){
-        int opt=(1LL*rand()*rand()&1)+1;
-        cltstream::write(opt);
-        cltstream::write(1LL*rand()*rand()%n+1);
-        if(opt==1)
-            cltstream::write(1LL*rand()*rand()%n+1,'\n');
-        else
-            cltstream::write(1LL*rand()*rand()%(2*maxval+1)-maxval,'\n');
-        srand(clock()*rand());
-    }
+    dfs(0);
+    cltstream::write(f[0][m+1],'\n');
     return 0;
 }

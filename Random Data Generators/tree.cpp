@@ -46,26 +46,13 @@ namespace cltstream{
     }
 }
 
-int n=1000,m=1000,maxval=1000;
+int n=20;
 
 int main(){
-    freopen("whatever.out","w",stdout);
-    srand(998244353);
-    cltstream::write(n);
-    cltstream::write(m,'\n');
-    for(re int i=1;i<=n;++i){
-        cltstream::write(1LL*rand()*rand()%(2*maxval+1)-maxval,'\n');
-        srand(clock()*rand());
-    }
-    putchar(10);
-    for(re int i=1;i<=m;++i){
-        int opt=(1LL*rand()*rand()&1)+1;
-        cltstream::write(opt);
-        cltstream::write(1LL*rand()*rand()%n+1);
-        if(opt==1)
-            cltstream::write(1LL*rand()*rand()%n+1,'\n');
-        else
-            cltstream::write(1LL*rand()*rand()%(2*maxval+1)-maxval,'\n');
+    srand(time(0));
+    for(re int i=2;i<=n;++i){
+        cltstream::write(rand()%(i-1)+1);
+        cltstream::write(i,'\n');
         srand(clock()*rand());
     }
     return 0;

@@ -50,7 +50,11 @@ struct sta{
         rc=_rc;
     }
 };
-std::queue<sta> h;
+std::priority_queue<sta> h;
+
+inline bool operator<(sta p,sta q){
+    return p.lc<q.lc||(p.lc==q.lc&&p.rc<q.rc);
+}
 
 int main(){
     cltstream::read(n);
@@ -67,7 +71,7 @@ int main(){
     h.push(sta(r,c,0,0));
     a[r][c]=0;
     for(;!h.empty();){
-        int x=h.front().x,y=h.front().y,lc=h.front().lc,rc=h.front().rc;
+        int x=h.top().x,y=h.top().y,lc=h.top().lc,rc=h.top().rc;
         h.pop();
         for(re int i=0;i<4;++i){
             if(lc==lt&&i==1)
