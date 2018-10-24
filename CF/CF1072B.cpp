@@ -1,7 +1,6 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
+#define maxn 100000
 
 namespace cltstream{
     #ifdef ONLINE_JUDGE
@@ -38,7 +37,7 @@ namespace cltstream{
         if(!x)
             putchar(48);
         else{
-            int digit[22];
+            int digit[20];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];putchar(digit[digit[0]--]^48));
         }
@@ -46,15 +45,42 @@ namespace cltstream{
     }
 }
 
-int gcd(int a,int b){
-    for(;b^=(a^=(b^=(a%=b))););
-    return a;
-}
+int n;
+int a[maxn+1],b[maxn+1],ans[maxn+1];
 
 int main(){
-    int a,b;
-    cltstream::read(a);
-    cltstream::read(b);
-    cltstream::write(gcd(a,b),'\n');
+    cltstream::read(n);
+    for(re int i=1;i<n;++i)
+        cltstream::read(a[i]);
+    for(re int i=1;i<n;++i){
+        cltstream::read(b[i]);
+        if(b[i]&1){
+            ans[i]|=1;
+            ans[i+1]|=1;
+        }
+        if(b[i]&2){
+            ans[i]|=2;
+            ans[i+1]|=2;
+        }
+    }
+    for(re int i=1;i<n;++i){
+        if((ans[i]&ans[i+1]&a[i])==a[i]&&((ans[i]&ans[i+1])|a[i])>a[i]){
+            puts("NO");
+            return 0;
+        }
+        if((ans[i]&ans[i+1])!=a[i]){
+            if(i==1||(ans[i-1]|(ans[i]|(a[i]^ans[i+1])))==b[i-1])
+                ans[i]|=a[i]^ans[i+1];
+            else
+                ans[i+1]|=a[i]^ans[i];
+        }
+    }
+    if((ans[n-1]|ans[n])==a[n-1]){
+        puts("YES");
+        for(re int i=1;i<=n;++i)
+            cltstream::write(ans[i]);
+    }
+    else
+        puts("NO");
     return 0;
 }

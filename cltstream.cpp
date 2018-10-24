@@ -33,7 +33,7 @@ namespace cltstream{
         if(!x)
             putchar(48);
         else{
-            int digit[20];
+            int digit[22];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];putchar(digit[digit[0]--]^48));
         }

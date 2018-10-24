@@ -1,7 +1,9 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
+#include<algorithm>
 #define re register
+#define maxn 50000
+#define maxm 500
+#define max(a,b) ((a)>=(b)?(a):(b))
 
 namespace cltstream{
     #ifdef ONLINE_JUDGE
@@ -38,7 +40,7 @@ namespace cltstream{
         if(!x)
             putchar(48);
         else{
-            int digit[22];
+            int digit[20];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];putchar(digit[digit[0]--]^48));
         }
@@ -46,15 +48,37 @@ namespace cltstream{
     }
 }
 
-int gcd(int a,int b){
-    for(;b^=(a^=(b^=(a%=b))););
-    return a;
-}
+int n,m;
+int tp[maxn+1],val[maxn+1],col[maxn+1],x[(maxn<<1)+1];
+long long sum[(maxn<<1)+1],maxv,f[maxn+1][maxm+1];
 
 int main(){
-    int a,b;
-    cltstream::read(a);
-    cltstream::read(b);
-    cltstream::write(gcd(a,b),'\n');
+    cltstream::read(n);
+    cltstream::read(m);
+    for(re int i=1;i<=n;++i){
+        cltstream::read(tp[i]);
+        cltstream::read(val[i]);
+        x[++x[0]]=tp[i];
+    }
+    for(re int i=1;i<=n;++i){
+        cltstream::read(col[i]);
+        x[++x[0]]=col[i];
+    }
+    std::sort(x+1,x+x[0]+1);
+    x[0]=std::unique(x+1,x+x[0]+1)-x-1;
+    for(re int i=1;i<=n;++i){
+        tp[i]=std::lower_bound(x+1,x+x[0]+1,tp[i])-x;
+        col[i]=std::lower_bound(x+1,x+x[0]+1,col[i])-x;
+    }
+    sum[tp[1]]=maxv=val[1];
+    f[1][0]=val[1];
+    for(re int i=2;i<=n;++i){
+        sum[tp[i]]+=val[i];
+        maxv=max(maxv,val[i]);
+        f[i][0]=f[i-1][0]+max(sum[col[i]],maxv);
+        for(re int j=1;j<=(i>>1)&&j<=m;++j)
+            f[i][j]=max(f[i-1][j]+max(sum[col[i]],maxv),f[i-2][j-1]+2*max(sum[col[i]],maxv));
+    }
+    cltstream::write(f[n][m],'\n');
     return 0;
 }

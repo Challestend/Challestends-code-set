@@ -1,6 +1,4 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
 
 namespace cltstream{
@@ -38,7 +36,7 @@ namespace cltstream{
         if(!x)
             putchar(48);
         else{
-            int digit[22];
+            int digit[20];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];putchar(digit[digit[0]--]^48));
         }
@@ -46,15 +44,14 @@ namespace cltstream{
     }
 }
 
-int gcd(int a,int b){
-    for(;b^=(a^=(b^=(a%=b))););
-    return a;
-}
+int n,m,k,ans;
 
 int main(){
-    int a,b;
-    cltstream::read(a);
-    cltstream::read(b);
-    cltstream::write(gcd(a,b),'\n');
+    cltstream::read(n);
+    cltstream::read(m);
+    cltstream::read(k);
+    for(re int i=1;i<=k;++i)
+        ans+=2*n+2*m-16*(i-1)-4;
+    cltstream::write(ans,'\n');
     return 0;
 }

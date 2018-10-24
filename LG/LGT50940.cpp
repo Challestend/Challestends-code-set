@@ -1,7 +1,6 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
+#define mod 1000000007
 
 namespace cltstream{
     #ifdef ONLINE_JUDGE
@@ -38,7 +37,7 @@ namespace cltstream{
         if(!x)
             putchar(48);
         else{
-            int digit[22];
+            int digit[20];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];putchar(digit[digit[0]--]^48));
         }
@@ -46,15 +45,28 @@ namespace cltstream{
     }
 }
 
-int gcd(int a,int b){
-    for(;b^=(a^=(b^=(a%=b))););
-    return a;
+int n,a,k,ans;
+
+int cltpow(int x,int y){
+    if(y==0)
+        return 1;
+    if(y==1)
+        return x;
+    else{
+        int res=cltpow(x,y>>1);
+        res=1LL*res*res%mod;
+        if(y&1)
+            res=1LL*res*x%mod;
+        return res;
+    }
 }
 
 int main(){
-    int a,b;
+    cltstream::read(n);
     cltstream::read(a);
-    cltstream::read(b);
-    cltstream::write(gcd(a,b),'\n');
+    cltstream::read(k);
+    for(re int i=1;i<=n;++i)
+        ans=(1LL*ans+1LL*cltpow(i,k)*cltpow(a,i)%mod)%mod;
+    cltstream::write(ans,'\n');
     return 0;
 }
