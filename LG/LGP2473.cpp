@@ -1,7 +1,7 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
+#define maxn 15
+#define maxm 100
 
 namespace cltstream{
     #define size 1048576
@@ -21,11 +21,15 @@ namespace cltstream{
 
     char cltout[size+1],*oh=cltout,*ot=cltout+size;
     inline void pc(char c){
-        if(oh==ot){
-            fwrite(cltout,1,size,stdout);
-            oh=cltout;
+        if(c==-1)
+            fwrite(cltout,1,oh-cltout,stdout);
+        else{
+            if(oh==ot){
+                fwrite(cltout,1,size,stdout);
+                oh=cltout;
+            }
+            *oh++=c;
         }
-        *oh++=c;
     }
     #undef size
 
@@ -41,7 +45,7 @@ namespace cltstream{
     }
 
     template <typename _tp>
-    inline void write(_tp x,char text=-1){
+    inline void write(_tp x,char text=' '){
         if(x<0)
             pc(45),x=-x;
         if(!x)
@@ -51,19 +55,38 @@ namespace cltstream{
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];pc(digit[digit[0]--]^48));
         }
-        if(text>=0)
-            pc(text);
+        pc(text);
     }
 }
 
+int n,m;
+int value[maxn+1],pre[maxn+1],valid[(1<<maxn)+1];
+double f[maxm+1][(1<<maxn)+1];
+char str[20];
+
+char* print(int status,int digcnt){
+    for(re int i=0;i<digcnt;str[i]=(status&1)^48,status>>=1,++i);
+    return str;
+}
+
 int main(){
-    for(;;){
-        int a;
-        cltstream::read(a);
-        if(!a)
-            break;
-        cltstream::write(a);
+    cltstream::read(m);
+    cltstream::read(n);
+    for(re int i=1;i<=n;++i){
+        cltstream::read(value[i]);
+        int x;
+        for(cltstream::read(x);x;pre[i]|=1<<(x-1),cltstream::read(x));
+        printf("pre[%d]=%s\n",i,print(pre[i],n));
     }
-    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
+    for(re int i=0;i<(1<<n);++i){
+        valid[i]=1;
+        for(re int j=1;j<=n;++j)
+            if(((i>>(j-1))&1)&&(i|pre[j])!=i){
+                valid[i]=0;
+                break;
+            }
+    }
+    for(re int i=0;i<(1<<n);++i)
+        printf("valid[%s]=%d\n",print(i,n),valid[i]);
     return 0;
 }

@@ -2,7 +2,6 @@
 #define maxn 1000
 #define maxm 1000
 #define min(a,b) ((a)<=(b)?(a):(b))
-using namespace std;
 
 int n,m;
 int a[maxn+1],b[maxm+1],f[maxn+1][maxm+1];

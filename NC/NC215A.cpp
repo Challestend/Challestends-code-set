@@ -1,7 +1,7 @@
 #include<cstdio>
-#include<cstdlib>
-#include<ctime>
 #define re register
+#define maxn 100000
+#define maxval 100000
 
 namespace cltstream{
     #define size 1048576
@@ -21,11 +21,15 @@ namespace cltstream{
 
     char cltout[size+1],*oh=cltout,*ot=cltout+size;
     inline void pc(char c){
-        if(oh==ot){
-            fwrite(cltout,1,size,stdout);
-            oh=cltout;
+        if(c==-1)
+            fwrite(cltout,1,oh-cltout,stdout);
+        else{
+            if(oh==ot){
+                fwrite(cltout,1,size,stdout);
+                oh=cltout;
+            }
+            *oh++=c;
         }
-        *oh++=c;
     }
     #undef size
 
@@ -41,7 +45,7 @@ namespace cltstream{
     }
 
     template <typename _tp>
-    inline void write(_tp x,char text=-1){
+    inline void write(_tp x,char text=' '){
         if(x<0)
             pc(45),x=-x;
         if(!x)
@@ -51,19 +55,25 @@ namespace cltstream{
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
             for(;digit[0];pc(digit[digit[0]--]^48));
         }
-        if(text>=0)
-            pc(text);
+        pc(text);
     }
 }
 
+int n;
+long long ans;
+int cnt[maxn+1];
+
 int main(){
-    for(;;){
-        int a;
-        cltstream::read(a);
-        if(!a)
-            break;
-        cltstream::write(a);
+    cltstream::read(n);
+    for(re int i=1;i<=n;++i){
+        int x;
+        cltstream::read(x);
+        for(re int j=1;j*j<=(maxval<<1);++j)
+            if(j*j-x>=1&&j*j-x<=maxval)
+                ans+=cnt[j*j-x];
+        ++cnt[x];
     }
-    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
+    cltstream::write(ans,'\n');
+    cltstream::pc(-1);
     return 0;
 }

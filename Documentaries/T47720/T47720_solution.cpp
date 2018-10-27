@@ -5,19 +5,29 @@
 #define mod 998244353
 
 namespace cltstream{
-    #define gc getchar
     #define size 1048576
+    char cltin[size+1],*ih=cltin,*it=cltin;
+    inline char gc(){
+        #ifdef ONLINE_JUDGE
+            if(ih==it){
+                it=(ih=cltin)+fread(cltin,1,size,stdin);
+                if(ih==it)
+                    return EOF;
+            }
+            return *ih++;
+        #else
+            return getchar();
+        #endif
+    }
 
-    // char str[size+1],*head=str,*tail=str;
-    // inline char gc(){
-    //     if(head==tail){
-    //         tail=(head=str)+fread(str,1,size,stdin);
-    //         if(head==tail)
-    //             return EOF;
-    //     }
-    //     return *head++;
-    // }
-
+    char cltout[size+1],*oh=cltout,*ot=cltout+size;
+    inline void pc(char c){
+        if(oh==ot){
+            fwrite(cltout,1,size,stdout);
+            oh=cltout;
+        }
+        *oh++=c;
+    }
     #undef size
 
     template <typename _tp>
@@ -34,15 +44,16 @@ namespace cltstream{
     template <typename _tp>
     inline void write(_tp x,char text=' '){
         if(x<0)
-            putchar(45),x=-x;
+            pc(45),x=-x;
         if(!x)
-            putchar(48);
+            pc(48);
         else{
-            int digit[20];
+            int digit[22];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-            for(;digit[0];putchar(digit[digit[0]--]^48));
+            for(;digit[0];pc(digit[digit[0]--]^48));
         }
-        putchar(text);
+        if(text>=0)
+            pc(text);
     }
 }
 
@@ -72,5 +83,6 @@ int main(){
                 cltstream::write(ans,'\n');
             }
     }
+    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
     return 0;
 }
