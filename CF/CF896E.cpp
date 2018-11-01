@@ -1,28 +1,36 @@
 #include<cstdio>
 #define re register
 #define maxn 100000
-#define maxm 100000
 #define maxblock 320
 #define maxval 100000
-#define ID(a) (((a)-1)/size+1)
+#define max(a,b) ((a)>=(b)?(a):(b))
+#define min(a,b) ((a)<=(b)?(a):(b))
 
 namespace cltstream{
-    #define LOCAL
-    #ifdef LOCAL
-        #define gc getchar
-    #else
-        #define size 1048576
-        char str[size+1],*head=str,*tail=str;
-        inline char gc(){
-            if(head==tail){
-                tail=(head=str)+fread(str,1,size,stdin);
-                if(head==tail)
+    #define size 1048576
+    char cltin[size+1],*ih=cltin,*it=cltin;
+    inline char gc(){
+        #ifdef ONLINE_JUDGE
+            if(ih==it){
+                it=(ih=cltin)+fread(cltin,1,size,stdin);
+                if(ih==it)
                     return EOF;
             }
-            return *head++;
+            return *ih++;
+        #else
+            return getchar();
+        #endif
+    }
+
+    char cltout[size+1],*oh=cltout,*ot=cltout+size;
+    inline void pc(char c){
+        if(oh==ot){
+            fwrite(cltout,1,size,stdout);
+            oh=cltout;
         }
-        #undef size
-    #endif
+        *oh++=c;
+    }
+    #undef size
 
     template <typename _tp>
     inline void read(_tp& x){
@@ -36,104 +44,127 @@ namespace cltstream{
     }
 
     template <typename _tp>
-    inline void write(_tp x,char text=' '){
+    inline void write(_tp x,char text=-1){
         if(x<0)
-            putchar(45),x=-x;
+            pc(45),x=-x;
         if(!x)
-            putchar(48);
+            pc(48);
         else{
-            int digit[20];
+            int digit[22];
             for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-            for(;digit[0];putchar(digit[digit[0]--]^48));
+            for(;digit[0];pc(digit[digit[0]--]^48));
         }
-        putchar(text);
+        if(text>=0)
+            pc(text);
     }
 }
 
-int n,m,size;
-int a[maxn+1],ufs[maxn+1],val[maxn+1];
-int pos[maxblock+1][maxval+1],cnt[maxblock+1][maxval+1];
+int n,m,sz;
+int a[maxn+1],id[maxn+1],val[maxn+1];
+int f[maxn+1],pos[maxblock+1][maxval+1],cnt[maxn+1],maxv[maxblock+1],tag[maxblock+1];
 
-int find(int x){
-    return ufs[x]==x?x:ufs[x]=find(ufs[x]);
+int find(re int x){
+    return f[x]==x?x:f[x]=find(f[x]);
 }
 
-inline void init(int x){
-    for(re int i=(x-1)*size+1;i<=x*size&&i<=n;++i){
+inline void init(re int x){
+    maxv[x]=tag[x]=0;
+    for(re int i=(x-1)*sz+1;i<=x*sz&&i<=n;++i)
         if(!pos[x][a[i]]){
-            ufs[i]=i;
             val[i]=a[i];
+            f[i]=i;
             pos[x][a[i]]=i;
+            cnt[i]=1;
+            maxv[x]=max(maxv[x],a[i]);
         }
-        else
-            ufs[i]=pos[x][a[i]];
-        ++cnt[x][a[i]];
-    }
-}
-
-inline void breakDown(int x){
-    for(re int i=(x-1)*size;i<=x*size&&i<=n;++i){
-        a[i]=val[find(i)];
-        pos[x][a[i]]=cnt[x][a[i]]=0;
-    }
-}
-
-inline void solve(int x,int y){
-    for(re int i=y+1;i<=maxval;++i)
-        if(pos[x][i]){
-            if(!pos[x][i-y]){
-                val[pos[x][i]]-=y;
-                pos[x][i-y]=pos[x][i];
-                pos[x][i]=0;
-                cnt[x][i-y]=cnt[x][i];
-                cnt[x][i]=0;
-            }
-            else{
-                ufs[pos[x][i]]=pos[x][i-y];
-                pos[x][i]=0;
-                cnt[x][i-y]+=cnt[x][i];
-                cnt[x][i]=0;
-            }
+        else{
+            f[i]=pos[x][a[i]];
+            ++cnt[pos[x][a[i]]];
         }
 }
 
-inline void update(int l,int r,int x){
-    breakDown(ID(l));
-    for(re int i=l;i<=ID(l)*size&&i<=r;++i)
-        a[i]-=(a[i]>x)*x;
-    init(ID(l));
-    if(ID(l)<ID(r)){
-        breakDown(ID(r));
-        for(re int i=(ID(r)-1)*size+1;i<=r;++i)
-            a[i]-=(a[i]>x)*x;
-        init(ID(r));
+inline void destory(re int x){
+    for(re int i=(x-1)*sz+1;i<=x*sz&&i<=n;++i){
+        a[i]=val[find(i)]-tag[x];
+        pos[x][val[i]]=0;
     }
-    for(re int i=ID(l)+1;i<=ID(r)-1;++i)
+}
+
+inline void solve(re int x,re int y){
+    if((y<<1)>maxv[x]-tag[x]){
+        for(re int i=y+tag[x]+1;i<=maxv[x];++i)
+            if(pos[x][i]){
+                if(!pos[x][i-y]){
+                    pos[x][i-y]=pos[x][i];
+                    val[pos[x][i-y]]-=y;
+                }
+                else{
+                    f[pos[x][i]]=pos[x][i-y];
+                    cnt[pos[x][i-y]]+=cnt[pos[x][i]];
+                }
+                pos[x][i]=0;
+            }
+        maxv[x]=min(maxv[x],y+tag[x]);
+    }
+    else{
+        for(re int i=y+tag[x];i>tag[x];--i)
+            if(pos[x][i]){
+                if(!pos[x][i+y]){
+                    pos[x][i+y]=pos[x][i];
+                    val[pos[x][i+y]]+=y;
+                }
+                else{
+                    f[pos[x][i]]=pos[x][i+y];
+                    cnt[pos[x][i+y]]+=cnt[pos[x][i]];
+                }
+                pos[x][i]=0;
+            }
+        tag[x]+=y;
+    }
+}
+
+inline void update(re int l,re int r,re int x){
+    destory(id[l]);
+    for(re int i=l;i<=id[l]*sz&&i<=r;++i)
+        if(a[i]>x)
+            a[i]-=x;
+    init(id[l]);
+    for(re int i=id[l]+1;i<=id[r]-1;++i)
         solve(i,x);
+    if(id[l]<id[r]){
+        destory(id[r]);
+        for(re int i=(id[r]-1)*sz+1;i<=r;++i)
+            if(a[i]>x)
+                a[i]-=x;
+        init(id[r]);
+    }
 }
 
-inline int getcnt(int l,int r,int x){
-    int res=0;
-    for(re int i=l;i<=ID(l)*size&&i<=r;++i)
-        res+=(val[find(i)]==x);
-    if(ID(l)<ID(r))
-        for(re int i=(ID(r)-1)*size+1;i<=r;++i)
-            res+=(val[find(i)]==x);
-    for(re int i=ID(l)+1;i<=ID(r)-1;++i)
-        res+=cnt[i][x];
+inline int query(re int l,re int r,re int x){
+    re int res=0;
+    for(re int i=l;i<=id[l]*sz&&i<=r;++i)
+        res+=(val[find(i)]-tag[id[l]]==x);
+    for(re int i=id[l]+1;i<=id[r]-1;++i)
+        if(x+tag[i]<=maxv[i])
+            res+=cnt[pos[i][x+tag[i]]];
+    if(id[l]<id[r])
+        for(re int i=(id[r]-1)*sz+1;i<=r;++i)
+            res+=(val[find(i)]-tag[id[r]]==x);
     return res;
 }
 
 int main(){
     cltstream::read(n);
     cltstream::read(m);
-    for(;(size+1)*(size+1)<=n;++size);
-    for(re int i=1;i<=n;++i)
+    for(;(sz+1)*(sz+1)<=n;++sz);
+    for(re int i=1;i<=n;++i){
         cltstream::read(a[i]);
-    for(re int i=1;(i-1)*size+1<=n;++i)
+        id[i]=(i-1)/sz+1;
+    }
+    for(re int i=1;i<=id[n];++i)
         init(i);
     for(re int i=1;i<=m;++i){
-        int opt,l,r,x;
+        re int opt,l,r,x;
         cltstream::read(opt);
         cltstream::read(l);
         cltstream::read(r);
@@ -141,7 +172,8 @@ int main(){
         if(opt==1)
             update(l,r,x);
         else
-            cltstream::write(getcnt(l,r,x),'\n');
+            cltstream::write(query(l,r,x),10);
     }
+    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
     return 0;
 }
