@@ -1,3 +1,7 @@
+#include<cstdio>
+#define re register
+#define maxn 1000000
+
 namespace cltstream{
     #define size 1048576
     char cltin[size+1],*ih=cltin,*it=cltin;
@@ -22,7 +26,6 @@ namespace cltstream{
         }
         *oh++=c;
     }
-    #define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout)
     #undef size
 
     template <typename _tp>
@@ -50,4 +53,51 @@ namespace cltstream{
         if(text>=0)
             pc(text);
     }
+}
+
+int n,m;
+int a[maxn+1];
+
+int main(){
+    cltstream::read(m);
+    cltstream::read(n);
+    for(re int i=1;i<=m;++i){
+        int x,v;
+        cltstream::read(x);
+        cltstream::read(v);
+        if(x-2*v+1>=1){
+            --a[x-2*v+1];
+            ++a[x+1];
+            if(x-3*v+1>=1){
+                ++a[x-3*v+1];
+                --a[x-2*v+1];
+            }
+            else{
+                ++a[1];
+                --a[x-2*v+1];
+            }
+        }
+        else{
+            --a[1];
+            ++a[x+1];
+        }
+        if(x+1<=n){
+            ++a[x+1];
+            if(x+2*v+1<=n){
+                a[x+2*v+1]-=2;
+                if(x+3*v+2<=n)
+                    ++a[x+3*n+2];
+            }
+        }
+    }
+    for(re int i=1;i<=n;++i)
+        cltstream::write(a[i],i<n?32:10);
+    for(re int i=1;i<=n;++i)
+        a[i]+=a[i-1];
+    for(re int i=1;i<=n;++i)
+        a[i]+=a[i-1];
+    for(re int i=1;i<=n;++i)
+        cltstream::write(a[i],i<n?32:10);
+    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
+    return 0;
 }

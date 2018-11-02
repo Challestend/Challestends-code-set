@@ -1,3 +1,7 @@
+#include<cstdio>
+#define re register
+#define mod 100000007
+
 namespace cltstream{
     #define size 1048576
     char cltin[size+1],*ih=cltin,*it=cltin;
@@ -22,7 +26,6 @@ namespace cltstream{
         }
         *oh++=c;
     }
-    #define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout)
     #undef size
 
     template <typename _tp>
@@ -50,4 +53,25 @@ namespace cltstream{
         if(text>=0)
             pc(text);
     }
+}
+
+long long n;
+
+int cltpow(int x,long long y){
+    if(y==1)
+        return x;
+    else{
+        int res=cltpow(x,y>>1);
+        res=1LL*res*res%mod;
+        if(y&1)
+            res=1LL*res*x%mod;
+        return res;
+    }
+}
+
+int main(){
+    cltstream::read(n);
+    cltstream::write((((1LL*cltpow(2,2LL*n)+cltpow(2,n+1)+cltpow(2,n)-cltpow(3,n+1)-1))*cltpow(2,mod-2)%mod+mod)%mod);
+    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
+    return 0;
 }

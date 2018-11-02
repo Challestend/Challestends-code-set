@@ -1,3 +1,8 @@
+#include<cstdio>
+#include<algorithm>
+#include<map>
+#define re register
+
 namespace cltstream{
     #define size 1048576
     char cltin[size+1],*ih=cltin,*it=cltin;
@@ -22,7 +27,6 @@ namespace cltstream{
         }
         *oh++=c;
     }
-    #define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout)
     #undef size
 
     template <typename _tp>
@@ -50,4 +54,26 @@ namespace cltstream{
         if(text>=0)
             pc(text);
     }
+}
+
+int n,ans;
+std::map<std::pair<int,int>,int> m;
+
+int main(){
+    cltstream::read(n);
+    for(re int i=1;i<n;++i){
+        int x,y;
+        cltstream::read(x);
+        cltstream::read(y);
+        m[std::make_pair(x,y)]=m[std::make_pair(y,x)]=1;
+    }
+    for(re int i=1;i<n;++i){
+        int x,y;
+        cltstream::read(x);
+        cltstream::read(y);
+        ans+=m[std::make_pair(x,y)]|m[std::make_pair(y,x)];
+    }
+    cltstream::write(n-ans-1);
+    fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout);
+    return 0;
 }
