@@ -72,9 +72,11 @@ inline void pushDown(int cur,int ln,int rn){
 	sump[cur<<1]=(sump[cur<<1]+1LL*adda[cur]*addb[cur]%mod*ln%mod)%mod;
 	suma[cur<<1]=(suma[cur<<1]+1LL*ln*adda[cur]%mod)%mod;
 	sumb[cur<<1]=(sumb[cur<<1]+1LL*ln*addb[cur]%mod)%mod;
+	addv[cur<<1]=(addv[cur<<1]+1LL*A[cur]*adda[cur<<1]%mod)%mod;
+	addv[cur<<1]=(addv[cur<<1]+1LL*B[cur]*addb[cur<<1]%mod)%mod;
+	addv[cur<<1]=(addv[cur<<1]+addv[cur])%mod;
 	A[cur<<1]=(A[cur<<1]+A[cur])%mod;
 	B[cur<<1]=(B[cur<<1]+B[cur])%mod;
-	addv[cur<<1]=(addv[cur<<1]+addv[cur])%mod;
 	adda[cur<<1]=(adda[cur<<1]+adda[cur])%mod;
 	addb[cur<<1]=(addb[cur<<1]+addb[cur])%mod;
 	sumv[cur<<1|1]=(sumv[cur<<1|1]+1LL*A[cur]*suma[cur<<1|1]%mod)%mod;
@@ -85,9 +87,11 @@ inline void pushDown(int cur,int ln,int rn){
 	sump[cur<<1|1]=(sump[cur<<1|1]+1LL*adda[cur]*addb[cur]%mod*rn%mod)%mod;
 	suma[cur<<1|1]=(suma[cur<<1|1]+1LL*rn*adda[cur]%mod)%mod;
 	sumb[cur<<1|1]=(sumb[cur<<1|1]+1LL*rn*addb[cur]%mod)%mod;
+	addv[cur<<1|1]=(addv[cur<<1|1]+1LL*A[cur]*adda[cur<<1|1]%mod)%mod;
+	addv[cur<<1|1]=(addv[cur<<1|1]+1LL*B[cur]*addb[cur<<1|1]%mod)%mod;
+	addv[cur<<1|1]=(addv[cur<<1|1]+addv[cur])%mod;
 	A[cur<<1|1]=(A[cur<<1|1]+A[cur])%mod;
 	B[cur<<1|1]=(B[cur<<1|1]+B[cur])%mod;
-	addv[cur<<1|1]=(addv[cur<<1|1]+addv[cur])%mod;
 	adda[cur<<1|1]=(adda[cur<<1|1]+adda[cur])%mod;
 	addb[cur<<1|1]=(addb[cur<<1|1]+addb[cur])%mod;
 	A[cur]=B[cur]=addv[cur]=adda[cur]=addb[cur]=0;

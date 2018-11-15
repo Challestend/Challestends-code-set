@@ -57,25 +57,13 @@ namespace cltstream{
 }
 
 long long n;
-long long f[841]={1};
-
-int cltpow(int x,long long y){
-	if(!y)
-		return 1;
-	else{
-		int res=cltpow(x,y>>1);
-		res=1LL*res*res%mod;
-		if(y&1)
-			res=1LL*res*x%mod;
-		return res;
-	}
-}
+long long f[2]={1};
 
 int main(){
-	for(re int i=1;i<=840;++i)
-		f[i]=1LL*f[i-1]*((i%2==0)+(i%6==0)-(i%12==0)+(i==420)+2)%mod;
 	cltstream::read(n);
-	cltstream::write(1LL*cltpow(f[840],n/840)*f[n%840]%mod*166666668%mod);
+	for(re long long i=3;i<=n;++i)
+		f[(i)&1]=1LL*f[(i-1)&1]*((i%2==0)+(i%12==6)+(i%840==420)+(i%720720==360360)+2)%mod;
+	cltstream::write(f[n&1]);
 	clop();
 	return 0;
 }

@@ -1,7 +1,5 @@
 #include<cstdio>
 #define re register
-#define maxn 1000
-#define maxm 1000
 
 namespace cltstream{
 	#define size 1048576
@@ -57,25 +55,19 @@ namespace cltstream{
 	}
 }
 
-int n,m,k;
-int f[maxn+1][maxm+1];
+long long n,ans;
+
+inline long long gcd(re long long a,re long long b){
+	for(;b^=a^=b^=a%=b;);
+	return a;
+}
 
 int main(){
 	cltstream::read(n);
-	cltstream::read(m);
-	cltstream::read(k);
-	for(re int i=1;i<=n;++i)
-		f[i][m]=(n-i)&1;
-	for(re int i=1;i<=m;++i)
-		f[n][i]=(m-i)&1;
-	for(re int i=n-1;i>=1;--i)
-		for(re int j=m-1;j>=1;--j)
-			f[i][j]=(f[i+1][j]&f[i][j+1]&(i+k<=n&&j+k<=m?f[i+k][j+k]:1))^1;
-	for(re int i=1;i<=n;++i){
-		for(re int j=1;j<=m;++j)
-			cltstream::pc(f[i][j]?'#':32);
-		cltstream::pc(10);
-	}
+	for(re long long i=1;i<=n;++i)
+		for(re long long j=1;j<=n;++j)
+			ans+=(i*j/gcd(i,j)==n);
+	cltstream::write(ans);
 	clop();
 	return 0;
 }
