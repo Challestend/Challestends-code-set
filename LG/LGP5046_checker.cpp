@@ -20,7 +20,7 @@ int main(){
 		}
 		else
 			printf("Accepted.\n");
-		for(re int i=1;i<=1500000000;++i);
+		for(re int i=1;i<2147483647;++i);
 	}
 	return 0;
 }

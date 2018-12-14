@@ -1,7 +1,8 @@
 #include<cstdio>
+#include<cstring>
 #define re register
-#define maxn 1000
-#define maxm 1000
+#define maxn 1000000
+#define mod 998244353
 
 namespace cltstream{
 	#define size 1048576
@@ -57,25 +58,28 @@ namespace cltstream{
 	}
 }
 
-int n,m,k;
-int f[maxn+1][maxm+1];
+int n;
+int f[maxn+1],g[maxn+1],phi[maxn+1];
+
 
 int main(){
 	cltstream::read(n);
-	cltstream::read(m);
-	cltstream::read(k);
-	for(re int i=1;i<=n;++i)
-		f[i][m]=(n-i)&1;
-	for(re int i=1;i<=m;++i)
-		f[n][i]=(m-i)&1;
-	for(re int i=n-1;i>=1;--i)
-		for(re int j=m-1;j>=1;--j)
-			f[i][j]=(f[i+1][j]&f[i][j+1]&(i+k<=n&&j+k<=m?f[i+k][j+k]:1))^1;
-	for(re int i=1;i<=n;++i){
-		for(re int j=1;j<=m;++j)
-			cltstream::pc(f[i][j]?'#':32);
-		cltstream::pc(10);
+	for(re int i=2;i<=n;++i){
+		if(!f[i]){
+			g[++g[0]]=i;
+			phi[i]=i-1;
+		}
+		for(re int j=1;j<=g[0]&&i*g[j]<=n;++j){
+			f[i*g[j]]=1;
+			if(i%g[j])
+				phi[i*g[j]]=phi[i]*phi[g[j]];
+			else{
+				phi[i*g[j]]=phi[i]*g[j];
+				break;
+			}
+		}
 	}
+	cltstream::write(phi[n]);
 	clop();
 	return 0;
 }
