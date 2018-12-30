@@ -46,15 +46,15 @@ inline void printHelp(){
 
 inline void genNormalTree(int size){
 	for(re int i=1;i<=size;p[i]=i,++i);
-	cltrnd::rnd_shuffle(p,1,size);
+	cltlib::rnd_shuffle(p,1,size);
 	for(re int i=2;i<=size;++i){
-		e[i].src=p[cltrnd::rnd()%(i-1)+1];
+		e[i].src=p[cltlib::rnd()%(i-1)+1];
 		e[i].des=p[i];
 	}
-	cltrnd::rnd_shuffle(e,2,size);
+	cltlib::rnd_shuffle(e,2,size);
 	for(re int i=2;i<=size;++i){
-		if(cltrnd::rnd()&1)
-			cltrnd::swp(e[i].src,e[i].des);
+		if(cltlib::rnd()&1)
+			cltlib::swp(e[i].src,e[i].des);
 		cltstream::write(e[i].src);
 		cltstream::write(e[i].des,'\n');
 	}
@@ -62,20 +62,20 @@ inline void genNormalTree(int size){
 
 inline void genLongChain(int size){
 	for(re int i=1;i<=size;p[i]=i,++i);
-	cltrnd::rnd_shuffle(p,1,size);
-	int chainLength=cltrnd::rnd()%size+1;
+	cltlib::rnd_shuffle(p,1,size);
+	int chainLength=cltlib::rnd()%size+1;
 	for(re int i=2;i<=chainLength;++i){
 		e[i].src=p[i-1];
 		e[i].des=p[i];
 	}
 	for(re int i=chainLength+1;i<=size;++i){
-		e[i].src=p[cltrnd::rnd()%(i-1)+1];
+		e[i].src=p[cltlib::rnd()%(i-1)+1];
 		e[i].des=p[i];
 	}
-	cltrnd::rnd_shuffle(e,2,size);
+	cltlib::rnd_shuffle(e,2,size);
 	for(re int i=2;i<=size;++i){
-		if(cltrnd::rnd()&1)
-			cltrnd::swp(e[i].src,e[i].des);
+		if(cltlib::rnd()&1)
+			cltlib::swp(e[i].src,e[i].des);
 		cltstream::write(e[i].src);
 		cltstream::write(e[i].des,'\n');
 	}
@@ -83,15 +83,15 @@ inline void genLongChain(int size){
 
 inline void genSingleChain(int size){
 	for(re int i=1;i<=size;p[i]=i,++i);
-	cltrnd::rnd_shuffle(p,1,size);
+	cltlib::rnd_shuffle(p,1,size);
 	for(re int i=2;i<=size;++i){
 		e[i].src=p[i-1];
 		e[i].des=p[i];
 	}
-	cltrnd::rnd_shuffle(e,2,size);
+	cltlib::rnd_shuffle(e,2,size);
 	for(re int i=2;i<=size;++i){
-		if(cltrnd::rnd()&1)
-			cltrnd::swp(e[i].src,e[i].des);
+		if(cltlib::rnd()&1)
+			cltlib::swp(e[i].src,e[i].des);
 		cltstream::write(e[i].src);
 		cltstream::write(e[i].des,'\n');
 	}
@@ -99,22 +99,22 @@ inline void genSingleChain(int size){
 
 inline void genFlower(int size){
 	for(re int i=1;i<=size;p[i]=i,++i);
-	cltrnd::rnd_shuffle(p,1,size);
+	cltlib::rnd_shuffle(p,1,size);
 	for(re int i=2;i<=size;++i){
 		e[i].src=p[1];
 		e[i].des=p[i];
 	}
-	cltrnd::rnd_shuffle(e,2,size);
+	cltlib::rnd_shuffle(e,2,size);
 	for(re int i=2;i<=size;++i){
-		if(cltrnd::rnd()&1)
-			cltrnd::swp(e[i].src,e[i].des);
+		if(cltlib::rnd()&1)
+			cltlib::swp(e[i].src,e[i].des);
 		cltstream::write(e[i].src);
 		cltstream::write(e[i].des,'\n');
 	}
 }
 
 int main(){
-	cltrnd::srnd(time(0));
+	cltlib::srnd(time(0));
 	printHelp();
 	int tp;
 	printf("Type=");
