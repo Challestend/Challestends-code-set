@@ -1,8 +1,7 @@
 #include<cstdio>
-#include<ctime>
 #define re register
-#define maxn 30000
-#define mod 998244353
+#define maxn 600000
+#define lowbit(a) ((a)&(-(a)))
 
 namespace cltstream{
 	#define size 1048576
@@ -59,30 +58,52 @@ namespace cltstream{
 }
 
 int n,m;
-int f[maxn+1];
+int bit[maxn+1][2];
+
+inline void modify(re int x,re int y){
+	for(re int i=x;i<=n;i+=lowbit(i)){
+		bit[i][0]^=y;
+		bit[i][1]^=(x&1)?y:0;
+	}
+}
+
+inline int query(re int x){
+	re int res=0;
+	for(re int i=x;i>=1;i-=lowbit(i))
+		res^=((x&1)?0:bit[i][0])^bit[i][1];
+	return res;
+}
 
 int main(){
-	f[0]=1;
 	cltstream::read(n);
+	cltstream::read(m);
 	for(re int i=1;i<=n;++i){
-		re unsigned long long x;
+		re int x;
 		cltstream::read(x);
-		if(x==1)
-			++m;
-		else{
-			x=(x-2)%mod;
-			for(re int j=i-m;j>=1;--j)
-				f[j]=(f[j]+f[j-1]*x%mod)%mod;
+		modify(i,x);
+		modify(i+1,x);
+	}
+	for(re int i=1;i<=m;++i){
+		re int opt,x,y,z;
+		cltstream::read(opt);
+		cltstream::read(x);
+		cltstream::read(y);
+		switch(opt){
+			case 1:
+				z=query(x)^query(x-1)^y;
+				modify(x,z);
+				modify(x+1,z);
+				break;
+			case 2:
+				cltstream::read(z);
+				modify(x,z);
+				modify(y+1,z);
+				break;
+			case 3:
+				cltstream::write(query(y)^query(x-1),10);
+				break;
 		}
 	}
-	for(re int i=1;i<=(m<<1);++i)
-		cltstream::write(0,32);
-	for(re int i=0,j=1;i<=n-m;++i,j=2LL*j%mod)
-		cltstream::write(1LL*j*f[n-m-i]%mod,32);
-	for(re int i=1;i<=n-m;++i)
-		cltstream::write(0,32);
 	clop();
-	// freopen("con","w",stdout);
-	// printf("%d\n",clock());
 	return 0;
 }

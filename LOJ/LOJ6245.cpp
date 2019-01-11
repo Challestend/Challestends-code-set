@@ -1,8 +1,6 @@
 #include<cstdio>
-#include<ctime>
 #define re register
-#define maxn 30000
-#define mod 998244353
+#define mod 1000000007
 
 namespace cltstream{
 	#define size 1048576
@@ -58,31 +56,28 @@ namespace cltstream{
 	}
 }
 
-int n,m;
-int f[maxn+1];
+int n,a,c;
+
+int simEuc(re int n,re int a,re int b,re int c){
+	if(!n)
+		return b/c;
+	if(!a)
+		return 1LL*(n+1)*(b/c)%mod;
+	if(a>=c||b>=c){
+		re int res=simEuc(n,a%c,b%c,c);
+		return (res+1LL*n*(n+1)/2%mod*(a/c)%mod+1LL*(n+1)*(b/c)%mod)%mod;
+	}
+	else{
+		re int m=(1LL*a*n+b)/c;
+		return (1LL*m*n%mod-simEuc(m-1,c,c-b-1,a)+mod)%mod;
+	}
+}
 
 int main(){
-	f[0]=1;
 	cltstream::read(n);
-	for(re int i=1;i<=n;++i){
-		re unsigned long long x;
-		cltstream::read(x);
-		if(x==1)
-			++m;
-		else{
-			x=(x-2)%mod;
-			for(re int j=i-m;j>=1;--j)
-				f[j]=(f[j]+f[j-1]*x%mod)%mod;
-		}
-	}
-	for(re int i=1;i<=(m<<1);++i)
-		cltstream::write(0,32);
-	for(re int i=0,j=1;i<=n-m;++i,j=2LL*j%mod)
-		cltstream::write(1LL*j*f[n-m-i]%mod,32);
-	for(re int i=1;i<=n-m;++i)
-		cltstream::write(0,32);
+	cltstream::read(a);
+	cltstream::read(c);
+	cltstream::write(simEuc(n,a,0,c));
 	clop();
-	// freopen("con","w",stdout);
-	// printf("%d\n",clock());
 	return 0;
 }

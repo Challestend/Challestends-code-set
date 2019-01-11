@@ -1,273 +1,184 @@
 #include<cstdio>
+#include<set>
+#define re register
+#define _it std::set<node>::iterator
 #define max(a,b) ((a)>=(b)?(a):(b))
 
-template <typename T>
-inline void read(T& x){
-    int sn=1;
-    char c=getchar();
-    for(;c!=45&&(c<48||c>57);c=getchar());
-    if(c==45)
-        sn=-1,c=getchar();
-    for(x=0;c>=48&&c<=57;x=(x<<3)+(x<<1)+(c^48),c=getchar());
-    x*=sn;
-}
+namespace cltstream{
+	#define size 1048576
+	char cltin[size+1],*ih=cltin,*it=cltin;
+	inline char gc(){
+		#ifdef ONLINE_JUDGE
+			if(ih==it){
+				it=(ih=cltin)+fread(cltin,1,size,stdin);
+				if(ih==it)
+					return EOF;
+			}
+			return *ih++;
+		#else
+			return getchar();
+		#endif
+	}
 
-template <typename T>
-inline void write(T x){
-    if(x<0)
-        putchar(45),x=-x;
-    if(!x)
-        putchar(48);
-    else{
-        int digit[20];
-        for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-        for(;digit[0];putchar(digit[digit[0]--]^48));
-    }
-}
+	char cltout[size+1],*oh=cltout,*ot=cltout+size;
+	inline void pc(char c){
+		if(oh==ot){
+			fwrite(cltout,1,size,stdout);
+			oh=cltout;
+		}
+		*oh++=c;
+	}
+	#define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout),cltstream::oh=cltstream::cltout
+	#undef size
 
-namespace SplayTree{
-    const int maxn=4500010;
+	template <typename _tp>
+	inline void read(_tp& x){
+		int sn=1;
+		char c=gc();
+		for(;c!=45&&(c<48||c>57)&&c!=EOF;c=gc());
+		if(c==45&&c!=EOF)
+			sn=-1,c=gc();
+		for(x=0;c>=48&&c<=57&&c!=EOF;x=(x<<3)+(x<<1)+(c^48),c=gc());
+		x*=sn;
+	}
 
-    struct node{
-        node *fa,*ch[2];
-        int size,val,sum,ls,rs,ms,upd,rev;
-    };
-
-    struct tree{
-        protected:
-            node mempool[maxn],*memtop;
-            node *null,*root;
-
-            inline void pushDown(node*& p){
-                if(p->upd){
-                    for(int i=0;i<2;++i)
-                        if(p->ch[i]!=null){
-                            p->ch[i]->val=p->val;
-                            p->ch[i]->sum=p->ch[i]->size*p->val;
-                            p->ch[i]->ls=p->ch[i]->rs=p->ch[i]->ms=p->ch[i]->sum;
-                            p->ch[i]->upd=1;
-                        }
-                    p->upd=0;
-                }
-                if(p->rev){
-                    node *tmp=p->ch[0];
-                    p->ch[0]=p->ch[1];
-                    p->ch[1]=tmp;
-                    p->ch[0]->rev^=1;
-                    p->ch[1]->rev^=1;
-                    p->rev=0;
-                }
-            }
-
-            inline void pushUp(node*& p){
-                p->size=p->ch[0]->size+p->ch[1]->size+1;
-                p->sum=p->ch[0]->sum+p->ch[1]->sum+p->val;
-                if(p->ch[0]!=null)
-                    p->ls=p->ch[0]->ls;
-                else
-                    p->ls=p->val+(p->ch[1]->ls>=0)*p->ch[1]->ls;
-                if(p->ch[1]!=null)
-                    p->rs=p->ch[1]->rs;
-                else
-                    p->rs=p->val+(p->ch[0]->rs>=0)*p->ch[0]->rs;
-                if(p->val>=0)
-                    p->ms=(p->ch[0]->rs>=0)*p->ch[0]->rs+(p->ch[1]->ls>=0)*p->ch[1]->ls+p->val;
-                else
-                    p->ms=max(p->ch[0]->rs,p->ch[1]->ls);
-                p->ms=max(max(p->ls,p->rs),p->ms);
-            }
-
-            inline void connect(node*& x,node*& y,int side){
-                x->fa=y;
-                y->ch[side]=x;
-            }
-
-            inline node* create(int v,node*& x,int side){
-                node *p=++memtop;
-                p->ch[0]=p->ch[1]=null;
-                p->size=1;
-                p->val=p->sum=p->ls=p->rs=p->ms=v;
-                p->upd=p->rev=0;
-                connect(p,x,side);
-                pushUp(x);
-                return p;
-            }
-
-            inline int getSide(node*& p){
-                return p->fa->ch[1]==p;
-            }
-
-            inline void rotate(node*& x){
-                node *y=x->fa,*z=y->fa;
-                int sx=getSide(x),sy=getSide(y);
-                connect(x->ch[sx^1],y,sx);
-                connect(y,x,sx^1);
-                connect(x,z,sy);
-                pushUp(y),pushUp(x);
-            }
-
-            inline void splay(node*& x,node* y){
-                for(node *p=y->fa,*q=x->fa;q!=p;rotate(x),q=x->fa)
-                    if(q->fa!=p)
-                        rotate(getSide(q)==getSide(x)?q:x);
-            }
-
-            inline node* findRank(int x){
-                for(node *p=root;;){
-                    pushDown(p);
-                    int ln=p->ch[0]->size+1;
-                    if(x==ln)
-                        return p;
-                    else
-                        if(x>ln){
-                            x-=ln;
-                            p=p->ch[1];
-                        }
-                        else
-                            p=p->ch[0];
-                }
-            }
-
-            void print(node*& p,int x){
-                if(p==null)
-                    return;
-                print(p->ch[0],0);
-                write(p->val);
-                if(x==0||(x==1&&p->ch[1]!=null))
-                    putchar(',');
-                print(p->ch[1],x&1);
-            }
-        public:
-            inline void init(){
-                memtop=mempool;
-                null=memtop;
-                null->fa=null->ch[0]=null;
-                create(0,null,1);
-                null->ch[1]=null;
-                null->size=0;
-                root=memtop;
-                create(0,root,1);
-            }
-
-            inline void inserts(int pos,int tot){
-                node *p=findRank(pos+2);
-                splay(p,root);
-                root=p;
-                p=findRank(pos+1);
-                splay(p,root->ch[0]);
-                for(int i=1;i<=tot;++i){
-                    int x;
-                    read(x);
-                    create(x,p,1);
-                    p=p->ch[1];
-                    rotate(p);
-                }
-                pushUp(root);
-            }
-
-            inline void deletes(int pos,int tot){
-                node *p=findRank(pos+tot+1);
-                splay(p,root);
-                root=p;
-                p=findRank(pos);
-                splay(p,root->ch[0]);
-                p->ch[1]=null;
-                pushUp(p);
-                pushUp(root);
-            }
-
-            inline void updates(int pos,int tot,int c){
-                node *p=findRank(pos+tot+1);
-                splay(p,root);
-                root=p;
-                p=findRank(pos);
-                splay(p,root->ch[0]);
-                p=p->ch[1];
-                p->val=c;
-                p->sum=p->size*c;
-                p->ls=p->rs=p->ms=c;
-                p->upd=1;
-                p=p->fa;
-                pushUp(p);
-                pushUp(root);
-            }
-
-            inline void reverses(int pos,int tot){
-                node *p=findRank(pos+tot+1);
-                splay(p,root);
-                root=p;
-                p=findRank(pos);
-                splay(p,root->ch[0]);
-                p->ch[1]->rev^=1;
-            }
-
-            inline void getsums(int pos,int tot){
-                node *p=findRank(pos+tot+1);
-                splay(p,root);
-                root=p;
-                p=findRank(pos);
-                splay(p,root->ch[0]);
-                write(p->ch[1]->sum);
-                putchar(10);
-            }
-
-            inline void getmaxsums(){
-                write(root->ms);
-                putchar(10);
-            }
-
-            inline void check(){
-                printf("%d number(s) in total.\n",root->size-2);
-                putchar('<');
-                print(root,1);
-                putchar('>');
-                putchar(10);
-                putchar(10);
-            }
-
-            tree(){
-                init();
-            }
-    };
+	template <typename _tp>
+	inline void write(_tp x,char text=-1){
+		if(x<0)
+			pc(45),x=-x;
+		if(!x)
+			pc(48);
+		else{
+			int digit[22];
+			for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
+			for(;digit[0];pc(digit[digit[0]--]^48));
+		}
+		if(text>=0)
+			pc(text);
+	}
 }
 
 int n,m;
-SplayTree::tree st;
-char opt[16];
+struct node{
+	mutable int l,r,v;
+
+	node(re int _l=0,re int _r=0,re int _v=0){
+		l=_l;
+		r=_r;
+		v=_v;
+	}
+};
+std::set<node> s;
+node a[500010];
+
+inline bool operator<(re node p1,re node p2){
+	return p1.l<p2.l;
+}
+
+inline _it split(re int pos){
+	_it it=s.lower_bound(node(pos));
+	if(it!=s.end()&&it->r==pos)
+		return it;
+	else{
+		--it;
+		re int l=it->l,r=it->r,v=it->v;
+		s.erase(it);
+		s.insert(node(l,pos-1,v));
+		return s.insert(node(pos,r,v)).first;
+	}
+}
+
+inline void InsArr(re int pos,re int len){
+	re _it it=split(pos+1);
+	for(;it!=s.end();it->l+=len,it->r+=len,++it);
+	for(re int i=1;i<=len;++i){
+		re int v;
+		cltstream::read(v);
+		s.insert(node(pos+i,pos+i,v));
+	}
+}
+
+inline void DelArr(re int pos,re int len){
+	re _it itr=split(pos+len),itl=split(pos);
+	s.erase(itl,itr);
+	for(;itr!=s.end();itr->l-=len,itr->r-=len,++itr);
+}
+
+inline void ModArr(re int pos,re int len,re int val){
+	re _it itr=split(pos+len),itl=split(pos);
+	s.erase(itl,itr);
+	s.insert(node(pos,pos+len-1,val));
+}
+
+inline void RevArr(re int pos,re int len){
+	re _it itr=split(pos+len),itl=split(pos);
+	re int cnt=0;
+	for(re _it it=itl;it!=itr;a[++cnt]=node(it->l,it->r,it->v),++it);
+	s.erase(itl,itr);
+	for(re int i=cnt;i>=1;pos+=a[i].r-a[i].l+1,--i)
+		s.insert(node(pos,pos+a[i].r-a[i].l,a[i].v));
+}
+
+inline int GetSum(re int pos,re int len){
+	re int res=0;
+	re _it itr=split(pos+len),itl=split(pos);
+	for(;itl!=itr;res+=(itl->r-itl->l+1)*itl->v,++itl);
+	return res;
+}
+
+inline int GetMaxSum(){
+	re int res=-2e9,tmp=0;
+	for(re _it it=s.begin();it!=s.end();tmp=max(tmp+(it->r-it->l+1)*it->v,(it->r-it->l+1)*it->v),res=max(res,tmp),++it);
+	return res;
+}
 
 int main(){
-    read(n),read(m);
-    st.inserts(0,n);
-    st.check();
-    for(int i=1;i<=m;++i){
-        scanf("%s",opt);
-        int x,y,z;
-        switch(opt[2]){
-            case 'S':
-                read(x),read(y);
-                st.inserts(x,y);
-                break;
-            case 'L':
-                read(x),read(y);
-                st.deletes(x,y);
-                break;
-            case 'K':
-                read(x),read(y),read(z);
-                st.updates(x,y,z);
-                break;
-            case 'V':
-                read(x),read(y);
-                st.reverses(x,y);
-                break;
-            case 'T':
-                read(x),read(y);
-                st.getsums(x,y);
-                break;
-            case 'X':
-                st.getmaxsums();
-                break;
-        }
-        st.check();
-    }
-    return 0;
+	cltstream::read(n);
+	cltstream::read(m);
+	for(re int i=1;i<=n;++i){
+		re int v;
+		cltstream::read(v);
+		s.insert(node(i,i,v));
+	}
+	for(re int i=1;i<=m;++i){
+		for(re char c=cltstream::gc();c<'A'||c>'Z';c=cltstream::gc());
+		re char opt=cltstream::gc();
+		opt=cltstream::gc();
+		for(re char c=cltstream::gc();c!=32&&c!=45;c=cltstream::gc());
+		re int pos,len,val;
+		switch(opt){
+			case 'S':
+				cltstream::read(pos);
+				cltstream::read(len);
+				InsArr(pos,len);
+				break;
+			case 'L':
+				cltstream::read(pos);
+				cltstream::read(len);
+				DelArr(pos,len);
+				break;
+			case 'K':
+				cltstream::read(pos);
+				cltstream::read(len);
+				cltstream::read(val);
+				ModArr(pos,len,val);
+				break;
+			case 'V':
+				cltstream::read(pos);
+				cltstream::read(len);
+				RevArr(pos,len);
+				break;
+			case 'T':
+				cltstream::read(pos);
+				cltstream::read(len);
+				cltstream::write(GetSum(pos,len),10);
+				break;
+			case 'X':
+				cltstream::write(GetMaxSum(),10);
+				for(re char c=cltstream::gc();c!='\r'&&c!='\n';c=cltstream::gc());
+				break;
+		}
+	}
+	clop();
+	return 0;
 }

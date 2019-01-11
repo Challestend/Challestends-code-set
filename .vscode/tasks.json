@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Compile",
+			"type": "shell",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "always",
+				"focus": false,
+				"panel": "shared"
+			},
+			"windows": {
+				"command": "g++",
+				"args": [
+					"-ggdb",
+					"\"${file}\"",
+					"-Wall",
+					"-Wextra",
+					"-Wl,--stack=998244353",
+					"-O2",
+					"-o",
+					"\"${fileDirname}\\${fileBasenameNoExtension}.exe\""
+				]
+			}
+		}
+	]
+}

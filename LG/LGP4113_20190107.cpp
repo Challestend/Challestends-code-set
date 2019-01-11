@@ -1,8 +1,8 @@
 #include<cstdio>
-#include<ctime>
+#include<algorithm>
 #define re register
-#define maxn 30000
-#define mod 998244353
+#define maxn 2000000
+#define lowbit(a) ((a)&(-(a)))
 
 namespace cltstream{
 	#define size 1048576
@@ -58,31 +58,60 @@ namespace cltstream{
 	}
 }
 
-int n,m;
-int f[maxn+1];
+int n,m,c;
+int las[maxn+1],cnt[maxn+1],nxt[maxn+1],bit[maxn+1],ans[maxn+1];
+struct query{
+	int id,ql,qr;
+};
+query q[maxn+1];
+
+inline bool operator<(query p1,query p2){
+	return p1.ql!=p2.ql?p1.ql<p2.ql:p1.qr<p2.qr;
+}
+
+inline void update(re int x,re int y){
+	for(;x<=n;x+=lowbit(x))
+		bit[x]+=y;
+}
+
+inline int getsum(re int x){
+	re int res=0;
+	for(;x>=1;x-=lowbit(x))
+		res+=bit[x];
+	return res;
+}
 
 int main(){
-	f[0]=1;
 	cltstream::read(n);
+	cltstream::read(c);
+	cltstream::read(m);
 	for(re int i=1;i<=n;++i){
-		re unsigned long long x;
+		re int x;
 		cltstream::read(x);
-		if(x==1)
-			++m;
-		else{
-			x=(x-2)%mod;
-			for(re int j=i-m;j>=1;--j)
-				f[j]=(f[j]+f[j-1]*x%mod)%mod;
-		}
+		if(las[x])
+			nxt[las[x]]=i;
+		las[x]=i;
+		++cnt[x];
+		if(cnt[x]==2)
+			update(i,1);
 	}
-	for(re int i=1;i<=(m<<1);++i)
-		cltstream::write(0,32);
-	for(re int i=0,j=1;i<=n-m;++i,j=2LL*j%mod)
-		cltstream::write(1LL*j*f[n-m-i]%mod,32);
-	for(re int i=1;i<=n-m;++i)
-		cltstream::write(0,32);
+	for(re int i=1;i<=m;++i){
+		q[i].id=i;
+		cltstream::read(q[i].ql);
+		cltstream::read(q[i].qr);
+	}
+	std::sort(q+1,q+m+1);
+	for(re int i=1,l=1;i<=m;++i){
+		for(;l<q[i].ql;++l){
+			if(nxt[l])
+				update(nxt[l],-1);
+			if(nxt[nxt[l]])
+				update(nxt[nxt[l]],1);
+		}
+		ans[q[i].id]=getsum(q[i].qr)-getsum(q[i].ql-1);
+	}
+	for(re int i=1;i<=m;++i)
+		cltstream::write(ans[i],10);
 	clop();
-	// freopen("con","w",stdout);
-	// printf("%d\n",clock());
 	return 0;
 }

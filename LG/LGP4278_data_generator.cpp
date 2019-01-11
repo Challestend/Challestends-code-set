@@ -1,8 +1,7 @@
 #include<cstdio>
 #include<ctime>
+#include"F:/clt/Libraries/cltrnd.h"
 #define re register
-#define maxn 30000
-#define mod 998244353
 
 namespace cltstream{
 	#define size 1048576
@@ -58,31 +57,51 @@ namespace cltstream{
 	}
 }
 
-int n,m;
-int f[maxn+1];
+int n=35000,m=70000;
+struct query{
+	char opt;
+	int x,y,z;
+};
+query q[175010];
 
 int main(){
-	f[0]=1;
-	cltstream::read(n);
-	for(re int i=1;i<=n;++i){
-		re unsigned long long x;
-		cltstream::read(x);
-		if(x==1)
-			++m;
-		else{
-			x=(x-2)%mod;
-			for(re int j=i-m;j>=1;--j)
-				f[j]=(f[j]+f[j-1]*x%mod)%mod;
-		}
+	cltlib::srnd(2281701377LL*time(0));
+	freopen("LGP4278.in","w",stdout);
+	cltstream::write(n,10);
+	for(re int i=1;i<=n;++i)
+		cltstream::write(cltlib::rnd()%(n+1),32);
+	cltstream::pc(10);
+	cltstream::write(n+(m<<1),10);
+	for(re int i=1;i<=m;++i){
+		re int len=cltlib::rnd()%n+1;
+		q[i].opt='Q';
+		q[i].x=cltlib::rnd()%(n-len+1)+1;
+		q[i].y=q[i].x+len-1;
+		q[i].z=cltlib::rnd()%len+1;
 	}
-	for(re int i=1;i<=(m<<1);++i)
-		cltstream::write(0,32);
-	for(re int i=0,j=1;i<=n-m;++i,j=2LL*j%mod)
-		cltstream::write(1LL*j*f[n-m-i]%mod,32);
-	for(re int i=1;i<=n-m;++i)
-		cltstream::write(0,32);
+	for(re int i=1;i<=m;++i){
+		q[m+i].opt='M';
+		q[m+i].x=cltlib::rnd()%n+1;
+		q[m+i].y=cltlib::rnd()%n+1;
+	}
+	for(re int i=1;i<=n;++i){
+		q[(m<<1)+i].opt='I';
+		q[(m<<1)+i].y=cltlib::rnd()%n+1;
+	}
+	cltlib::rnd_shuffle(q,1,n+(m<<1));
+	for(re int i=1,j=0;i<=n+(m<<1);++i){
+		if(q[i].opt=='I')
+			q[i].x=cltlib::rnd()%(n+j)+1,++j;
+		cltstream::pc(q[i].opt);
+		cltstream::pc(32);
+		cltstream::write(q[i].x,32);
+		if(q[i].opt=='Q'){
+			cltstream::write(q[i].y,32);
+			cltstream::write(q[i].z,10);
+		}
+		else
+			cltstream::write(q[i].y,10);
+	}
 	clop();
-	// freopen("con","w",stdout);
-	// printf("%d\n",clock());
 	return 0;
 }
