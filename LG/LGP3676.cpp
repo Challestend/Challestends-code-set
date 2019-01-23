@@ -1,7 +1,7 @@
 #include<cstdio>
 #include<algorithm>
 #define re register
-#define maxn 300000
+#define maxn 200000
 
 namespace cltstream{
 	#define size 1048576
@@ -55,54 +55,44 @@ namespace cltstream{
 		if(text>=0)
 			pc(text);
 	}
-
-	template <typename _tp>
-	inline void swap(_tp& x,_tp& y){
-		_tp z=x;
-		x=y;
-		y=z;
-	}
 }
 
 struct LinkCutTree{
+	int n,m;
 	struct SplayNode{
 		SplayNode *ftr,*ls,*rs;
-		int val,sum,rev;
+		int size,val,sumi,sum;
+		long long ansi,ans;
 
 		inline int isRoot(){
 			return ftr==NULL||(ftr->ls!=this&&ftr->rs!=this);
 		}
 
-		inline void reverse(){
-			std::swap(ls,rs);
-			rev^=1;
-		}
-
-		inline void pushDown(){
-			if(rev){
-				if(ls!=NULL)
-					ls->reverse();
-				if(rs!=NULL)
-					rs->reverse();
-				rev=0;
+		inline void pushUp(){
+			size=1;
+			sum=sumi+val;
+			ans=ansi;
+			if(rs!=NULL){
+				size+=rs->size;
+				sum+=rs->sum;
+				ans+=rs->ans;
+			}
+			ans+=sum*sum;
+			if(ls!=NULL){
+				size+=ls->size;
+				sum+=ls->sum;
+				ans+=ls->ans+sum*sum;
 			}
 		}
 
-		inline void pushUp(){
-			sum=val;
-			if(ls!=NULL)
-				sum^=ls->sum;
-			if(rs!=NULL)
-				sum^=rs->sum;
+		SplayNode(){
+			size=1;
 		}
 	};
-
 	SplayNode mempool[maxn+1];
 
 	inline void rotate(re SplayNode* p){
 		re SplayNode* q=p->ftr;
-		q->pushDown();
-		p->pushDown();
 		p->ftr=q->ftr;
 		if(p->ftr!=NULL){
 			if(p->ftr->ls==q)
@@ -134,87 +124,48 @@ struct LinkCutTree{
 				rotate((p->ftr->ftr->ls==p->ftr)==(p->ftr->ls==p)?p->ftr:p);
 	}
 
-	inline void build(re int n){
-		for(re int i=1;i<=n;++i){
-			re SplayNode* p=mempool+i;
-			p->ftr=p->ls=p->rs=NULL;
-			cltstream::read(p->val);
-			p->sum=p->val;
-			p->rev=0;
-		}
-	}
-
 	inline void access(re SplayNode* p){
 		splay(p);
-		p->pushDown();
+		if(p->rs!=NULL){
+			p->sumi+=p->rs->sum;
+			p->ansi+=p->rs->ans;
+		}
 		p->rs=NULL;
 		p->pushUp();
 		for(re SplayNode* q=p;q->ftr!=NULL;q=q->ftr){
 			splay(q->ftr);
-			q->ftr->pushDown();
+			if(q->ftr->rs!=NULL){
+				q->ftr->sumi+=q->ftr->rs->sum;
+				q->ftr->ansi+=q->ftr->rs->ans;
+			}
 			q->ftr->rs=q;
+			q->ftr->sumi-=q->ftr->rs->sum;
+			q->ftr->ansi-=q->ftr->rs->ans;
 			q->ftr->pushUp();
 		}
 		splay(p);
 	}
 
-	inline SplayNode* findRoot(re SplayNode* p){
-		access(p);
-		for(;p->ls!=NULL;p=p->ls);
-		splay(p);
-		return p;
-	}
-
-	inline void makeRoot(re SplayNode* p){
-		access(p);
-		p->reverse();
-	}
-
-	inline void split(re SplayNode* p,re SplayNode* q){
-		makeRoot(p);
-		access(q);
-	}
-
 	inline void link(re SplayNode* p,re SplayNode* q){
-		makeRoot(p);
-		if(findRoot(q)!=p)
-			p->ftr=q;
-	}
-
-	inline void cut(re SplayNode* p,re SplayNode* q){
-		makeRoot(p);
-		if(findRoot(q)==p&&q->ftr==p&&q->ls==NULL){
-			q->ftr=p->rs=NULL;
-			p->pushUp();
-		}
-	}
-
-	inline int queryPathXorSum(re int x,re int y){
-		split(mempool+x,mempool+y);
-		return (mempool+y)->sum;
-	}
-
-	inline void createEdge(re int x,re int y){
-		link(mempool+x,mempool+y);
-	}
-
-	inline void destoryEdge(re int x,re int y){
-		cut(mempool+x,mempool+y);
-	}
-
-	inline void modifyVertice(re int x,re int y){
-		splay(mempool+x);
-		(mempool+x)->val=y;
-		(mempool+x)->pushUp();
+		access(p);
+		access(q);
+		q->ftr=p;
+		p->sumi+=q->sum;
+		p->ansi+=q->ans;
+		p->pushUp();
 	}
 
 	void printTree(re SplayNode* p){
 		if(p!=NULL){
-			p->pushDown();
 			printTree(p->ls);
 			printf(
-				"%d(%d,%d,%d)\n",
+				"id=%lld,val=%d,sumi=%d,sum=%d,ansi=%lld,ans=%lld,ftr=%lld,ls=%lld,rs=%lld\n",
 				p-mempool,
+				p->val,
+				p->sumi,
+				p->sum,
+				p->ansi,
+				p->ans,
 				p->ftr!=NULL?p->ftr-mempool:-1,
 				p->ls!=NULL?p->ls-mempool:-1,
 				p->rs!=NULL?p->rs-mempool:-1
@@ -222,35 +173,45 @@ struct LinkCutTree{
 			printTree(p->rs);
 		}
 	}
-};
 
-int n,m;
+	LinkCutTree(){
+		// freopen("C:\\Users\\Challestend\\Downloads\\testdata(2).in","r",stdin);
+		// freopen("LGP3676.out","w",stdout);
+		cltstream::read(n);
+		cltstream::read(m);
+		for(re int i=1;i<n;++i){
+			int x,y;
+			cltstream::read(x);
+			cltstream::read(y);
+			link(mempool+x,mempool+y);
+		}
+		for(re int i=1;i<=n;++i){
+			access(mempool+i);
+			cltstream::read((mempool+i)->val);
+			(mempool+i)->pushUp();
+		}
+		for(re int i=1;i<=m;++i){
+			int opt,x;
+			cltstream::read(opt);
+			cltstream::read(x);
+			if(opt==1){
+				access(mempool+x);
+				cltstream::read((mempool+x)->val);
+				(mempool+x)->pushUp();
+			}
+			else{
+				access(mempool+x);
+				cltstream::write((mempool+x)->ans,10);
+			}
+			for(re int j=1;j<=n;++j)
+				if((mempool+j)->isRoot())
+					printTree(mempool+j),puts("");
+		}
+		clop();
+	}
+};
 LinkCutTree QAQ;
 
-int main(){\
-	cltstream::read(n);
-	cltstream::read(m);
-	QAQ.build(n);
-	for(re int i=1;i<=m;++i){
-		int opt,x,y;
-		cltstream::read(opt);
-		cltstream::read(x);
-		cltstream::read(y);
-		switch(opt){
-			case 0:
-				cltstream::write(QAQ.queryPathXorSum(x,y),10);
-				break;
-			case 1:
-				QAQ.createEdge(x,y);
-				break;
-			case 2:
-				QAQ.destoryEdge(x,y);
-				break;
-			case 3:
-				QAQ.modifyVertice(x,y);
-				break;
-		}
-	}
-	clop();
+int main(){
 	return 0;
 }

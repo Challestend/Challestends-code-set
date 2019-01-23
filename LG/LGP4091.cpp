@@ -1,6 +1,6 @@
 #include<cstdio>
 #define re register
-#define maxn 32768
+#define maxn 2097152
 #define mod 998244353
 #define swap(a,b) a^=b,b^=a,a^=b
 
@@ -58,9 +58,8 @@ namespace cltstream{
 	}
 }
 
-int n,m;
-int a[maxn+1],F[maxn+1],G[maxn+1];
-int unit[2][24],rev[maxn+1];
+int n,m,ans;
+int inv[maxn+1],unit[2][24],rev[maxn+1],F[maxn+1],G[maxn+1];
 
 inline int cltpow(re int x,re int y){
 	re int res=1;
@@ -89,49 +88,33 @@ inline void NTT(re int* F,re int n,re int tp){
 		F[i]=1LL*F[i]*v%mod;
 }
 
-inline void polymul(re int* F,re int n,re int* G,re int m){
-	re int N=1;
-	for(;N<n+m-1;N<<=1);
-	for(re int i=n;i<N;++i)
-		F[i]=0;
-	NTT(F,N,0);
-	for(re int i=m;i<N;++i)
-		G[i]=0;
-	NTT(G,N,0);
-	for(re int i=0;i<N;++i)
-		F[i]=1LL*F[i]*G[i]%mod;
-	NTT(F,N,1);
-}
-
-inline void solve(re int l,re int r){
-	if(l<r){
-		re int mid=(l+r)>>1;
-		solve(l,mid);
-		solve(mid+1,r);
-		F[0]=G[0]=1;
-		for(re int i=l;i<=mid;++i)
-			F[i-l+1]=a[i];
-		for(re int i=mid+1;i<=r;++i)
-			G[i-mid]=a[i];
-		polymul(F,mid-l+2,G,r-mid+1);
-		for(re int i=l;i<=r;++i)
-			a[i]=F[i-l+1];
-	}
-}
-
 int main(){
-	a[0]=1;
+	cltstream::read(n);
+	++n;
+	inv[0]=inv[1]=1;
+	for(re int i=2;i<n;++i)
+		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
+	F[0]=G[0]=1;
+	F[1]=mod-1;
+	G[1]=n;
+	for(re int i=2,j=inv[2];i<n;++i,j=1LL*j*inv[i]%mod){
+		F[i]=1LL*((i&1)?mod-1:1)*j%mod;
+		G[i]=i==0?1:i==1?n:1LL*(cltpow(i,n)+mod-1)*cltpow(i-1,mod-2)%mod*j%mod;
+	}
 	unit[0][23]=cltpow(3,119);
 	unit[1][23]=cltpow(332748118,119);
 	for(re int i=0;i<2;++i)
 		for(re int j=22;j>=0;--j)
 			unit[i][j]=1LL*unit[i][j+1]*unit[i][j+1]%mod;
-	cltstream::read(n);
-	for(re int i=1;i<=n;++i)
-		a[i]=i;
-	solve(1,n);
-	for(re int i=0;i<=n;++i)
-		cltstream::write(a[i],32);
+	for(m=1;m<(n<<1)-1;m<<=1);
+	NTT(F,m,0);
+	NTT(G,m,0);
+	for(re int i=0;i<m;++i)
+		F[i]=1LL*F[i]*G[i]%mod;
+	NTT(F,m,1);
+	for(re int i=0,j=1;i<n;++i,j=2LL*j*i%mod)
+		ans=(ans+1LL*j*F[i]%mod)%mod;
+	cltstream::write(ans);
 	clop();
 	return 0;
 }

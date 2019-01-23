@@ -1,5 +1,4 @@
 #include<cstdio>
-#include<cstdlib>
 #include<ctime>
 #include"F:/clt/Libraries/cltrnd.h"
 #define re register
