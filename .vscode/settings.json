@@ -2,5 +2,8 @@
 	"C_Cpp.dimInactiveRegions": true,
 	"python.pythonPath": "C:\\Users\\Challestend\\AppData\\Local\\Programs\\Python\\Python37-32\\python.exe",
 	"C_Cpp.intelliSenseEngineFallback": "Disabled",
-	"C_Cpp.errorSquiggles": "Enabled"
+	"C_Cpp.errorSquiggles": "Enabled",
+	"files.associations": {
+		"algorithm": "cpp"
+	}
 }
