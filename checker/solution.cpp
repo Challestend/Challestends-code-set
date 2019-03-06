@@ -1,69 +1,205 @@
-#include<bits/stdc++.h>
-#define ll long long
-#define rg register
-using namespace std;
-const int MAXN=5e5+10;
-struct gao{   int u,v,w,Next;   }Edge[MAXN<<1],E[MAXN];
-int n,m,Maxj,Ls,Qs,Ds,Es,First[MAXN],High[MAXN],Hard[MAXN],Lsh[MAXN];
-int Tot[MAXN],Dfn[MAXN],Jump[MAXN][21];
-inline int Read()
-{   rg int a=0,c=1;   rg char b=getchar();
-	while(b!='-'&&(b<'0'||b>'9'))b=getchar();
-	if(b=='-')c=-1,b=getchar();
-	while(b>='0'&&b<='9')a=a*10+b-48,b=getchar();
-	return a*c;
-}
-inline void Link(rg int u,rg int v)
-{   Edge[++Es]=(gao){u,v,0,First[u]},First[u]=Es;   }
-inline bool cmp(rg gao A,rg gao B){   return A.w<B.w;   }
-namespace Union
-{   int Bel[MAXN<<1];
-	inline int Find(rg int S){   return Bel[S]==S?S:Bel[S]=Find(Bel[S]);   }
-	inline void Merge(rg int A,rg int B){   A=Find(A),B=Find(B),Bel[A]=B;   }
-}using Union::Bel;using Union::Find;using Union::Merge;
-namespace Tree
-{   int Ts,Root[MAXN];
-	struct jin{   int Sum,Lson,Rson;   }Tr[MAXN*10];
-	inline void Modify(rg int &S,rg int Le,rg int Ri,rg int Aim)
-	{   Tr[++Ts]=Tr[S],S=Ts,Tr[S].Sum++;   rg int Mid=(Le+Ri)>>1;
-		if(Le!=Ri) Aim<=Mid?Modify(Tr[S].Lson,Le,Mid,Aim):Modify(Tr[S].Rson,Mid+1,Ri,Aim);
+#include<cstdio>
+#include<algorithm>
+#define re register
+#define maxn 200000
+#define maxm 500000
+#define maxk 50
+#define mod 998244353
+
+namespace cltstream{
+	#define size 1048576
+	char cltin[size+1],*ih=cltin,*it=cltin;
+	inline char gc(){
+		#ifdef ONLINE_JUDGE
+			if(ih==it){
+				it=(ih=cltin)+fread(cltin,1,size,stdin);
+				if(ih==it)
+					return EOF;
+			}
+			return *ih++;
+		#else
+			return getchar();
+		#endif
 	}
-	inline int Query(rg int R1,rg int R2,rg int Le,rg int Ri,rg int K)
-	{   if(Le==Ri) return Le;   rg int Mid=(Le+Ri)>>1,Rs=Tr[Tr[R2].Rson].Sum-Tr[Tr[R1].Rson].Sum;
-		return Rs>=K?Query(Tr[R1].Rson,Tr[R2].Rson,Mid+1,Ri,K):Query(Tr[R1].Lson,Tr[R2].Lson,Le,Mid,K-Rs);
+
+	char cltout[size+1],*oh=cltout,*ot=cltout+size;
+	inline void pc(char c){
+		if(oh==ot){
+			fwrite(cltout,1,size,stdout);
+			oh=cltout;
+		}
+		*oh++=c;
 	}
-}using Tree::Root;using Tree::Modify;using Tree::Query;
-inline void Kruskal()
-{   sort(E+1,E+m+1,cmp),Ds=n;
-	for(rg int i=1;i<=n+n;i++) Bel[i]=i;
-	for(rg int i=1,u,v,w;i<=m;i++)
-	{   u=Find(E[i].u),v=Find(E[i].v),w=E[i].w;
-		if(u!=v) Hard[++Ds]=w,Merge(u,Ds),Merge(v,Ds),Link(u,Ds),Link(Ds,u),Link(v,Ds),Link(Ds,v);
+	#define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout),cltstream::oh=cltstream::cltout
+	#undef size
+
+	template <typename _tp>
+	inline void read(_tp& x){
+		int sn=1;
+		char c=gc();
+		for(;c!=45&&(c<48||c>57)&&c!=EOF;c=gc());
+		if(c==45&&c!=EOF)
+			sn=-1,c=gc();
+		for(x=0;c>=48&&c<=57&&c!=EOF;x=(x<<3)+(x<<1)+(c^48),c=gc());
+		x*=sn;
 	}
-	for(rg int i=n+1;i<=Ds;i++) High[i]=1;
+
+	template <typename _tp>
+	inline void write(_tp x,char text=-1){
+		if(x<0)
+			pc(45),x=-x;
+		if(!x)
+			pc(48);
+		else{
+			int digit[22];
+			for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
+			for(;digit[0];pc(digit[digit[0]--]^48));
+		}
+		if(text>=0)
+			pc(text);
+	}
 }
-inline void Dfs(rg int Now,rg int Ba)
-{   Dfn[Now]=++Ds,Jump[Now][0]=Ba,Tot[Now]=1;
-	Root[Ds]=Root[Ds-1],Modify(Root[Ds],1,Ls,High[Now]);
-	for(rg int i=First[Now];i!=-1;i=Edge[i].Next)
-		if(Edge[i].v!=Ba) Dfs(Edge[i].v,Now),Tot[Now]+=Tot[Edge[i].v];
-}
-inline int Query(rg int Now,rg int Lim)
-{   for(rg int i=Maxj;i>=0;i--)
-		if(Hard[Jump[Now][i]]<=Lim) Now=Jump[Now][i];
-	return Now;
-}
-int main()
-{   freopen("data.in","r",stdin);
-	freopen("data.ans","w",stdout);n=Read(),m=Read(),Qs=Read();
-	memset(First,-1,sizeof(First));
-	for(rg int i=1;i<=n;i++) High[i]=Lsh[++Ls]=Read();
-	Lsh[++Ls]=0,sort(Lsh+1,Lsh+Ls+1),Ls=unique(Lsh+1,Lsh+Ls+1)-Lsh-1;
-	for(rg int i=1;i<=n;i++) High[i]=lower_bound(Lsh+1,Lsh+Ls+1,High[i])-Lsh;
-	for(rg int i=1;i<=m;i++) E[i].u=Read(),E[i].v=Read(),E[i].w=Read();
-	Kruskal(),n=Ds,Ds=0,Dfs(Find(1),Find(1)),Maxj=log2(n);
-	for(rg int j=1;j<=Maxj;j++)
-		for(rg int i=1;i<=n;i++) Jump[i][j]=Jump[Jump[i][j-1]][j-1];
-	for(rg int i=1,V,X,K;i<=Qs;i++)
-		V=Read(),X=Read(),K=Read(),V=Query(V,X),K=Query(Root[Dfn[V]-1],Root[Dfn[V]+Tot[V]-1],1,Ls,K),printf("%d\n",K==1?-1:Lsh[K]);
+
+int n,m,k;
+int edge[maxn+1][2];
+
+struct LinkCutTree{
+	struct SplayNode{
+		SplayNode *ftr,*lc,*rc;
+		int val,cnt[maxk],ans,rev;
+
+		inline int isRoot(){
+			return ftr==NULL||(ftr->lc!=this&&ftr->rc!=this);
+		}
+
+		inline void reverse(){
+			std::swap(lc,rc);
+			rev^=1;
+		}
+
+		inline void pushDown(){
+			if(rev){
+				if(lc!=NULL)
+					lc->reverse();
+				if(rc!=NULL)
+					rc->reverse();
+				rev=0;
+			}
+		}
+
+		inline void pushUp(){
+			for(re int i=0;i<k;++i)
+				cnt[i]=0;
+			ans=0;
+			for(re int i=0;i<k;++i){
+				re int x=(k-i)%k,y=(2*k-i-val)%k;
+				ans=(ans+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[x]:!x)%mod)%mod;
+				ans=(ans+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[y]:!y)%mod)%mod;
+			}
+			for(re int i=0;i<k;++i)
+				for(re int j=0;j<k;++j){
+					cnt[(i+j)%k]=(cnt[(i+j)%k]+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[j]:!j)%mod)%mod;
+					cnt[(i+j+val)%k]=(cnt[(i+j+val)%k]+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[j]:!j)%mod)%mod;
+				}
+		}
+	};
+	SplayNode mep[maxn+1];
+
+	inline void rotate(re SplayNode* p){
+		re SplayNode* q=p->ftr;
+		q->pushDown();
+		p->pushDown();
+		p->ftr=q->ftr;
+		if(p->ftr!=NULL){
+			if(p->ftr->lc==q)
+				p->ftr->lc=p;
+			if(p->ftr->rc==q)
+				p->ftr->rc=p;
+		}
+		if(q->rc==p){
+			q->rc=p->lc;
+			if(q->rc!=NULL)
+				q->rc->ftr=q;
+			p->lc=q;
+		}
+		else{
+			q->lc=p->rc;
+			if(q->lc!=NULL)
+				q->lc->ftr=q;
+			p->rc=q;
+		}
+		q->ftr=p;
+		q->pushUp();
+		p->pushUp();
+	}
+
+	inline void splay(re SplayNode* p){
+		for(;!p->isRoot();rotate(p))
+			if(!p->ftr->isRoot())
+				rotate((p->ftr->ftr->lc==p->ftr)==(p->ftr->lc==p)?p->ftr:p);
+	}
+
+	inline void access(re SplayNode* p){
+		splay(p);
+		p->pushDown();
+		p->rc=NULL;
+		p->pushUp();
+		for(re SplayNode* q=p;q->ftr!=NULL;q=q->ftr){
+			splay(q->ftr);
+			q->ftr->pushDown();
+			q->ftr->rc=q;
+			q->ftr->pushUp();
+		}
+		splay(p);
+	}
+
+	inline void makeRoot(re SplayNode* p){
+		access(p);
+		p->reverse();
+	}
+
+	inline void split(re SplayNode* p,re SplayNode* q){
+		makeRoot(p);
+		access(q);
+	}
+
+	inline void link(re SplayNode* p,re SplayNode* q){
+		makeRoot(p);
+		p->ftr=q;
+	}
+
+	LinkCutTree(){
+		freopen("data.in","r",stdin);
+		freopen("data.out","w",stdout);
+		cltstream::read(n);
+		cltstream::read(k);
+		for(re int i=1;i<n;++i){
+			cltstream::read(edge[i][0]);
+			cltstream::read(edge[i][1]);
+		}
+		for(re int i=1;i<=n;++i){
+			(mep+i)->ftr=(mep+i)->lc=(mep+i)->rc=NULL;
+			cltstream::read((mep+i)->val);
+			(mep+i)->val%=k;
+			(mep+i)->rev=0;
+			(mep+i)->pushUp();
+		}
+		for(re int i=1;i<n;++i){
+			link(mep+edge[i][0],mep+edge[i][1]);
+		}
+		cltstream::read(m);
+		for(re int i=1;i<=m;++i){
+			int x,y;
+			cltstream::read(x);
+			cltstream::read(y);
+			split(mep+x,mep+y);
+			cltstream::write((mep+y)->ans,10);
+		}
+		clop();
+	}
+};
+LinkCutTree Cr;
+
+int main(){
+	return 0;
 }

@@ -1,0 +1,10 @@
+rename 1 data1.in
+rename 2 data2.in
+rename 3 data3.in
+rename 4 data4.in
+rename 5 data5.in
+rename 6 data6.in
+rename 7 data7.in
+rename 8 data8.in
+rename 9 data9.in
+rename 10 data10.in

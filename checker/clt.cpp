@@ -1,9 +1,10 @@
 #include<cstdio>
 #include<algorithm>
 #define re register
-#define maxn 100000
+#define maxn 200000
 #define maxm 500000
-#define maxq 500000
+#define maxk 50
+#define mod 998244353
 
 namespace cltstream{
 	#define size 1048576
@@ -59,53 +60,55 @@ namespace cltstream{
 	}
 }
 
-struct Edge{
-	int src,des,len;
-};
+int n,m,k;
+int edge[maxn+1][2];
 
-inline bool operator<(re Edge p1,re Edge p2){
-	return p1.len<p2.len;
-}
-
-struct Query{
-	int id,src,lim,rnk;
-};
-
-inline bool operator<(re Query p1,re Query p2){
-	return p1.lim<p2.lim;
-}
-
-struct SplayTree{
-	int n,m,q;
-	int f[maxn+1];
-	Edge edge[maxm+1];
-	Query query[maxq+1];
+struct LinkCutTree{
 	struct SplayNode{
 		SplayNode *ftr,*lc,*rc;
-		int cnt,size,sum,val;
+		int val,cnt[maxk],ans,rev;
 
-		inline void pushUp(){
-			size=1;
-			sum=cnt;
-			if(lc!=NULL){
-				size+=lc->size;
-				sum+=lc->sum;
-			}
-			if(rc!=NULL){
-				size+=rc->size;
-				sum+=rc->sum;
+		inline int isRoot(){
+			return ftr==NULL||(ftr->lc!=this&&ftr->rc!=this);
+		}
+
+		inline void reverse(){
+			std::swap(lc,rc);
+			rev^=1;
+		}
+
+		inline void pushDown(){
+			if(rev){
+				if(lc!=NULL)
+					lc->reverse();
+				if(rc!=NULL)
+					rc->reverse();
+				rev=0;
 			}
 		}
-	};
-	SplayNode mp[maxn+1],*vec[maxn+1];
-	int vectop,ans[maxq+1];
 
-	int find(re int x){
-		return f[x]==x?x:f[x]=find(f[x]);
-	}
+		inline void pushUp(){
+			for(re int i=0;i<k;++i)
+				cnt[i]=0;
+			ans=0;
+			for(re int i=0;i<k;++i){
+				re int x=(k-i)%k,y=(2*k-i-val)%k;
+				ans=(ans+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[x]:!x)%mod)%mod;
+				ans=(ans+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[y]:!y)%mod)%mod;
+			}
+			for(re int i=0;i<k;++i)
+				for(re int j=0;j<k;++j){
+					cnt[(i+j)%k]=(cnt[(i+j)%k]+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[j]:!j)%mod)%mod;
+					cnt[(i+j+val)%k]=(cnt[(i+j+val)%k]+1LL*(lc!=NULL?lc->cnt[i]:!i)*(rc!=NULL?rc->cnt[j]:!j)%mod)%mod;
+				}
+		}
+	};
+	SplayNode mep[maxn+1];
 
 	inline void rotate(re SplayNode* p){
 		re SplayNode* q=p->ftr;
+		q->pushDown();
+		p->pushDown();
 		p->ftr=q->ftr;
 		if(p->ftr!=NULL){
 			if(p->ftr->lc==q)
@@ -118,138 +121,84 @@ struct SplayTree{
 			if(q->rc!=NULL)
 				q->rc->ftr=q;
 			p->lc=q;
-			q->ftr=p;
 		}
 		else{
 			q->lc=p->rc;
 			if(q->lc!=NULL)
 				q->lc->ftr=q;
 			p->rc=q;
-			q->ftr=p;
 		}
+		q->ftr=p;
 		q->pushUp();
 		p->pushUp();
 	}
 
-	inline void splay(re SplayNode* p,re SplayNode* q){
-		for(;p->ftr!=q;rotate(p))
-			if(p->ftr->ftr!=q)
+	inline void splay(re SplayNode* p){
+		for(;!p->isRoot();rotate(p))
+			if(!p->ftr->isRoot())
 				rotate((p->ftr->ftr->lc==p->ftr)==(p->ftr->lc==p)?p->ftr:p);
 	}
 
-	inline int queryKth(re SplayNode* rt,re int x){
-		splay(rt,NULL);
-		if(rt->sum<x)
-			return -1;
-		for(re SplayNode* p=rt;p!=NULL;){
-			re int ln=p->lc!=NULL?p->lc->sum:0,rn=ln+p->cnt;
-			if(x>ln&&x<=rn){
-				splay(p,NULL);
-				return p->val;
-			}
-			else{
-				if(x<=ln)
-					p=p->lc;
-				else{
-					x-=rn;
-					p=p->rc;
-				}
-			}
+	inline void access(re SplayNode* p){
+		splay(p);
+		p->pushDown();
+		p->rc=NULL;
+		p->pushUp();
+		for(re SplayNode* q=p;q->ftr!=NULL;q=q->ftr){
+			splay(q->ftr);
+			q->ftr->pushDown();
+			q->ftr->rc=q;
+			q->ftr->pushUp();
 		}
-		return -1;
+		splay(p);
 	}
 
-	inline void insertNode(re SplayNode* rt,re SplayNode* nd){
-		splay(rt,NULL);
-		for(re SplayNode* p=rt;;){
-			if(nd->val==p->val){
-				splay(p,NULL);
-				p->cnt+=nd->cnt;
-				p->sum+=nd->cnt;
-				return;
-			}
-			else{
-				if(nd->val>p->val){
-					if(p->lc==NULL){
-						p->lc=nd;
-						nd->ftr=p;
-						splay(nd,NULL);
-						return;
-					}
-					else
-						p=p->lc;
-				}
-				else{
-					if(p->rc==NULL){
-						p->rc=nd;
-						nd->ftr=p;
-						splay(nd,NULL);
-						return;
-					}
-					else
-						p=p->rc;
-				}
-			}
-		}
+	inline void makeRoot(re SplayNode* p){
+		access(p);
+		p->reverse();
 	}
 
-	void breakDown(re SplayNode* p){
-		if(p!=NULL){
-			breakDown(p->lc);
-			breakDown(p->rc);
-			p->ftr=p->lc=p->rc=NULL;
-			p->size=p->sum=p->cnt;
-			vec[++vectop]=p;
-		}
+	inline void split(re SplayNode* p,re SplayNode* q){
+		makeRoot(p);
+		access(q);
 	}
 
 	inline void link(re SplayNode* p,re SplayNode* q){
-		if(find(p-mp)!=find(q-mp)){
-			f[f[p-mp]]=f[q-mp];
-			splay(p,NULL);
-			splay(q,NULL);
-			if(q->size>p->size)
-				std::swap(p,q);
-			breakDown(q);
-			for(;vectop;insertNode(p,vec[vectop--]));
-		}
+		makeRoot(p);
+		p->ftr=q;
 	}
 
-	SplayTree(){
+	LinkCutTree(){
 		freopen("data.in","r",stdin);
 		freopen("data.out","w",stdout);
-		vectop=0;
 		cltstream::read(n);
-		cltstream::read(m);
-		cltstream::read(q);
+		cltstream::read(k);
+		for(re int i=1;i<n;++i){
+			cltstream::read(edge[i][0]);
+			cltstream::read(edge[i][1]);
+		}
 		for(re int i=1;i<=n;++i){
-			f[i]=i;
-			(mp+i)->cnt=(mp+i)->size=(mp+i)->sum=1;
-			cltstream::read((mp+i)->val);
+			(mep+i)->ftr=(mep+i)->lc=(mep+i)->rc=NULL;
+			cltstream::read((mep+i)->val);
+			(mep+i)->val%=k;
+			(mep+i)->rev=0;
+			(mep+i)->pushUp();
 		}
+		for(re int i=1;i<n;++i){
+			link(mep+edge[i][0],mep+edge[i][1]);
+		}
+		cltstream::read(m);
 		for(re int i=1;i<=m;++i){
-			cltstream::read(edge[i].src);
-			cltstream::read(edge[i].des);
-			cltstream::read(edge[i].len);
+			int x,y;
+			cltstream::read(x);
+			cltstream::read(y);
+			split(mep+x,mep+y);
+			cltstream::write((mep+y)->ans,10);
 		}
-		std::sort(edge+1,edge+m+1);
-		for(re int i=1;i<=q;++i){
-			query[i].id=i;
-			cltstream::read(query[i].src);
-			cltstream::read(query[i].lim);
-			cltstream::read(query[i].rnk);
-		}
-		std::sort(query+1,query+q+1);
-		for(re int i=1,j=1;i<=q;++i){
-			for(;j<=m&&edge[j].len<=query[i].lim;link(mp+edge[j].src,mp+edge[j].des),++j);
-			ans[query[i].id]=queryKth(mp+query[i].src,query[i].rnk);
-		}
-		for(re int i=1;i<=q;++i)
-			cltstream::write(ans[i],10);
 		clop();
 	}
 };
-SplayTree CLT;
+LinkCutTree Cr;
 
 int main(){
 	return 0;

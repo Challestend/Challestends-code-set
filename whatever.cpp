@@ -1,35 +1,12 @@
 #include<cstdio>
-#include<iostream>
-#include<algorithm>
-#include<set>
-using namespace std;
-struct Plan{
-	int l,r;
-	bool operator <(const Plan &rhs)const{
-		return r<rhs.l;
-	}
-};
-int T;
-set<Plan> s;
+#define re register
+
+int n,l=20;
+
 int main(){
-	cin>>T;
-	while(T--){
-		char c; scanf(" %c",&c); //空格可以防止读入无效字符
-		if(c=='A'){
-			int l,r,cnt=0; scanf("%d %d",&l,&r);
-			Plan tmp=(Plan){l,r};
-			//删掉与该预约冲突的预约，并统计个数
-			set<Plan>::iterator it=s.find(tmp);
-			while(it!=s.end()){
-				++cnt; s.erase(it);
-				it=s.find(tmp);
-			}
-			s.insert(tmp);
-			printf("%d\n",cnt);
-		}
-		else{
-			printf("%d\n",s.size());
-		}
-	}
+	scanf("%d",&n);
+	for(re int n0=0;n0<=n;++n0)
+		for(re int i=0,m;i<=n0&&i<=l;++i)
+			printf("%2d%c",i==0?n0:m=i==1?1:2*m<=n0?2*m:(2*m-1)%n0,i<n0&&i<l?32:10);
 	return 0;
 }
