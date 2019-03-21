@@ -2,6 +2,7 @@
 #define re register
 #define maxn 524288
 #define mod 998244353
+#define I2 499122177
 #define swap(a,b) a^=b,b^=a,a^=b
 
 namespace cltstream{
@@ -28,7 +29,7 @@ namespace cltstream{
 		}
 		*oh++=c;
 	}
-	#define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout)
+	#define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout),cltstream::oh=cltstream::cltout
 	#undef size
 
 	template <typename _tp>
@@ -59,14 +60,8 @@ namespace cltstream{
 }
 
 int n,m;
-int unit[2][23],rev[maxn+1],F[maxn+1],G[maxn+1],tmp1[maxn+1],tmp2[maxn+1];
-// unit是预处理好的原根
-
-inline void print(re int* F,re int n){
-	putchar('{');
-	for(re int i=0;i<n;++i)
-		printf("%d%c",F[i],i<n-1?',':'}');
-}
+int unit[2][24],rev[maxn+1],inv[maxn+1];
+int F[maxn+1],G[maxn+1],tmp1[maxn+1],tmp2[maxn+1],tmp3[maxn+1],tmp4[maxn+1];
 
 inline int cltpow(re int x,re int y){
 	re int res=1;
@@ -80,7 +75,6 @@ inline int cltpow(re int x,re int y){
 }
 
 inline void NTT(re int* F,re int n,re int tp){
-// tp=0 系数转点值; tp=1 点值转系数
 	for(re int i=0;i<n;++i)
 		if(i<(rev[i]=(rev[i>>1]>>1)|((i&1)?(n>>1):0)))
 			swap(F[i],F[rev[i]]);
@@ -116,42 +110,56 @@ inline void Inv(re int* F,re int* G,re int n){
 		for(re int k=(i<<1);k<j;++k)
 			G[k]=0;
 	}
-	for(re int i=n;i<N;G[i]=0,++i);
-	printf("");
-	print(F,n);
-	printf("^{-1}=");
-	print(G,n);
-	printf("\n\n");
+	for(re int i=n;i<N;++i)
+		G[i]=0;
 }
 
-inline void Sqrt(re int* F,re int* G,re int n){
+inline void Ln(re int* F,re int* G,re int n){
+	re int N=1;
+	for(;N<n;N<<=1);
+	N<<=1;
+	for(re int i=1;i<n;++i)
+		G[i-1]=1LL*F[i]*i%mod;
+	G[n-1]=0;
+	for(re int i=n;i<N;++i)
+		G[i]=0;
+	NTT(G,N,0);
+	Inv(F,tmp2,n);
+	NTT(tmp2,N,0);
+	for(re int i=0;i<N;++i)
+		G[i]=1LL*G[i]*tmp2[i]%mod;
+	NTT(G,N,1);
+	for(re int i=n-1;i>=1;--i)
+		G[i]=1LL*G[i-1]*inv[i]%mod;
+	G[0]=0;
+	for(re int i=n;i<N;++i)
+		G[i]=0;
+}
+
+inline void Exp(re int* F,re int* G,re int n){
 	re int N=1;
 	for(;N<n;N<<=1);
 	N<<=1;
 	for(re int i=0;i<N;++i)
 		G[i]=0;
 	G[0]=1;
-	for(re int i=1,j=4;i<n;i<<=1,j<<=1){
-		Inv(G,tmp2,i);
+	for(re int i=1,j=2;i<(n<<1);i<<=1,j<<=1){
+		Ln(G,tmp3,i);
 		NTT(G,j,0);
-		for(re int k=0;k<(i<<1);++k)
-			tmp1[k]=F[k];
-		for(re int k=(i<<1);k<j;++k)
-			tmp1[k]=0;
-		NTT(tmp1,j,0);
-		NTT(tmp2,j,0);
-		for(re int k=0,tmp=1;k<j;++k,tmp=1LL*tmp*unit[0][j==4?2:3]%mod)
-			printf("G(%9d)=%9d F(%9d)=%9d G^{-1}(%9d)=%9d",tmp,G[k],tmp,tmp1[k],tmp,tmp2[k]),
-			printf(" => %d\n",499122177*(1LL*G[k]*G[k]%mod+tmp1[k])%mod*tmp2[k]%mod);
+		NTT(tmp3,j,0);
+		for(re int k=0;k<i;++k)
+			tmp4[k]=F[k];
+		for(re int k=i;k<j;++k)
+			tmp4[k]=0;
+		NTT(tmp4,j,0);
 		for(re int k=0;k<j;++k)
-			G[k]=499122177*(1LL*G[k]*G[k]%mod+tmp1[k])%mod*tmp2[k]%mod;
+			G[k]=G[k]*(1LL-tmp3[k]+tmp4[k]+mod)%mod;
 		NTT(G,j,1);
 		for(re int k=(i<<1);k<j;++k)
 			G[k]=0;
-		print(G,i<<1);
-		puts("\n");
 	}
-	for(re int i=n;i<N;G[i]=0,++i);
+	for(re int i=n;i<N;++i)
+		G[i]=0;
 }
 
 int main(){
@@ -160,38 +168,25 @@ int main(){
 	for(re int i=0;i<2;++i)
 		for(re int j=22;j>=0;--j)
 			unit[i][j]=1LL*unit[i][j+1]*unit[i][j+1]%mod;
+	inv[0]=inv[1]=1;
+	for(re int i=2;i<=maxn;++i)
+		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
 	cltstream::read(n);
 	cltstream::read(m);
-	++m;
+	F[0]=1;
 	for(re int i=1;i<=n;++i){
-		re int x;
+		int x;
 		cltstream::read(x);
 		F[x]=mod-4;
 	}
+	Ln(F,G,m+1);
+	for(re int i=0;i<=m;++i)
+		G[i]=1LL*G[i]*I2%mod;
+	Exp(G,F,m+1);
 	++F[0];
-	print(F,m);
-	printf("\n\n");
-	Sqrt(F,G,m);
-	print(F,m);
-	printf("^{1/2}=");
-	print(G,m);
-	printf("\n\n");
-	++G[0];
-	Inv(G,F,m);
-	for(re int i=1;i<m;++i)
-		cltstream::write(2LL*F[i]%mod,10);
-	--G[0];
-	print(G,m);
-	printf("^{2}=");
-	re int M=1;
-	for(;M<m;M<<=1);
-	M<<=1;
-	NTT(G,M,0);
-	for(re int i=0;i<M;++i)
-		G[i]=1LL*G[i]*G[i]%mod;
-	NTT(G,M,1);
-	print(G,m);
-	printf("\n\n");
+	Inv(F,G,m+1);
+	for(re int i=1;i<=m;++i)
+		cltstream::write(2LL*G[i]%mod,10);
 	clop();
 	return 0;
 }

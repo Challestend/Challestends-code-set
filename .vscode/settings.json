@@ -1,9 +1,8 @@
 {
 	"C_Cpp.dimInactiveRegions": true,
-	"python.pythonPath": "C:\\Users\\Challestend\\AppData\\Local\\Programs\\Python\\Python37-32\\python.exe",
+	"python.pythonPath": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Python37-32\\python.exe",
 	"C_Cpp.intelliSenseEngineFallback": "Disabled",
 	"C_Cpp.errorSquiggles": "Enabled",
-	"files.associations": {
-		"algorithm": "cpp"
-	}
+	"python.linting.pylintEnabled": true,
+	"python.linting.enabled": true
 }

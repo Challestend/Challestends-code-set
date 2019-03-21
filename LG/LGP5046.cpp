@@ -1,10 +1,8 @@
 #include<cstdio>
-#include<ctime>
-#include<cstring>
-#include<algorithm>
+#include<cmath>
 #define re register
 #define maxn 100000
-#define maxs 320
+#define maxs 480
 #define max(a,b) ((a)>=(b)?(a):(b))
 #define min(a,b) ((a)<=(b)?(a):(b))
 #define lowbit(a) ((a)&(-(a)))
@@ -65,7 +63,8 @@ namespace cltstream{
 
 int n,m,sq;
 long long lastans;
-int id[maxn+5],a[maxn+5],pos[maxn+5],bit[maxn+5],cnt[maxs+5][maxn+5],lc[maxn+5],rc[maxn+5];
+int id[maxn+5],lwr[maxn+5],upr[maxn+5];
+int a[maxn+5],pos[maxn+5],bit[maxn+5],cnt[maxs+5][maxn+5],lc[maxn+5],rc[maxn+5];
 long long ans[maxs+5][maxs+5];
 int mrk[maxs+5],rnk[maxs+5][maxn+5],tmp[(maxs<<1)+5];
 
@@ -82,66 +81,61 @@ inline int getsum(re int x){
 }
 
 int main(){
-	freopen("LGP5046.in","r",stdin);
-	freopen("LGP5046.out","w",stdout);
 	cltstream::read(n);
 	cltstream::read(m);
-	for(;(sq+1)*(sq+1)<=n;++sq);
-	for(re int i=1;i<=n;++i){
-		id[i]=i<=sq?1:id[i-sq]+1;
-		cltstream::read(a[i]);
-		pos[a[i]]=i;
+	sq=1.43*sqrt(n);
+	for(re int i=1;i<=n;++i)
+		id[i]=(i-1)/sq+1,
+		cltstream::read(a[i]),
+		pos[a[i]]=i,
 		cnt[id[i]][a[i]-1]=1;
-	}
+	for(re int i=1;i<=id[n];++i)
+		lwr[i]=(i-1)*sq+1,
+		upr[i]=i*sq;
+	upr[id[n]]=n;
 	for(re int i=1;i<=id[n];++i)
 		for(re int j=n;j>=0;--j)
 			cnt[i][j]+=cnt[i][j+1];
 	for(re int i=1;i<=id[n];++i)
 		for(re int j=n;j>=0;--j)
 			cnt[i][j]+=cnt[i-1][j];
-	for(re int i=1;i<=n;++i){
-		lc[i]=(id[i]==id[i-1])*lc[i-1]+i-getsum(a[i])-cnt[id[i]-1][a[i]]-1;
+	for(re int i=1;i<=n;++i)
+		lc[i]=(id[i]==id[i-1])*lc[i-1]+i-getsum(a[i])-cnt[id[i]-1][a[i]]-1,
 		update(a[i]);
-	}
-	for(re int i=n;i>=1;--i){
-		rc[i]=(id[i]==id[i+1])*rc[i+1]+getsum(a[i])-max(n-id[i]*sq,0)+cnt[id[n]][a[i]-1]-cnt[id[i]][a[i]-1]-a[i];
+	for(re int i=n;i>=1;--i)
+		rc[i]=(id[i]==id[i+1])*rc[i+1]+getsum(a[i])-n+upr[id[i]]+cnt[id[n]][a[i]-1]-cnt[id[i]][a[i]-1]-a[i],
 		update(a[i]);
-	}
-	printf("%d\n",clock());
 	for(re int i=1;i<=id[n];++i)
 		ans[i][i]=rc[(i-1)*sq+1];
-	printf("%d\n",clock());
 	for(re int i=1;i<=id[n];++i)
 		for(re int j=i+1;j<=id[n];++j){
 			ans[i][j]=ans[i][j-1]+ans[j][j];
-			for(re int k=(j-1)*sq+1;k<=j*sq&&k<=n;++k)
+			for(re int k=lwr[j];k<=upr[j];++k)
 				ans[i][j]+=cnt[j-1][a[k]]-cnt[i-1][a[k]];
 		}
-	printf("%d\n",clock());
 	for(re int i=1;i<=n;++i){
 		for(re int j=1;j<=id[n];++j)
 			rnk[j][pos[i]]=mrk[j]+mrk[id[pos[i]]]+1;
-		rnk[id[pos[i]]][pos[i]]-=mrk[id[pos[i]]];
+		rnk[id[pos[i]]][pos[i]]-=mrk[id[pos[i]]],
 		++mrk[id[pos[i]]];
 	}
-	printf("%d\n",clock());
 	for(re int i=1;i<=m;++i){
-		re long long l,r;
+		long long l,r;
 		cltstream::read(l);
 		cltstream::read(r);
-		// l^=lastans;
-		// r^=lastans;
+		l^=lastans;
+		r^=lastans;
 		if(l>r)
 			l^=r^=l^=r;
 		if(id[l]<id[r]){
 			lastans=ans[id[l]+1][id[r]-1]+rc[l]+lc[r];
-			for(re int j=l;j<=id[l]*sq;++j){
+			for(re int j=l;j<=upr[id[l]];++j){
 				lastans+=(id[r]-id[l]-1)*sq-cnt[id[r]-1][a[j]]+cnt[id[l]][a[j]];
 				++tmp[rnk[id[r]][j]-1];
 			}
 			for(re int j=(sq<<1);j>=1;--j)
 				tmp[j]+=tmp[j+1];
-			for(re int j=(id[r]-1)*sq+1;j<=r;++j)
+			for(re int j=lwr[id[r]];j<=r;++j)
 				lastans+=cnt[id[r]-1][a[j]]-cnt[id[l]][a[j]]+tmp[rnk[id[l]][j]];
 			for(re int j=1;j<=(sq<<1);++j)
 				tmp[j]=0;
@@ -150,7 +144,7 @@ int main(){
 			lastans=lc[r];
 			if(id[l]==id[l-1])
 				lastans-=lc[l-1];
-			for(re int j=(id[l]-1)*sq+1;j<l;++j)
+			for(re int j=lwr[id[l]];j<l;++j)
 				++tmp[rnk[id[j]][j]-1];
 			for(re int j=sq;j>=1;--j)
 				tmp[j]+=tmp[j+1];
@@ -161,7 +155,6 @@ int main(){
 		}
 		cltstream::write(lastans,10);
 	}
-	printf("%d\n",clock());
 	clop();
 	return 0;
 }
