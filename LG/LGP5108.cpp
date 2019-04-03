@@ -4,7 +4,7 @@
 #define maxn 300000
 #define maxlog 20
 #define min(a,b) ((a)<=(b)?(a):(b))
-#define stmin(st,a,b) (a<=b?min(st[a][lg[b-a+1]],st[b-(1<<lg[b-a+1])+1][lg[b-a+1]]):maxn+1)
+#define stmin(st,a,b) min(st[(a)][lg[(b)-(a)+1]],st[(b)-(1<<lg[(b)-(a)+1])+1][lg[(b)-(a)+1]])
 
 namespace cltstream{
 	#define size 1048576
@@ -124,10 +124,10 @@ int main(){
 			for(;i+j<=n&&pos+j<=n&&s[i+j]==s[pos+j];++j);
 			het[rnk[i]][0]=j;
 		}
-	for(re int j=1,p=1;j<=lg[n];++j,p<<=1)
-		for(re int i=1;i+(p<<1)-1<=n;++i){
-			sa[i][j]=min(sa[i][j-1],sa[i+p][j-1]);
-			het[i][j]=min(het[i][j-1],sa[i+p][j-1]);
+	for(re int j=1,k=1;j<=lg[n];++j,k<<=1)
+		for(re int i=1;i+(k<<1)-1<=n;++i){
+			sa[i][j]=min(sa[i][j-1],sa[i+k][j-1]);
+			het[i][j]=min(het[i][j-1],het[i+k][j-1]);
 		}
 	for(re int i=1,j=1;i<=n;++i){
 		for(;n-sa[j][0]+1<i;++j);

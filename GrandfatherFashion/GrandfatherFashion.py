@@ -27,13 +27,12 @@ def Append(tp,s):
 	Text[tp].sort()
 	print("潮爷：{0} \"{1}\" 已被成功追加。".format(Name[tp],s))
 
-def Erase(tp,x):
-	s=Text[tp][x]
-	for i in range(x,len(Text[tp])-1):
-		Text[tp][i]=Text[tp][i+1]
-	Text[tp].pop()
-	Text[tp].sort()
-	print("潮爷：{0} \"{1}\" 已被成功移除。".format(Name[tp],s))
+def Pop(tp):
+	if len(Text[tp])>0:
+		print("潮爷：{0} \"{1}\" 已被成功移除。".format(Name[tp],Text[tp][len(Text[tp])-1]))
+		Text[tp].pop()
+	else:
+		print("潮爷：找不到合法的 {0}。".format(Name[x[tp]]))
 
 def Print():
 	res="潮爷："
@@ -47,13 +46,13 @@ def Print():
 	print(res)
 
 def Init():
-	# data=open("GrandfatherFashion/data.txt","r")
+	# data=open("GrandfatherFashion/data","r")
 	data=open("data","r")
 	for i in range(0,partCnt):
 		Text.append(data.readline().replace("[","",-1).replace("]","",-1).replace("\'","",-1).replace(",","",-1).split())
 
 def Store():
-	# data=open("GrandfatherFashion/data.txt","w")
+	# data=open("GrandfatherFashion/data","w")
 	data=open("data","w")
 	for i in range(0,partCnt):
 		data.write("{0}\n".format(Text[i]))
@@ -65,21 +64,13 @@ def Debug():
 Init()
 while True:
 	opt=input()
-	if opt=="append":
+	if opt=="":
+		continue
+	elif opt=="append":
 		tp=int(input())
 		if tp>=0 and tp<partCnt:
 			s=input()
 			Append(tp,s)
-		else:
-			print("潮爷：无法识别的类型。")
-	if opt=="erase":
-		tp=int(input())
-		if tp>=0 and tp<partCnt:
-			x=int(input())
-			if x>=0 and x<len(Text[tp]):
-				Erase(tp,x)
-			else:
-				print("潮爷：下标越界。")
 		else:
 			print("潮爷：无法识别的类型。")
 	elif opt=="print":

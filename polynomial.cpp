@@ -106,6 +106,9 @@ inline poly Derivative(poly F){
 }
 
 inline poly Integral(poly F){
+	inv[0]=inv[1]=1;
+	for(re int i=2;i<F.n;++i)
+		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
 	poly G(F.n+1);
 	for(re int i=1;i<G.n;++i)
 		G.a[i]=1LL*F.a[i-1]*inv[i]%mod;
@@ -149,31 +152,31 @@ inline poly operator-(re int x,poly F){
 	return F;
 }
 
-inline poly NTT(poly F,re int N,re int tp){
-	poly G(N);
+inline void NTT(poly& F,re int N,re int tp){
+	F.n=N;
 	for(re int i=0;i<N;++i)
-		G.a[i]=F.a[rev[i]=(rev[i>>1]>>1)|((i&1)?(N>>1):0)];
+		if(i<(rev[i]=(rev[i>>1]>>1)|((i&1)?(N>>1):0)))
+			std::swap(F.a[i],F.a[rev[i]]);
 	for(re int k=1,p=1;p<N;++k,p<<=1)
 		for(re int i=0;i<N;i+=p<<1)
 			for(re int j=i,unit=cltpow(!tp?3:332748118,(mod-1)>>k),tmp=1;j<i+p;++j,tmp=1LL*tmp*unit%mod){
-				re int x=G.a[j],y=1LL*G.a[j+p]*tmp%mod;
-				G.a[j]=(x+y)%mod;
-				G.a[j+p]=(x-y+mod)%mod;
+				re int x=F.a[j],y=1LL*F.a[j+p]*tmp%mod;
+				F.a[j]=(x+y)%mod;
+				F.a[j+p]=(x-y+mod)%mod;
 			}
 	re int v=cltpow(N,tp*(mod-2));
 	for(re int i=0;i<N;++i)
-		G.a[i]=1LL*G.a[i]*v%mod;
-	return G;
+		F.a[i]=1LL*F.a[i]*v%mod;
 }
 
 inline poly operator*(poly F,poly G){
 	re int n=F.n+G.n-1,N=1;
 	for(;N<n;N<<=1);
-	F=NTT(F,N,0);
-	G=NTT(G,N,0);
+	NTT(F,N,0);
+	NTT(G,N,0);
 	for(re int i=0;i<N;++i)
 		F.a[i]=1LL*F.a[i]*G.a[i]%mod;
-	F=NTT(F,N,1);
+	NTT(F,N,1);
 	F.n=n;
 	clear(F);
 	return F;
@@ -195,6 +198,8 @@ inline poly Inversion(poly F){
 		G=G*(2-_F*G);
 		G.n=i<<1;
 		clear(G);
+		cltstream::write(i<<1,':');
+		G.write(10);
 	}
 	G.n=F.n;
 	clear(G);
@@ -202,6 +207,18 @@ inline poly Inversion(poly F){
 }
 
 inline poly Logarithm(poly F){
+	poly _G=Inversion(F);
+	F.write(10);
+	_G.write(10);
+	poly _H=F*_G;
+	_H.write(10);
+	_H.n=0;
+	clear(_H);
+	for(re int i=0;i<F.n;++i)
+		for(re int j=0;j<_G.n;++j)
+			_H.a[i+j]=(_H.a[i+j]+1LL*F.a[i]*_G.a[j]%mod)%mod;
+	_H.n=15;
+	_H.write(10);
 	poly G=Integral(Derivative(F)*Inversion(F));
 	G.n=F.n;
 	clear(G);
@@ -249,14 +266,12 @@ inline poly operator%(poly F,poly G){
 }
 
 int main(){
-	inv[0]=inv[1]=1;
-	for(re int i=2;i<maxn;++i)
-		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
 	int n;
 	cltstream::read(n);
 	poly F(n);
 	F.read();
-	poly G=Exponential(F);
+	// poly G=Exponential(F);
+	poly G=Logarithm(F);
 	G.write();
 	clop();
 	return 0;

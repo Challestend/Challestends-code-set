@@ -1,39 +1,23 @@
-## 潮学考试
+$$\begin{aligned}
+\sum_{j=1}^{\tfrac{n}{2}}\sum_{i=0}^{n-2j}d(\cfrac{(i+2j)^{2}-i^{2}}{4})&=\sum_{j=1}^{\tfrac{n}{2}}\sum_{i=0}^{n-2j}d(j(j+i))\\
+&=\sum_{j=1}^{\tfrac{n}{2}}\sum_{i=0}^{n-2j}\sum_{x|j}\sum_{y|(j+i)}[x\perp y]\\
+&=\sum_{j=1}^{\tfrac{n}{2}}\sum_{i=0}^{n-2j}\sum_{x|j}\sum_{y|(j+i)}\sum_{z|x,z|y}\mu(z)\\
+&=\sum_{j=1}^{\tfrac{n}{2}}\sum_{i=0}^{n-2j}\sum_{z|j,z|(j+i)}d(\cfrac{j}{z})d(\cfrac{j+i}{z})\mu(z)\\
+&=\sum_{j=1}^{\tfrac{n}{2}}\sum_{z|j}d(\cfrac{j}{z})d(\cfrac{j}{z})\mu(z)+\sum_{j=1}^{\tfrac{n}{2}}\sum_{i=1}^{n-2j}\sum_{z|j,z|i}d(\cfrac{j}{z})d(\cfrac{j+i}{z})\mu(z)\\
+&=\sum_{d=1}^{\tfrac{n}{2}}\sum_{i=1}^{\tfrac{n}{2d}}d^{2}(i)\mu(d)+\sum_{d=1}^{\tfrac{n}{2}}\sum_{j=1}^{\tfrac{n}{2d}}d(j)\sum_{i=1}^{\tfrac{n-2jd}{d}}d(j+i)\mu(d)\\
+&=\sum_{d=1}^{\tfrac{n}{2}}\left(\sum_{i=1}^{\tfrac{n}{2d}}d^{2}(i)+\sum_{j=1}^{\tfrac{n}{2d}}d(j)\sum_{i=1}^{\tfrac{n-2jd}{d}}d(j+i)\right)\mu(d)\\
+&=\sum_{d=1}^{\tfrac{n}{2}}\left(\sum_{i=1}^{\tfrac{n}{2d}}d^{2}(i)+\sum_{j=1}^{\tfrac{n}{2d}}d(j)\sum_{i=1}^{\tfrac{n-2jd}{d}+j}d(i)-\sum_{j=1}^{\tfrac{n}{2d}}d(j)\sum_{i=1}^{j}d(i)\right)\mu(d)
+\end{aligned}$$
 
-### 题目描述
+$$\begin{aligned}
+\sum_{i=1}^{n}\sum_{j=1}^{n}[i\perp j]=2\sum_{i=1}^{n}\varphi(i)-1
+\end{aligned}$$
 
-给你$n$个仅包含小写字母的字符串$S_{1},S_{2},\cdots,S_{n}$，集合$T$被定义为这些字符串的所有前缀组成的集合。
-
-我们定义这些字符串潮出了$T$。
-
-对于$T$中两个不同的字符串$A$和$B$（$|A|\leqslant|B|$）：
-
-- 若$A$是$B$的后缀，定义它们的距离为在$T$中满足如下三个条件的字符串的数量$+1$：
-  1. 以$A$为后缀
-  2. 是$B$的后缀
-  3. 与$A$，$B$均不同
-- 若$A$不是$B$的后缀，定义它们的距离为正无穷大。
-
-每次询问，给你两个整数$x,k$，你需要求出对于$T$中与$S_{x}$距离不超过$k$的所有字符串$P$（可能是空串），同时拥有$S_{x}$，$P$作为后缀且与$S_{x}$，$P$均不同的字符串$Q$的数量之和。
-
-### 输入输出格式
-
-#### 输入格式
-
-第一行两个整数$n,m$。
-
-接下来$n$行，每行一个字符串，第$i+1$行的字符串为$S_{i}$。
-
-接下来$m$行，每行两个整数$x,k$。
-
-#### 输出格式
-
-对于每个询问，输出一个整数。
-
-### 说明
-
-__样例#1解释__
-
-__数据范围与约定__
-
-$|S_{i}|\leqslant 100$，$\sum |S_{i}|\leqslant 10^{5}$，$n\leqslant 1000$，$m\leqslant 10^{5}$。
+$$\begin{aligned}
+G_{i}&=C_{m}^{i}C_{n}^{is}\cfrac{(is)!}{(s!)^{i}}(m-i)^{n-is}\\
+G_{i}&=\sum_{j=i}^{l}C_{j}^{i}F_{j}\\
+F_{i}&=\sum_{j=i}^{l}(-1)^{j-i}C_{j}^{i}G_{j}\\
+&=\sum_{j=i}^{l}(-1)^{j-i}C_{j}^{i}C_{m}^{j}C_{n}^{js}\cfrac{(js)!}{(s!)^{j}}(m-j)^{n-js}\\
+&=\sum_{j=i}^{l}(-1)^{j-i}\cfrac{j!m!n!(js)!}{i!(j-i)!j!(m-j)!(js)!(n-js)!(s!)^{j}}(m-j)^{n-js}\\
+&=\cfrac{m!n!}{i!}\sum_{j=i}^{l}\cfrac{(-1)^{j-i}}{(j-i)!}\cfrac{(m-j)^{n-js}}{(m-j)!(n-js)!(s!)^{j}}
+\end{aligned}$$

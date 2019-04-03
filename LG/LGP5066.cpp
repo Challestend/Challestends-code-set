@@ -1,3 +1,4 @@
+#pragma GCC optimize("Ofast")
 #include<cstdio>
 #define re register
 #define maxn 1000000
@@ -166,7 +167,9 @@ struct SplayTree{
 	}
 
 	inline void splay(re SplayNode* p,re SplayNode* q){
-		for(;p->ftr!=q;rotate(p));
+		for(;p->ftr!=q;rotate(p))
+			if(p->ftr->ftr!=q)
+				rotate((p->ftr->ftr->lc==p->ftr)==(p->ftr->lc==p)?p->ftr:p);
 		if(q==NULL)
 			root=p;
 	}
@@ -234,15 +237,102 @@ struct SplayTree{
 		return NULL;
 	}
 
+	inline SplayNode* delNode(re SplayNode* p){
+		if(p->lc!=NULL){
+			re SplayNode* q=p->lc;
+			for(;q->rc!=NULL;q=q->rc);
+			splay(q,p);
+			q->pushDown();
+			q->ftr=p->ftr;
+			q->rc=p->rc;
+			if(q->ftr!=NULL){
+				if(q->ftr->lc==p)
+					q->ftr->lc=q;
+				if(q->ftr->rc==p)
+					q->ftr->rc=q;
+			}
+			if(q->rc!=NULL)
+				q->rc->ftr=q;
+			q->pushUp();
+			if(root==p)
+				root=q;
+			return q;
+		}
+		else{
+			re SplayNode* q=p->rc;
+			if(q!=NULL){
+				q->ftr=p->ftr;
+				if(q->ftr!=NULL){
+					if(q->ftr->lc==p)
+						q->ftr->lc=q;
+					if(q->ftr->rc==p)
+						q->ftr->rc=q;
+				}
+			}
+			if(root==p)
+				root=q;
+			return q;
+		}
+	}
+
+	void clear(re SplayNode* p){
+		p->pushDown();
+		if(p->lc!=NULL){
+			if(!p->lc->len){
+				p->lc=rebuild(p->lc);
+				if(p->lc!=NULL)
+					p->lc->ftr=p;
+			}
+			else
+				clear(p->lc);
+		}
+		if(p->rc!=NULL){
+			if(!p->rc->len){
+				p->rc=rebuild(p->rc);
+				if(p->rc!=NULL)
+					p->rc->ftr=p;
+			}
+			else
+				clear(p->rc);
+		}
+		p->pushUp();
+	}
+
+	inline void merge(re SplayNode* p){
+		if(p->lc!=NULL){
+			re SplayNode* q=p->lc;
+			for(;q->rc!=NULL;q=q->rc);
+			splay(q,p);
+			q->pushDown();
+			if(q->val==p->val){
+				p->len+=q->len;
+				p->lc=q->lc;
+				if(p->lc!=NULL)
+					p->lc->ftr=p;
+				p->pushUp();
+			}
+		}
+		if(p->rc!=NULL){
+			re SplayNode* q=p->rc;
+			for(;q->lc!=NULL;q=q->lc);
+			splay(q,p);
+			q->pushDown();
+			if(q->val==p->val){
+				p->len+=q->len;
+				p->rc=q->rc;
+				if(p->rc!=NULL)
+					p->rc->ftr=p;
+				p->pushUp();
+			}
+		}
+	}
+
 	inline void opt12(re int l,re int r,re int x){
 		re SplayNode* L=find(l);
 		re SplayNode* R=find(r);
-		if(R!=L){
-			splay(L,NULL);
+		splay(L,NULL);
+		if(R!=L)
 			splay(R,L);
-		}
-		else
-			splay(L,NULL);
 		re int ln=l-(L->lc!=NULL?L->lc->size:0)-1,rn=L->size-(R->rc!=NULL?R->rc->size:0)-r,cn=r-l+1;
 		if(ln&&L->val!=x){
 			re SplayNode* p=newNode(ln,L->val);
@@ -273,32 +363,7 @@ struct SplayTree{
 		L->len=cn;
 		L->val=x;
 		L->pushUp();
-		if(L->lc!=NULL){
-			re SplayNode* p=L->lc;
-			for(;p->rc!=NULL;p=p->rc);
-			splay(p,L);
-			p->pushDown();
-			if(p->val==L->val){
-				L->len+=p->len;
-				L->lc=p->lc;
-				if(L->lc!=NULL)
-					L->lc->ftr=L;
-				L->pushUp();
-			}
-		}
-		if(L->rc!=NULL){
-			re SplayNode* p=L->rc;
-			for(;p->lc!=NULL;p=p->lc);
-			splay(p,L);
-			p->pushDown();
-			if(p->val==L->val){
-				L->len+=p->len;
-				L->rc=p->rc;
-				if(L->rc!=NULL)
-					L->rc->ftr=L;
-				L->pushUp();
-			}
-		}
+		merge(L);
 	}
 
 	inline void opt3456(re int l,re int r,re int d,re int x){
@@ -331,12 +396,8 @@ struct SplayTree{
 					++p->min1;
 					--p->tag;
 				}
-				if(!p->min0||!p->min1){
-					p=rebuild(p);
-					R->lc=p;
-					if(p!=NULL)
-						p->ftr=R;
-				}
+				if(!p->min0||!p->min1)
+					clear(R);
 			}
 			if(!d){
 				if(R->val==x)
@@ -351,101 +412,14 @@ struct SplayTree{
 					++L->len;
 			}
 			R->pushUp();
-			if(!R->len){
-				if(R->lc!=NULL){
-					re SplayNode* p=R->lc;
-					for(;p->rc!=NULL;p=p->rc);
-					splay(p,R);
-					p->pushDown();
-					p->ftr=L;
-					p->rc=R->rc;
-					L->rc=p;
-					if(p->rc!=NULL)
-						p->rc->ftr=p;
-					p->pushUp();
-				}
-				else{
-					L->rc=R->rc;
-					if(L->rc!=NULL)
-						L->rc->ftr=L;
-				}
-			}
-			R=L->rc;
-			if(R!=NULL){
-				if(R->lc!=NULL){
-					re SplayNode* p=R->lc;
-					for(;p->rc!=NULL;p=p->rc);
-					splay(p,R);
-					p->pushDown();
-					if(p->val==R->val){
-						R->len+=p->len;
-						R->lc=p->lc;
-						if(R->lc!=NULL)
-							R->lc->ftr=R;
-						R->pushUp();
-					}
-				}
-				if(R->rc!=NULL){
-					re SplayNode* p=R->rc;
-					for(;p->lc!=NULL;p=p->lc);
-					splay(p,R);
-					p->pushDown();
-					if(p->val==R->val){
-						R->len+=p->len;
-						R->rc=p->rc;
-						if(R->rc!=NULL)
-							R->rc->ftr=R;
-						R->pushUp();
-					}
-				}
-			}
+			if(!R->len)
+				delNode(R);
+			if(L->rc!=NULL)
+				merge(L->rc);
 			L->pushUp();
-			if(!L->len){
-				if(L->lc!=NULL){
-					re SplayNode* p=L->lc;
-					for(;p->rc!=NULL;p=p->rc);
-					splay(p,L);
-					p->pushDown();
-					p->ftr=NULL;
-					p->rc=L->rc;
-					if(p->rc!=NULL)
-						p->rc->ftr=p;
-					p->pushUp();
-					root=p;
-				}
-				else{
-					L=L->rc;
-					L->ftr=NULL;
-					root=L;
-				}
-			}
-			L=root;
-			if(L->lc!=NULL){
-				re SplayNode* p=L->lc;
-				for(;p->rc!=NULL;p=p->rc);
-				splay(p,L);
-				p->pushDown();
-				if(p->val==L->val){
-					L->len+=p->len;
-					L->lc=p->lc;
-					if(L->lc!=NULL)
-						L->lc->ftr=L;
-					L->pushUp();
-				}
-			}
-			if(L->rc!=NULL){
-				re SplayNode* p=L->rc;
-				for(;p->lc!=NULL;p=p->lc);
-				splay(p,L);
-				p->pushDown();
-				if(p->val==L->val){
-					L->len+=p->len;
-					L->rc=p->rc;
-					if(L->rc!=NULL)
-						L->rc->ftr=L;
-					L->pushUp();
-				}
-			}
+			if(!L->len)
+				delNode(L);
+			merge(root);
 		}
 	}
 
@@ -460,6 +434,20 @@ struct SplayTree{
 		}
 		else
 			cltstream::write((r-l+1)*L->val,10);
+	}
+
+	void printNode(re SplayNode* p){
+		p->pushDown();
+		if(p->lc!=NULL)
+			printNode(p->lc);
+		for(re int i=1;i<=p->len;++i){
+			putchar(p->val^48);
+			if(i<p->len)
+				putchar(32);
+		}
+		putchar('|');
+		if(p->rc!=NULL)
+			printNode(p->rc);
 	}
 
 	SplayTree(){
