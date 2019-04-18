@@ -1,7 +1,7 @@
 #include<cstdio>
 #define re register
 #define maxn 10000000
-#define mod 998244353
+#define mod 1004535809
 #define min(a,b) ((a)<=(b)?(a):(b))
 #define swap(a,b) a^=b,b^=a,a^=b
 
@@ -60,7 +60,7 @@ namespace cltstream{
 }
 
 int n,m,s,l;
-int unit[2][24],rev[maxn+1],fac[maxn+1],inv[maxn+1];
+int unit[2][22],rev[maxn+1],fac[maxn+1],inv[maxn+1];
 int w[maxn+1],F[maxn+1],G[maxn+1];
 
 inline int cltpow(re int x,re int y){
@@ -91,35 +91,29 @@ inline void NTT(re int* F,re int n,re int tp){
 }
 
 int main(){
-	unit[0][23]=cltpow(3,119);
-	unit[1][23]=cltpow(332748118,119);
+	unit[0][21]=cltpow(3,479);
+	unit[1][21]=cltpow(334845270,479);
 	for(re int i=0;i<2;++i)
-		for(re int j=22;j>=0;--j)
+		for(re int j=20;j>=0;--j)
 			unit[i][j]=1LL*unit[i][j+1]*unit[i][j+1]%mod;
-	inv[1]=1;
-	for(re int i=2;i<=maxn;++i)
-		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
-	fac[0]=inv[0]=1;
-	for(re int i=1;i<=maxn;++i){
-		fac[i]=1LL*fac[i-1]*i%mod;
-		inv[i]=1LL*inv[i-1]*inv[i]%mod;
-	}
 	cltstream::read(n);
 	cltstream::read(m);
 	cltstream::read(s);
 	l=min(n/s,m);
+	inv[1]=1;
+	for(re int i=2;i<=n||i<=m;++i)
+		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
+	fac[0]=inv[0]=1;
+	for(re int i=1;i<=n||i<=m;++i){
+		fac[i]=1LL*fac[i-1]*i%mod;
+		inv[i]=1LL*inv[i-1]*inv[i]%mod;
+	}
 	for(re int i=0;i<=m;++i)
 		cltstream::read(w[i]);
 	for(re int i=0,j=1;i<=l;++i,j=1LL*j*(mod-1)%mod){
-		F[i]=1LL*j*inv[i];
+		F[i]=1LL*j*inv[i]%mod;
 		G[l-i]=1LL*cltpow(m-i,n-i*s)*inv[m-i]%mod*inv[n-i*s]%mod*cltpow(inv[s],i)%mod;
 	}
-	for(re int i=0;i<=l;++i)
-		printf("%d ",F[i]);
-	puts("");
-	for(re int i=0;i<=l;++i)
-		printf("%d ",G[i]);
-	puts("");
 	re int N=1;
 	for(;N<(l<<1|1);N<<=1);
 	NTT(F,N,0);
@@ -127,9 +121,6 @@ int main(){
 	for(re int i=0;i<N;++i)
 		F[i]=1LL*F[i]*G[i]%mod;
 	NTT(F,N,1);
-	for(re int i=0;i<N;++i)
-		printf("%d ",F[i]);
-	puts("");
 	re int ans=0;
 	for(re int i=0;i<=l;++i)
 		ans=(ans+1LL*F[l-i]*inv[i]%mod*w[i]%mod)%mod;

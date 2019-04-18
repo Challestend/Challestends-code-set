@@ -1,88 +1,108 @@
-from random import randint
+import os,time
+import pyautogui as pag
+from random import randint,choice,sample
 
 partCnt=8
-Name=["主语","转义","状语","谓语（无宾补）","谓语（有宾补）","宾语","宾语补足语","句尾"]
-Text=[]
-Order=[
-	[0,3,5,7],
-	[0,1,3,5,7],
-	[0,2,3,5,7],
-	[0,1,2,3,5,7],
-	# [0,4,5,6,7],
-	# [0,1,4,5,6,7],
-	# [0,2,4,5,6,7],
-	# [0,1,2,4,5,6,7],
-	[0,5,6,7],
-	[0,1,5,6,7],
-	[0,2,5,6,7],
-	[0,1,2,5,6,7]
+brain=[]
+index={}
+nxt=[
+	[1,2,3,4],
+	[2,3,4],
+	[3,4],
+	[5],
+	[5],
+	[6,7],
+	[7],
+	[-1]
 ]
 
-def randomElement(lst):
-	return lst[randint(0,len(lst)-1)]
+class part(object):
 
-def Append(tp,s):
-	s=s.replace("\n","",-1)
-	Text[tp].append(s)
-	Text[tp].sort()
-	print("潮爷：{0} \"{1}\" 已被成功追加。".format(Name[tp],s))
+	def __init__(self,name="",text={}):
+		self.name=name
+		self.text=text
 
-def Pop(tp):
-	if len(Text[tp])>0:
-		print("潮爷：{0} \"{1}\" 已被成功移除。".format(Name[tp],Text[tp][len(Text[tp])-1]))
-		Text[tp].pop()
-	else:
-		print("潮爷：找不到合法的 {0}。".format(Name[x[tp]]))
-
-def Print():
-	res="潮爷："
-	x=randomElement(Order)
-	for i in range(0,len(x)):
-		if len(Text[x[i]])==0:
-			print("潮爷：找不到合法的 {0}。".format(Name[x[i]]))
-			return
+	def write(self,stream=None):
+		if stream is not None:
+			stream.write("{0}: {1}\n".format(self.name,self.text))
 		else:
-			res=res+randomElement(Text[x[i]])
-	print(res)
+			print("{0}: {1}".format(self.name,self.text))
 
 def Init():
+	os.system("mode con cols=120 lines=45")
 	# data=open("GrandfatherFashion/data","r")
 	data=open("data","r")
 	for i in range(0,partCnt):
-		Text.append(data.readline().replace("[","",-1).replace("]","",-1).replace("\'","",-1).replace(",","",-1).split())
+		cmd=data.readline().replace(": {",", ",-1).replace("}\n","",-1).replace("'","",-1).split(", ")
+		name=cmd[0]
+		text=set()
+		for p in cmd[1::1]:
+			text.add(p)
+		brain.append(part(name,text))
+		index.setdefault(name,i)
 
 def Store():
 	# data=open("GrandfatherFashion/data","w")
 	data=open("data","w")
-	for i in range(0,partCnt):
-		data.write("{0}\n".format(Text[i]))
+	for p in brain:
+		p.write(data)
 
 def Debug():
-	for i in range(0,partCnt):
-		print("{0}:\n{1}".format(Name[i],Text[i]))
+	for p in brain:
+		p.write()
+
+def Add(cmd):
+	tp=index.get(cmd[0])
+	s=cmd[1]
+	if tp is not None:
+		if s not in brain[tp].text:
+			brain[tp].text.add(s)
+			print("INFO: {0} {1} has been ccessfully added.".format(cmd[0],s))
+		else:
+			print("ERR!: {0} {1} already exists.".format(cmd[0],s))
+	else:
+		print("ERR!: Unknown type {0}.".format(cmd[0]))
+
+def Erase(cmd):
+	tp=index.get(cmd[0])
+	s=cmd[1]
+	if tp is not None:
+		if s in brain[tp].text:
+			brain[tp].text-={s}
+			print("INFO: {0} {1} has been removed added.".format(cmd[0],s))
+		else:
+			print("ERR!: {0} {1} doesn't exit.".format(cmd[0],s))
+	else:
+		print("ERR!: Unknown type {0}.".format(cmd[0]))
+
+def Print(times=1):
+	for i in range(0,times):
+		res="GrandfatherFashion: "
+		cnt=randint(1,200)
+		cur=0
+		while cur>=0:
+			res+=sample(brain[cur].text,1)[0]
+			cur=choice(nxt[cur])
+		print(res)
 
 Init()
 while True:
-	opt=input()
+	cmd=input().split()
+	opt=cmd[0].lower()
 	if opt=="":
 		continue
-	elif opt=="append":
-		tp=int(input())
-		if tp>=0 and tp<partCnt:
-			s=input()
-			Append(tp,s)
-		else:
-			print("潮爷：无法识别的类型。")
-	elif opt=="print":
-		Print()
-	elif opt=="repeat":
-		cnt=int(input())
-		for i in range(0,cnt):
-			Print()
 	elif opt=="exit":
 		Store()
 		break
 	elif opt=="debug":
 		Debug()
+	elif opt=="add":
+		Add(cmd[1::1])
+	elif opt=="erase":
+		Erase(cmd[1::1])
+	elif opt=="print":
+		Print()
+	elif opt=="repeat":
+		Print(int(cmd[1]))
 	else:
-		print("潮爷：无法识别的指令。")
+		print("ERR!: Unknown command.")
