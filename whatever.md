@@ -1,7 +1,20 @@
-$$\sum_{i=1}^{m}[i\perp k]\mu(i)\lfloor\cfrac{n}{i}\rfloor\sum_{d|k}\mu(d)\lfloor\cfrac{m}{id}\rfloor$$
+给定一个正整数$n$。有一张$2n$个节点的完全图$G$。对于一个边集$S$，我们定义它是一个合法的配对方案，当且仅当它在$G$中，且其中任意两条边没有公共顶点。
 
-$$f(n)=[n\perp k]\mu(n)$$
+现给出一个合法的配对方案$P$，你需要找到满足$P^{\prime}\cap P=\varnothing$的合法的配对方案$P^{\prime}$的数量。对$998244353$取模。
 
-$$g(n)=[n\perp k]$$
+定义$F_{i}$表示合法的配对方案的数量，不难发现
 
-$$(f\times g)(n)=\epsilon(n)$$
+$$F_{i}=i(2i-1)F_{i-1}$$
+
+定义$G_{i}$表示$|P^{\prime}\cap P|\geqslant i$的合法的配对方案$P^{\prime}$的数量，$H_{i}$表示$|P^{\prime}\cap P|=i$的合法的配对方案$P^{\prime}$的数量。
+
+$$G_{i}=F_{n-i}=\sum_{j=i}^{n}C_{j}^{i}H_{j}$$
+
+$$H_{i}=\sum_{j=i}^{n}(-1)^{j-i}C_{j}^{i}G_{j}$$
+
+$$\begin{aligned}
+\text{Ans}&=\sum_{j=0}^{n}(-1)^{j}G_{j}\\
+&=\sum_{i=0}^{n}(-1)^{i}F_{n-i}\\
+&=\sum_{i=0}^{n}(-1)^{i}\prod_{j=1}^{i}j(2j-1)\\
+&=\sum_{i=0}^{n}(-1)^{i}\prod_{j=1}^{i}(2j^{2}-j)
+\end{aligned}$$

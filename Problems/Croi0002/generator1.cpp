@@ -5,8 +5,8 @@
 #define rnd() (1LL*rand()*rand())
 // #define rnd() rand()
 
-int n=100000,m=100000,lwr=1,upr=n,maxval=2;
-int _opt[]={1,1,1,2,2,2,2,3,3,3};
+int n=20,m=20,lwr=1,upr=n,maxval=1E9;
+int _opt[]={1,1,1,2,2,2,3,3,3,3};
 
 int main(){
 	srand(2281701377LL*time(0));

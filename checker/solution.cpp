@@ -1,95 +1,177 @@
-#include <bits/stdc++.h>
-#define il inline
-#define rg register
-#define ll long long
-#define getc getchar
-#define putc putchar
-#define rep(i, l, r) for (int i = l; i <= r; ++i)
-namespace ringo {
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
 
-template < class T > il void read(T &x) {
-    x = 0; rg char c = getc(); rg bool f = 0;
-    while (!isdigit(c)) f ^= c == '-', c = getc();
-    while (isdigit(c)) x = x * 10 + c - '0', c = getc();
-    if (f) x = -x;
+using namespace std;
+
+int son[50050][2],fa[50050],sz[50050];
+long long lsum[50050],val[50050],rsum[50050],EXP[50050],sum[50050],upd_tag[50050];
+int rev_tag[50050];
+
+void Push_Up(int rt)
+{
+    sum[rt] = val[rt] + sum[son[rt][0]] + sum[son[rt][1]];
+    sz[rt] = 1 + sz[son[rt][0]] + sz[son[rt][1]];
+    lsum[rt] = lsum[son[rt][0]] + val[rt] * (sz[son[rt][0]] + 1) + lsum[son[rt][1]] + sum[son[rt][1]] * (sz[son[rt][0]] + 1);
+    rsum[rt] = rsum[son[rt][1]] + val[rt] * (sz[son[rt][1]] + 1) + rsum[son[rt][0]] + sum[son[rt][0]] * (sz[son[rt][1]] + 1);
+    EXP[rt] = EXP[son[rt][0]] + EXP[son[rt][1]] + val[rt] * (sz[son[rt][0]] + 1) * (sz[son[rt][1]] + 1) +
+              lsum[son[rt][0]] * (sz[son[rt][1]] + 1) + rsum[son[rt][1]] * (sz[son[rt][0]] + 1);
 }
 
-template < class T > il void print(T x) {
-    if (x < 0) putc('-'), x = -x;
-    if (x > 9) print(x / 10);
-    putc('0' + x % 10);
+void Rev(int rt)
+{
+    swap(son[rt][0],son[rt][1]);
+    swap(lsum[rt],rsum[rt]);
+    rev_tag[rt] ^= 1;
 }
 
-const int N = 1e5 + 5, sqn = 320, M = sqn + 5, P = N / sqn + 5;
-int n, m, l, r, l1, l2, r1, r2, siz;
-int a[N], rnk[N], srt[N], bln[N], lft[N], rit[N], s[M], q1[M], q2[M], fst[P], cnt[P][N];
-ll ans, fur[P], sum[P][P], pre[P][N];
-bool tag[M];
-
-void modify(int k) { for (; k <= siz; k += k & -k) ++s[k]; }
-int query(int k) { int x = 0; for (; k; k -= k & -k) x += s[k]; return x; }
-ll get(int a, int b, int c, int d) { return pre[b][d] - pre[b][c - 1] - pre[a - 1][d] + pre[a - 1][c - 1]; }
-
-int merge(int ll1, int rr1, int ll2, int rr2) {
-    int l1 = 1, l2 = 1, r1 = 0, r2 = 0, ans = 0;
-    memset(tag, 0, sizeof(tag));
-    for (rg int i = ll1; i <= rr1; i++) tag[rnk[i]] = 1;
-    for (rg int i = 1; i <= fst[bln[l] + 1] - fst[bln[l]]; ++i)
-        if (tag[i]) q1[++r1] = srt[fst[bln[l]] + i - 1];
-    memset(tag, 0, sizeof(tag));
-    for (rg int i = ll2; i <= rr2; i++) tag[rnk[i]] = 1;
-    for (rg int i = 1; i <= fst[bln[r] + 1] - fst[bln[r]]; ++i)
-        if (tag[i]) q2[++r2] = srt[fst[bln[r]] + i - 1];
-    while (l1 <= r1 && l2 <= r2)
-        if (q1[l1] < q2[l2]) ++l1;
-        else ++l2, ans += r1 - l1 + 1;
-    return ans;
+void Add(int rt,int valx)
+{
+    long long val1 = (sz[rt] * 1ll * (sz[rt] + 1)) / 2,val2 = (sz[rt] * 1ll * (sz[rt] + 1) * (sz[rt] + 2)) / 6;
+    sum[rt] += valx * 1ll * sz[rt];
+    val[rt] += valx;
+    lsum[rt] += val1 * valx;
+    rsum[rt] += val1 * valx;
+    EXP[rt] += valx * val2;
+    upd_tag[rt] += valx;
 }
 
-void main() {
+void Push_Down(int rt)
+{
+    if(rev_tag[rt])
+    {
+        Rev(son[rt][0]);
+        Rev(son[rt][1]);
+        rev_tag[rt] = 0;
+    }
+    if(upd_tag[rt])
+    {
+        Add(son[rt][0],upd_tag[rt]);
+        Add(son[rt][1],upd_tag[rt]);
+        upd_tag[rt] = 0;
+    }
+}
+
+void Down(int rt)
+{
+    if(fa[rt]) Down(fa[rt]);
+    Push_Down(rt);
+}
+
+bool is_root(int rt)
+{
+    return (son[fa[rt]][0] != rt && son[fa[rt]][1] != rt) || rt == 0;
+}
+
+void rotate(int rt)
+{
+    int f = fa[rt],g = fa[f];
+    int way = son[f][1] == rt;
+    if(!is_root(f)) son[g][son[g][1] == f] = rt;
+    fa[rt] = g; son[f][way] = son[rt][way ^ 1];
+    if(son[rt][way ^ 1]) fa[son[rt][way ^ 1]] = f;
+    son[rt][way ^ 1] = f; fa[f] = rt;
+    Push_Up(f); Push_Up(rt);
+}
+
+void splay(int rt)
+{
+    Down(rt);
+    while(!is_root(rt))
+    {
+        int f = fa[rt],g = fa[f];
+        if(!is_root(f)) (son[f][1] == rt) ^ (son[g][1] == rt) ? rotate(rt) : rotate(f);
+        rotate(rt);
+    }
+}
+
+void Access(int u)
+{
+    for(int v = 0;u;v = u,u = fa[u])
+    {
+        splay(u);
+        son[u][1] = v;
+        Push_Up(u);
+    }
+}
+
+void make_root(int u)
+{
+    Access(u); splay(u); Rev(u);
+}
+
+int find_root(int u)
+{
+    Access(u); splay(u);
+    while(son[u][0]) u = son[u][0];
+    return u;
+}
+
+long long split(int u,int v)
+{
+    if(find_root(u) != find_root(v)) return -1;
+    make_root(u); Access(v); splay(v);
+    return EXP[v];
+}
+
+void Update(int u,int v,int val)
+{
+    if(find_root(u) != find_root(v)) return ;
+    make_root(u); Access(v); splay(v);
+    Add(v,val);
+}
+
+void Link(int u,int v)
+{
+    if(find_root(u) == find_root(v)) return ;
+    make_root(u); fa[u] = v;
+}
+
+void Cut(int u,int v)
+{
+    if(find_root(u) != find_root(v)) return ;
+    make_root(u); Access(v); splay(v);
+    if(son[u][1] || son[v][0] != u) return;
+    son[v][0] = fa[u] = 0;
+    Push_Up(v);
+}
+
+long long gcd(long long a,long long b)
+{
+    return b == 0 ? a : gcd(b,a % b);
+}
+
+int main()
+{
     freopen("data.in","r",stdin);
     freopen("data.ans","w",stdout);
-    read(n), read(m);
-    for (rg int i = 1; i <= n; ++i) read(a[i]), srt[i] = a[i];
-    for (rg int i = 1; i <= n; ++i) bln[i] = (i - 1) / sqn + 1;
-    for (rg int i = 1; i <= bln[n]; ++i) fst[i] = sqn * (i - 1) + 1;
-    fst[bln[n] + 1] = n + 1;
-    for (rg int i = 1; i <= n; i++) ++cnt[bln[i]][a[i]];
-    for (rg int i = 1; i <= bln[n]; i++) for (int j = 1; j <= n; j++)
-        cnt[i][j] += cnt[i - 1][j] + cnt[i][j - 1] - cnt[i - 1][j - 1];
-    for (rg int i = 1; i <= bln[n]; i++) for (int j = 1; j <= n; j++)
-        pre[i][j] = pre[i][j - 1] + cnt[i][a[j] - 1];
-    for (rg int r = 1; r <= bln[n]; r++) for (int l = 1; l <= r; l++) {
-        for (rg int j = fst[r]; j < fst[r + 1]; j++)
-            sum[l][r] += fst[r] - fst[l] - cnt[r - 1][a[j] - 1] + cnt[l - 1][a[j] - 1];
-        sum[l][r] += sum[l][r - 1];
+    int n,m;
+    scanf("%d%d",&n,&m);
+    for(int i = 1;i <= n; ++ i) scanf("%lld",&val[i]),Push_Up(i);
+    for(int i = 1;i < n; ++ i)
+    {
+        int u,v;
+        scanf("%d%d",&u,&v); Link(u,v);
     }
-    for (rg int i = 1; i <= bln[n]; ++i) {
-        siz = fst[i + 1] - fst[i], std::sort(srt + fst[i], srt + fst[i + 1]);
-        for (rg int j = fst[i]; j < fst[i + 1]; j++) rnk[j] = std::lower_bound(srt + fst[i], srt + fst[i + 1], a[j]) - srt - fst[i] + 1;
-        memset(s, 0, sizeof(s));
-        for (rg int j = fst[i]; j < fst[i + 1]; j++) lft[j] = (j == fst[i] ? 0 : lft[j - 1]) + j - fst[i] - query(rnk[j]), modify(rnk[j]);
-        memset(s, 0, sizeof(s));
-        for (rg int j = fst[i + 1] - 1; j >= fst[i]; j--) rit[j] = (j == fst[i + 1] - 1 ? 0 : rit[j + 1]) + query(rnk[j]), modify(rnk[j]);
-        fur[i] = fur[i - 1] + rit[fst[i]];
-    }
-    for (rg int i = 1, bl, br; i <= m; ++i) {
-        read(l), read(r);
-        // l ^= ans, r ^= ans;
-        if (l > r) std::swap(l, r);
-        if (bln[l] == bln[r]) {
-            ans = lft[r] - (l == fst[bln[l]] ? 0 : lft[l - 1]);
-            ans -= merge(fst[bln[l]], l - 1, l, r);
-        } else {
-            bl = bln[l] + 1, br = bln[r] - 1;
-            ans = rit[l] + lft[r] + sum[bl][br] - sum[bl][bl - 1] + fur[br] - fur[bl - 1];
-            ans += get(bl, br, l, fst[bl] - 1);
-            ans -= get(bl, br, fst[br + 1], r);
-            ans += (r - fst[br + 1] + 1) * (fst[br + 1] - fst[bl]);
-            ans += merge(l, fst[bl] - 1, fst[br + 1], r);
+    for(int i = 1;i <= m; ++ i)
+    {
+        int op,u,v;scanf("%d%d%d",&op,&u,&v);
+        int w; if(op == 3) scanf("%d",&w);
+        if(op == 1) Cut(u,v);
+        else if(op == 2) Link(u,v);
+        else if(op == 3) Update(u,v,w);
+        else
+        {
+            long long tmp = split(u,v);
+            if(tmp == -1) printf("-1\n");
+            else
+            {
+                long long csz = sz[v] * (sz[v] + 1) / 2;
+                long long gcdx = gcd(csz,tmp);
+                printf("%lld/%lld\n",tmp/gcdx,csz/gcdx);
+            }
         }
-        print(ans), putc('\n');
     }
 }
-
-} int main() { return ringo::main(), 0; }

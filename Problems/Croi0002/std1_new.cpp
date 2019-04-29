@@ -4,9 +4,11 @@
 #include<cmath>
 #define re register
 #define maxn 100000
-#define maxs 320
+#define maxs 190
+#define maxt 532
 #define min(a,b) ((a)<=(b)?(a):(b))
 #define max(a,b) ((a)>=(b)?(a):(b))
+#define int short
 
 namespace cltstream{
 	#define size 1048576
@@ -63,13 +65,17 @@ namespace cltstream{
 }
 
 int n,m;
-int sq[2*maxn+1],id[maxn+1],a[maxn+1],val[maxn+1],len[maxn+1],p[2][maxs+1];
-int sum[maxs+1],prd[maxs+1],upd[maxs+1];
-int ans[4*maxn+1],size[4*maxn+1],cnt[4*maxn+1][maxs+1],vec[4*maxn+1][maxn/maxs+1];
-int tag[4*maxn+1],c[4*maxn+1],brk[4*maxn+1];
+short sq[2*maxn+1],id[maxn+1];
+int a[maxn+1],val[maxn+1],len[maxn+1],p[2][maxt+1];
+int sum[maxt+1],prd[maxt+1],upd[maxt+1];
+int ans[4*maxn+1],size[4*maxn+1];
+short cnt[4*maxn+1][maxs+1];
+int vec[4*maxn+1][maxt+1];
+short tag[4*maxn+1];
+int c[4*maxn+1];
+short brk[4*maxn+1];
 
 inline void getPow(re int x,re int N){
-	// printf("N=%d sqrt{N}=%d\n",N,sq[N]);
 	p[0][0]=1;
 	for(re int i=1;i<=sq[N];++i)
 		p[0][i]=p[0][i-1]*x;
@@ -159,7 +165,6 @@ void build(re int cur,re int l,re int r){
 		size[cur]+=len[i];
 	for(re int i=l;i<=r;++i)
 		len[i]&&(len[i]<=sq[size[cur]]?(++cnt[cur][len[i]]):(vec[cur][++vec[cur][0]]=len[i]));
-	if(vec[cur][0]>maxn/maxs){puts("FAQ!!!");exit(0);}
 	if(l<r){
 		re int mid=(l+r)>>1;
 		build(cur<<1,l,mid);
@@ -248,7 +253,6 @@ inline void pushDown(re int cur,re int l,re int r){
 		brk[cur<<1]=brk[cur<<1|1]=brk[cur],
 		brk[cur]=0;
 	}
-	// printf("ans<%d,%d><%d,%d>=%d %d\n",l,mid,mid+1,r,ans[cur<<1],ans[cur<<1|1]);
 }
 
 inline void pushUp(re int cur){
@@ -322,7 +326,6 @@ void updateTag(re int L,re int R,re int x,re int cur,re int l,re int r){
 			tag[cur]=1,
 			c[cur]=x;
 		}
-		// printf("ANS[%d,%d] UPDATED TO %u\n",l,r,ans[cur]);
 	}
 	else{
 		re int mid=(l+r)>>1;
@@ -332,7 +335,6 @@ void updateTag(re int L,re int R,re int x,re int cur,re int l,re int r){
 		if(R>mid)
 			updateTag(L,R,x,cur<<1|1,mid+1,r);
 		pushUp(cur);
-		// printf("ANS(%d,%d) UPDATED TO %u\n",l,r,ans[cur]);
 	}
 }
 
@@ -364,7 +366,6 @@ void updateBrk(re int L,re int R,re int cur,re int l,re int r){
 		vec[cur][0]=0,
 		tag[cur]=c[cur]=0,
 		brk[cur]=1;
-		// printf("ANS[%d,%d]=%u\n",l,r,ans[cur]);
 	}
 	else{
 		re int mid=(l+r)>>1;
@@ -374,7 +375,6 @@ void updateBrk(re int L,re int R,re int cur,re int l,re int r){
 		if(R>mid)
 			updateBrk(L,R,cur<<1|1,mid+1,r);
 		pushUp(cur);
-		// printf("ANS(%d,%d)=%u\n",l,r,ans[cur]);
 	}
 }
 
@@ -392,37 +392,14 @@ int getAns(re int L,re int R,re int cur,re int l,re int r){
 	}
 }
 
-void FAQ(re int cur,re int l,re int r){
-	if(!tag[cur]&&!brk[cur]&&l<r){
-		re int mid=(l+r)>>1;
-		FAQ(cur<<1,l,mid);
-		FAQ(cur<<1|1,mid+1,r);
-	}
-	printf("(%d,%d)=(%d,%d,%d,%d,%d)\n",l,r,ans[cur],size[cur],tag[cur],c[cur],brk[cur]);
-}
-
-int main(){
-	freopen("data1.in","r",stdin);
-	freopen("data1.out","w",stdout);
+signed main(){
+	freopen("C:\\Users\\Challestend\\Downloads\\data\\l1.in","r",stdin);
 	cltstream::read(n),
 	cltstream::read(m);
 	for(re int i=1;i<=n;++i)
 		cltstream::read(a[i]);
-	val[1]=a[1],
-	len[1]=1;
-	for(re int i=2,j=1;i<=n;++i){
-		int x;
-		cltstream::read(x),
-		x?(val[j]*=a[i]):(val[j=i]=a[i]),
-		++len[j];
-	}
-	// for(re int i=1;i<=n;++i)
-	// 	printf("%d%c",len[i],i<n?32:10);
-	// re int K=0,N=1;
-	// for(;N<n;++K,N<<=1);
-	// n=N;
 	for(re int i=0;i<=2*n;++i)
-		sq[i]=max((int)(sqrt(i)),1);
+		sq[i]=max((int)(0.6*sqrt(i)),1);
 	for(re int i=1;i<=n;++i)
 		id[i]=(i-1)/sq[n]+1;
 	for(re int i=1;i<=id[n];++i){
@@ -432,13 +409,14 @@ int main(){
 			sum[i]+=a[j],
 			prd[i]*=a[j];
 	}
-	// N<<=1;
-	// for(re int i=0;i<=K;++i)
-	// 	for(re int j=n;j>=1;--j)
-	// 		(n-j)%(1<<i)||(--N),
-	// 		ans[N]+=val[j],
-	// 		size[N]=max(size[N],len[j]),
-	// 		len[j]&&(len[j]<=sq[1<<i]?(++cnt[N][len[j]]):(vec[N][++vec[N][0]]=len[j]));
+	val[1]=a[1],
+	len[1]=1;
+	for(re int i=2,j=1;i<=n;++i){
+		int x;
+		cltstream::read(x),
+		x?(val[j]*=a[i]):(val[j=i]=a[i]),
+		++len[j];
+	}
 	build(1,1,n);
 	for(re int i=1;i<=m;++i){
 		int opt,l,r,x,L,R,res=0;
@@ -447,28 +425,22 @@ int main(){
 		cltstream::read(r);
 		if(opt==1)
 			cltstream::read(x),
-			// printf("Operation #%d: %d %d %d %d\n",i,opt,l,r,x),
 			modify(l,r,x),
 			L=findPre(l,1,1,n),
-			// printf("L=%d ",L),
 			R=findPre(r,1,1,n),
-			// printf("R=%d\n",R),
 			updateSingle(L,0,1,1,n),
 			R-L>=2&&(updateTag(L+1,R-1,x,1,1,n),0),
 			L<R&&(updateSingle(R,0,1,1,n),0);
 		if(opt==2){
 			cltstream::read(x);
-			// printf("Operation #%d: %d %d %d %d\n",i,opt,l,r,x);
 			if(x)
 				L=findPre(l,1,1,n),
 				R=findSuc(r+2,1,1,n),
-				// printf("L=%d R=%d\n",L,R),
 				updateSingle(L,R-L,1,1,n),
 				R-L>=2&&(updateTag(L+1,R-1,0,1,1,n),0);
 			else
 				L=findPre(l,1,1,n),
 				R=findSuc(r+1,1,1,n),
-				// printf("L=%d R=%d\n",L,R),
 				updateSingle(L,l-L+1,1,1,n),
 				updateBrk(l+1,r,1,1,n),
 				R-r>=2&&(updateSingle(r+1,R-r-1,1,1,n),0);
@@ -476,24 +448,14 @@ int main(){
 		if(opt==3){
 			L=findSuc(l,1,1,n),
 			R=findPre(r,1,1,n);
-			// printf("Operation #%d: %d %d %d\n",i,opt,l,r);
-			// printf("L=%d R=%d\n",L,R);
 			if(L>R)
 				cltstream::write<unsigned>(queryPrd(l,r),10);
 			else
 				L<=n&&l<L&&(res+=queryPrd(l,L-1)),
-				// printf("RES=%u\n",res),
 				L<=n&&L<R&&(res+=getAns(L,R-1,1,1,n)),
-				// printf("RES=%u\n",res),
 				res+=queryPrd(R,r),
-				// printf("RES=%u\n",res),
 				cltstream::write<unsigned>(res,10);
 		}
-		// for(re int j=1;j<=n;++j)
-		// 	printf("%u%c",querySum(j,j),j<n?32:10);
-		// FAQ(1,1,n);
-		// for(re int j=1;j<=n;++j)
-		// 	printf("%u%c",getAns(j,j,1,1,n),j<n?32:10);
 	}
 	clop();
 	return 0;
