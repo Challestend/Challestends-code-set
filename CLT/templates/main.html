@@ -1,0 +1,86 @@
+{%extends "base.html"%}
+
+{%block title%}
+Grandfather Fashion
+{%endblock%}
+
+{%block body%}
+<script>
+	var vue;
+	$(this).ready(function(){
+		vue=new Vue({
+			delimiters:['{[',']}'],
+			el:"#main",
+			data:{
+				strs:"",
+				showing:false,
+				show_text:"",
+				error:false,
+				error_text:""
+			},
+			methods:{
+				func:function(tp){
+					$("svg-content").css({"height":"100px"});
+					this.showing=false;
+					this.error=false;
+					$.ajax({
+						url:tp==0?"/add":tp==1?"/remove":tp==2?"/debug":"/speak",
+						method:"POST",
+						async:true,
+						data:{
+							strs:vue.strs
+						},
+						success:function(result){
+							result=JSON.parse(result)
+							console.log(result);
+							if(result.code==0){
+								vue.showing=true;
+								vue.show_text=result.data;
+							}
+							else{
+								vue.error=true;
+								vue.error_text=result.data;
+							}
+						}
+					});
+				}
+			}
+		});
+	});
+</script>
+<div style="top: 10%">
+	<div class="ui left aligned container" style="width:100%" id="main">
+		<div class="ui header">
+			<h1>Grandfather Fashion</h1>
+		</div>
+		<div class="ui raised segment">
+			<div class="ui form">
+				<div class="field">
+					<div class="ui action input">
+						<input type="text" id="string" placeholder="Input strings..." v-model="strs">
+						<div class="ui green button" id="add-button" v-on:click="func(0)">Add</div>
+						<div class="ui red button" id="remove-button" v-on:click="func(1)">Remove</div>
+						<div class="ui blue button" id="debug-button" v-on:click="func(2)">Debug</div>
+						<button class="ui black button" id="speak-button" v-on:click="func(3)">Speak</button>
+					</div>
+				</div>
+				<div class="field">
+					<p>If several strings are going to be added/removed, they should be seperated by single spaces.</p>
+				</div>
+			</div>
+		</div>
+		<div class="ui green message" v-if="showing">
+			<div class="ui header">
+				SUCC
+			</div>
+			<p>{[show_text]}</p>
+		</div>
+		<div class="ui red message" v-if="error">
+			<div class="ui header">
+				ERR!
+			</div>
+			<p>{[error_text]}</p>
+		</div>
+	</div>
+</div>
+{%endblock%}
