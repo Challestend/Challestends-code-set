@@ -1,8 +1,9 @@
 #include<cstdio>
-#include<algorithm>
 #define re register
 #define maxn 524288
 #define mod 998244353
+#define I 86583718
+#define swap(a,b) a^=b,b^=a,a^=b
 
 namespace cltstream{
 	#define size 1048576
@@ -58,221 +59,148 @@ namespace cltstream{
 	}
 }
 
-int inv[maxn],rev[maxn];
-struct poly{
-	int n;
-	int a[maxn];
-
-	inline void read(){
-		for(re int i=0;i<n;++i)
-			cltstream::read(a[i]);
-	}
-
-	inline void write(char text=-1){
-		for(re int i=0;i<n;++i)
-			cltstream::write(a[i],32);
-		if(text>=0)
-			cltstream::pc(text);
-	}
-
-	poly(re int _n=0){
-		n=_n;
-		for(re int i=0;i<maxn;++i)
-			a[i]=0;
-	}
-};
+int n,m;
+int unit[2][24],rev[maxn],inv[maxn];
+int F[maxn],G[maxn];
 
 inline int cltpow(re int x,re int y){
 	re int res=1;
-	for(;y;){
+	for(;y;x=1LL*x*x%mod,y>>=1)
 		if(y&1)
 			res=1LL*res*x%mod;
-		x=1LL*x*x%mod;
-		y>>=1;
-	}
 	return res;
 }
 
-inline void clear(poly F){
-	for(re int i=F.n;i<maxn;++i)
-		F.a[i]=0;
+inline void Der(re int* F,re int* G,re int n){
+	for(re int i=0;i<n-1;++i)
+		G[i]=1LL*(i+1)*F[i+1]%mod;
+	for(re int i=n-1;i<maxn;++i)
+		G[i]=0;
 }
 
-inline poly Derivative(poly F){
-	poly G(F.n-1);
-	for(re int i=0;i<G.n;++i)
-		G.a[i]=1LL*F.a[i+1]*(i+1)%mod;
-	return G;
-}
-
-inline poly Integral(poly F){
+inline void Int(re int* F,re int* G,re int n){
 	inv[0]=inv[1]=1;
-	for(re int i=2;i<F.n;++i)
+	for(re int i=2;i<n;++i)
 		inv[i]=(mod-1LL*mod/i*inv[mod%i]%mod)%mod;
-	poly G(F.n+1);
-	for(re int i=1;i<G.n;++i)
-		G.a[i]=1LL*F.a[i-1]*inv[i]%mod;
-	return G;
+	for(re int i=n-1;i>0;--i)
+		G[i]=1LL*inv[i]*F[i-1]%mod;
+	G[0]=0;
+	for(re int i=n;i<maxn;++i)
+		G[i]=0;
 }
 
-inline poly reverse(poly F){
-	for(re int i=0;i<F.n-i-1;++i)
-		std::swap(F.a[i],F.a[F.n-i-1]);
-	return F;
-}
-
-inline poly operator+(poly F,poly G){
-	F.n=std::max(F.n,G.n);
-	for(re int i=0;i<F.n;++i)
-		F.a[i]=(F.a[i]+G.a[i])%mod;
-	return F;
-}
-
-inline poly operator+(poly F,re int x){
-	F.a[0]=(F.a[0]+x)%mod;
-	return F;
-}
-
-inline poly operator-(poly F,poly G){
-	F.n=std::max(F.n,G.n);
-	for(re int i=0;i<F.n;++i)
-		F.a[i]=(F.a[i]-G.a[i]+mod)%mod;
-	return F;
-}
-
-inline poly operator-(poly F,re int x){
-	F.a[0]=(F.a[0]-x+mod)%mod;
-	return F;
-}
-
-inline poly operator-(re int x,poly F){
-	for(re int i=0;i<F.n;++i)
-		F.a[i]=mod-F.a[i];
-	F.a[0]=(F.a[0]+x)%mod;
-	return F;
-}
-
-inline void NTT(poly& F,re int N,re int tp){
-	F.n=N;
-	for(re int i=0;i<N;++i)
-		if(i<(rev[i]=(rev[i>>1]>>1)|((i&1)?(N>>1):0)))
-			std::swap(F.a[i],F.a[rev[i]]);
-	for(re int k=1,p=1;p<N;++k,p<<=1)
-		for(re int i=0;i<N;i+=p<<1)
-			for(re int j=i,unit=cltpow(!tp?3:332748118,(mod-1)>>k),tmp=1;j<i+p;++j,tmp=1LL*tmp*unit%mod){
-				re int x=F.a[j],y=1LL*F.a[j+p]*tmp%mod;
-				F.a[j]=(x+y)%mod;
-				F.a[j+p]=(x-y+mod)%mod;
+inline void NTT(re int* F,re int n,re int tp){
+	for(re int i=0;i<n;++i)
+		if(i<(rev[i]=(rev[i>>1]>>1)|((i&1)?(n>>1):0)))
+			swap(F[i],F[rev[i]]);
+	for(re int k=1,p=1;p<n;++k,p<<=1)
+		for(re int i=0;i<n;i+=p<<1)
+			for(re int j=i,tmp=1;j<i+p;++j,tmp=1LL*tmp*unit[tp][k]%mod){
+				re int x=F[j],y=1LL*F[j+p]*tmp%mod;
+				F[j]=(x+y)%mod;
+				F[j+p]=(x-y+mod)%mod;
 			}
-	re int v=cltpow(N,tp*(mod-2));
-	for(re int i=0;i<N;++i)
-		F.a[i]=1LL*F.a[i]*v%mod;
+	re int v=cltpow(n,tp*(mod-2));
+	for(re int i=0;i<n;++i)
+		F[i]=1LL*F[i]*v%mod;
 }
 
-inline poly operator*(poly F,poly G){
-	re int n=F.n+G.n-1,N=1;
-	for(;N<n;N<<=1);
-	NTT(F,N,0);
+inline void Inv(re int* F,re int* G,re int n){
+	int tmp[maxn];
+	for(re int i=0;i<maxn;++i)
+		G[i]=tmp[i]=0;
+	G[0]=cltpow(F[0],mod-2);
+	for(re int i=1,j=4;i<n;i<<=1,j<<=1){
+		for(re int k=0;k<(i<<1);++k)
+			tmp[k]=F[k];
+		NTT(G,j,0);
+		NTT(tmp,j,0);
+		for(re int k=0;k<j;++k)
+			G[k]=(2-1LL*tmp[k]*G[k]%mod+mod)*G[k]%mod;
+		NTT(G,j,1);
+		for(re int k=(i<<1);k<j;++k)
+			G[k]=0;
+	}
+	for(re int i=n;i<maxn;++i)
+		G[i]=0;
+}
+
+inline void Ln(re int* F,re int* G,re int n){
+	int tmp[maxn];
+	Der(F,G,n);
+	Inv(F,tmp,n);
+	re int N=1;
+	for(;N<(n<<1)-1;N<<=1);
 	NTT(G,N,0);
+	NTT(tmp,N,0);
 	for(re int i=0;i<N;++i)
-		F.a[i]=1LL*F.a[i]*G.a[i]%mod;
-	NTT(F,N,1);
-	F.n=n;
-	clear(F);
-	return F;
+		tmp[i]=1LL*G[i]*tmp[i]%mod;
+	NTT(tmp,N,1);
+	Int(tmp,G,n);
 }
 
-inline poly operator*(poly F,re int x){
-	for(re int i=0;i<F.n;++i)
-		F.a[i]=1LL*F.a[i]*x%mod;
-	return F;
-}
-
-inline poly Inversion(poly F){
-	poly G(1);
-	G.a[0]=cltpow(F.a[0],mod-2);
-	for(re int i=1;i<F.n;i<<=1){
-		poly _F(i<<1);
-		for(re int j=0;j<(i<<1);++j)
-			_F.a[j]=F.a[j];
-		G=G*(2-_F*G);
-		G.n=i<<1;
-		clear(G);
-		cltstream::write(i<<1,':');
-		G.write(10);
+inline void Exp(re int* F,re int* G,re int n){
+	int tmp1[maxn],tmp2[maxn];
+	for(re int i=0;i<maxn;++i)
+		G[i]=tmp1[i]=tmp2[i]=0;
+	G[0]=1;
+	for(re int i=1,j=4;i<n;i<<=1,j<<=1){
+		Ln(G,tmp1,i<<1);
+		for(re int k=0;k<(i<<1);++k)
+			tmp2[k]=F[k];
+		NTT(G,j,0);
+		NTT(tmp1,j,0);
+		NTT(tmp2,j,0);
+		for(re int k=0;k<j;++k)
+			G[k]=1LL*(1-tmp1[k]+tmp2[k]+mod)*G[k]%mod;
+		NTT(G,j,1);
+		for(re int k=(i<<1);k<j;++k)
+			G[k]=0;
 	}
-	G.n=F.n;
-	clear(G);
-	return G;
+	for(re int i=n;i<maxn;++i)
+		G[i]=0;
 }
 
-inline poly Logarithm(poly F){
-	poly _G=Inversion(F);
-	F.write(10);
-	_G.write(10);
-	poly _H=F*_G;
-	_H.write(10);
-	_H.n=0;
-	clear(_H);
-	for(re int i=0;i<F.n;++i)
-		for(re int j=0;j<_G.n;++j)
-			_H.a[i+j]=(_H.a[i+j]+1LL*F.a[i]*_G.a[j]%mod)%mod;
-	_H.n=15;
-	_H.write(10);
-	poly G=Integral(Derivative(F)*Inversion(F));
-	G.n=F.n;
-	clear(G);
-	return G;
+inline void Pow(re int* F,re int* G,re int n,re int k){
+	int tmp[maxn];
+	Ln(F,tmp,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=1LL*k*tmp[i]%mod;
+	Exp(tmp,G,n);
 }
 
-inline poly Exponential(poly F){
-	poly G(1);
-	G.a[0]=1;
-	for(re int i=1;i<(F.n<<3);i<<=1){
-		poly _F(i);
-		for(re int j=0;j<i;++j)
-			_F.a[j]=F.a[j];
-		G=G*(1-Logarithm(G)+_F);
-		G.n=i<<1;
-		clear(G);
-		G.write(10);
-		cltstream::pc(10);
-	}
-	G.n=F.n;
-	clear(G);
-	return G;
+inline void Cos(re int* F,re int* G,re int n){
+	int tmp[maxn],tmp1[maxn],tmp2[maxn];
+	for(re int i=0;i<n;++i)
+		tmp[i]=1LL*I*F[i]%mod;
+	Exp(tmp,tmp1,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=(mod-tmp[i])%mod;
+	Exp(tmp,tmp2,n);
+	re int v=cltpow(2,mod-2);
+	for(re int i=0;i<n;++i)
+		G[i]=1LL*(tmp1[i]+tmp2[i])*v%mod;
 }
 
-inline poly Pow(poly F,re int x){
-	F=Logarithm(F);
-	for(re int i=0;i<F.n;++i)
-		F.a[i]=1LL*F.a[i]*x%mod;
-	F=Exponential(F);
-	return F;
-}
-
-inline poly operator/(poly F,poly G){
-	poly H=reverse(F)*Inversion(reverse(G));
-	H.n=F.n-G.n;
-	clear(H);
-	return H;
-}
-
-inline poly operator%(poly F,poly G){
-	poly H=F-F/G*G;
-	H.n=G.n-1;
-	clear(H);
-	return H;
+inline void Sin(re int* F,re int* G,re int n){
+	int tmp[maxn],tmp1[maxn],tmp2[maxn];
+	for(re int i=0;i<n;++i)
+		tmp[i]=1LL*I*F[i]%mod;
+	Exp(tmp,tmp1,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=(mod-tmp[i])%mod;
+	Exp(tmp,tmp2,n);
+	re int v=cltpow(2*I,mod-2);
+	for(re int i=0;i<n;++i)
+		G[i]=1LL*(tmp1[i]-tmp2[i]+mod)*v%mod;
 }
 
 int main(){
-	int n;
-	cltstream::read(n);
-	poly F(n);
-	F.read();
-	// poly G=Exponential(F);
-	poly G=Logarithm(F);
-	G.write();
+	unit[0][23]=cltpow(3,119);
+	unit[1][23]=cltpow(332748118,119);
+	for(re int i=0;i<2;++i)
+		for(re int j=22;j>=0;--j)
+			unit[i][j]=1LL*unit[i][j+1]*unit[i][j+1]%mod;
 	clop();
 	return 0;
 }
