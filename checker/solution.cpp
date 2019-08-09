@@ -1,177 +1,126 @@
-#include <cstdio>
-#include <cstring>
 #include <iostream>
-#include <cmath>
 #include <algorithm>
-
+#include <cstdio>
+#include <math.h>
+#include <set>
+#include <map>
+#include <queue>
+#include <string>
+#include <string.h>
+#define REP(i,a,n) for(int i=a;i<=n;++i)
+#define PER(i,a,n) for(int i=n;i>=a;--i)
+#define hr putchar(10)
+#define pb push_back
+#define lc (o<<1)
+#define rc (lc|1)
+#define mid ((l+r)>>1)
+#define ls lc,l,mid
+#define rs rc,mid+1,r
+#define x first
+#define y second
+#define io std::ios::sync_with_stdio(false)
+#define endl '\n'
 using namespace std;
+typedef long long ll;
+typedef pair<int,int> pii;
+const int P = 1e9+7, INF = 0x3f3f3f3f;
+ll gcd(ll a,ll b) {return b?gcd(b,a%b):a;}
+ll qpow(ll a,ll n) {ll r=1%P;for (a%=P;n;a=a*a%P,n>>=1)if(n&1)r=r*a%P;return r;}
+ll inv(ll x){return x<=1?1:inv(P%x)*(P-P/x)%P;}
+//head
 
-int son[50050][2],fa[50050],sz[50050];
-long long lsum[50050],val[50050],rsum[50050],EXP[50050],sum[50050],upd_tag[50050];
-int rev_tag[50050];
+const int N = 1e6+10;
+int n, q;
+int a[N], L[N], R[N];
+struct _ {int l,r,id;} e[N];
+int v1[N<<2], t1[N<<2];
+ll v2[N<<2], t2[N<<2], ans[N];
 
-void Push_Up(int rt)
-{
-    sum[rt] = val[rt] + sum[son[rt][0]] + sum[son[rt][1]];
-    sz[rt] = 1 + sz[son[rt][0]] + sz[son[rt][1]];
-    lsum[rt] = lsum[son[rt][0]] + val[rt] * (sz[son[rt][0]] + 1) + lsum[son[rt][1]] + sum[son[rt][1]] * (sz[son[rt][0]] + 1);
-    rsum[rt] = rsum[son[rt][1]] + val[rt] * (sz[son[rt][1]] + 1) + rsum[son[rt][0]] + sum[son[rt][0]] * (sz[son[rt][1]] + 1);
-    EXP[rt] = EXP[son[rt][0]] + EXP[son[rt][1]] + val[rt] * (sz[son[rt][0]] + 1) * (sz[son[rt][1]] + 1) +
-              lsum[son[rt][0]] * (sz[son[rt][1]] + 1) + rsum[son[rt][1]] * (sz[son[rt][0]] + 1);
-}
-
-void Rev(int rt)
-{
-    swap(son[rt][0],son[rt][1]);
-    swap(lsum[rt],rsum[rt]);
-    rev_tag[rt] ^= 1;
-}
-
-void Add(int rt,int valx)
-{
-    long long val1 = (sz[rt] * 1ll * (sz[rt] + 1)) / 2,val2 = (sz[rt] * 1ll * (sz[rt] + 1) * (sz[rt] + 2)) / 6;
-    sum[rt] += valx * 1ll * sz[rt];
-    val[rt] += valx;
-    lsum[rt] += val1 * valx;
-    rsum[rt] += val1 * valx;
-    EXP[rt] += valx * val2;
-    upd_tag[rt] += valx;
-}
-
-void Push_Down(int rt)
-{
-    if(rev_tag[rt])
-    {
-        Rev(son[rt][0]);
-        Rev(son[rt][1]);
-        rev_tag[rt] = 0;
-    }
-    if(upd_tag[rt])
-    {
-        Add(son[rt][0],upd_tag[rt]);
-        Add(son[rt][1],upd_tag[rt]);
-        upd_tag[rt] = 0;
+void pd1(int o) {
+    if (t1[o]) {
+        v1[lc]+=t1[o];
+        v1[rc]+=t1[o];
+        t1[lc]+=t1[o];
+        t1[rc]+=t1[o];
+        t1[o]=0;
     }
 }
-
-void Down(int rt)
-{
-    if(fa[rt]) Down(fa[rt]);
-    Push_Down(rt);
-}
-
-bool is_root(int rt)
-{
-    return (son[fa[rt]][0] != rt && son[fa[rt]][1] != rt) || rt == 0;
-}
-
-void rotate(int rt)
-{
-    int f = fa[rt],g = fa[f];
-    int way = son[f][1] == rt;
-    if(!is_root(f)) son[g][son[g][1] == f] = rt;
-    fa[rt] = g; son[f][way] = son[rt][way ^ 1];
-    if(son[rt][way ^ 1]) fa[son[rt][way ^ 1]] = f;
-    son[rt][way ^ 1] = f; fa[f] = rt;
-    Push_Up(f); Push_Up(rt);
-}
-
-void splay(int rt)
-{
-    Down(rt);
-    while(!is_root(rt))
-    {
-        int f = fa[rt],g = fa[f];
-        if(!is_root(f)) (son[f][1] == rt) ^ (son[g][1] == rt) ? rotate(rt) : rotate(f);
-        rotate(rt);
+void pd2(int o) {
+    if (t2[o]) {
+        v2[lc]+=t2[o];
+        v2[rc]+=t2[o];
+        t2[lc]+=t2[o];
+        t2[rc]+=t2[o];
+        t2[o]=0;
     }
 }
+void upd1(int o, int l, int r, int ql, int qr, int v) {
+    if (ql<=l&&r<=qr) return v1[o]+=v,t1[o]+=v,void();
+    pd1(o);
+    if (mid>=ql) upd1(ls,ql,qr,v);
+    if (mid<qr) upd1(rs,ql,qr,v);
+}
+void upd2(int o, int l, int r, int ql, int qr, int v) {
+    if (ql<=l&&r<=qr) return v2[o]+=v,t2[o]+=v,void();
+    pd2(o);
+    if (mid>=ql) upd2(ls,ql,qr,v);
+    if (mid<qr) upd2(rs,ql,qr,v);
+}
+ll qry1(int o, int l, int r, int x) {
+    if (l==r) return (ll)l*v1[o];
+    pd1(o);
+    if (mid>=x) return qry1(ls,x);
+    return qry1(rs,x);
+}
+ll qry2(int o, int l, int r, int x) {
+    if (l==r) return (ll)v2[o];
+    pd2(o);
+    if (mid>=x) return qry2(ls,x);
+    return qry2(rs,x);
+}
 
-void Access(int u)
-{
-    for(int v = 0;u;v = u,u = fa[u])
-    {
-        splay(u);
-        son[u][1] = v;
-        Push_Up(u);
+bool A(_ a,_ b){return a.l>b.l;}
+bool B(_ a,_ b){return a.r<b.r;}
+
+int main() {
+	freopen("data.in","r",stdin);
+	freopen("data.ans","w",stdout);
+    scanf("%d%d", &n, &q);
+    REP(i,1,n) scanf("%d", a+i);
+    REP(i,1,n) {
+        L[i] = i-1;
+        while (L[i]&&a[i]>a[L[i]]) L[i]=L[L[i]];
     }
-}
-
-void make_root(int u)
-{
-    Access(u); splay(u); Rev(u);
-}
-
-int find_root(int u)
-{
-    Access(u); splay(u);
-    while(son[u][0]) u = son[u][0];
-    return u;
-}
-
-long long split(int u,int v)
-{
-    if(find_root(u) != find_root(v)) return -1;
-    make_root(u); Access(v); splay(v);
-    return EXP[v];
-}
-
-void Update(int u,int v,int val)
-{
-    if(find_root(u) != find_root(v)) return ;
-    make_root(u); Access(v); splay(v);
-    Add(v,val);
-}
-
-void Link(int u,int v)
-{
-    if(find_root(u) == find_root(v)) return ;
-    make_root(u); fa[u] = v;
-}
-
-void Cut(int u,int v)
-{
-    if(find_root(u) != find_root(v)) return ;
-    make_root(u); Access(v); splay(v);
-    if(son[u][1] || son[v][0] != u) return;
-    son[v][0] = fa[u] = 0;
-    Push_Up(v);
-}
-
-long long gcd(long long a,long long b)
-{
-    return b == 0 ? a : gcd(b,a % b);
-}
-
-int main()
-{
-    freopen("data.in","r",stdin);
-    freopen("data.ans","w",stdout);
-    int n,m;
-    scanf("%d%d",&n,&m);
-    for(int i = 1;i <= n; ++ i) scanf("%lld",&val[i]),Push_Up(i);
-    for(int i = 1;i < n; ++ i)
-    {
-        int u,v;
-        scanf("%d%d",&u,&v); Link(u,v);
+    PER(i,1,n) {
+        R[i] = i+1;
+        while (R[i]<=n&&a[i]>a[R[i]]) R[i]=R[R[i]];
     }
-    for(int i = 1;i <= m; ++ i)
-    {
-        int op,u,v;scanf("%d%d%d",&op,&u,&v);
-        int w; if(op == 3) scanf("%d",&w);
-        if(op == 1) Cut(u,v);
-        else if(op == 2) Link(u,v);
-        else if(op == 3) Update(u,v,w);
-        else
-        {
-            long long tmp = split(u,v);
-            if(tmp == -1) printf("-1\n");
-            else
-            {
-                long long csz = sz[v] * (sz[v] + 1) / 2;
-                long long gcdx = gcd(csz,tmp);
-                printf("%lld/%lld\n",tmp/gcdx,csz/gcdx);
-            }
+    REP(i,1,n) ++L[i],--R[i];
+    REP(i,1,q) scanf("%d", &e[i].l);
+    REP(i,1,q) scanf("%d", &e[i].r),e[i].id=i;
+    sort(e+1,e+1+q,A);
+    int now = n;
+    REP(i,1,q) {
+        while (now>=e[i].l) {
+            if (now<=R[now]-1) upd1(1,1,n,now,R[now]-1,1);
+            upd2(1,1,n,R[now],n,R[now]);
+            --now;
         }
+        ans[e[i].id] += qry1(1,1,n,e[i].r)+qry2(1,1,n,e[i].r)+e[i].r-e[i].l+1;
     }
+    memset(v1,0,sizeof v1);
+    memset(v2,0,sizeof v2);
+    memset(t1,0,sizeof t1);
+    memset(t2,0,sizeof t2);
+    sort(e+1,e+1+q,B);
+    now = 1;
+    REP(i,1,q) {
+        while (now<=e[i].r) {
+            if (L[now]+1<=now) upd1(1,1,n,L[now]+1,now,1);
+            upd2(1,1,n,1,L[now],L[now]);
+            ++now;
+        }
+        ans[e[i].id] -= qry1(1,1,n,e[i].l)+qry2(1,1,n,e[i].l);
+    }
+    REP(i,1,q) printf("%lld ", ans[i]);hr;
 }

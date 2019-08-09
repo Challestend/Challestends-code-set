@@ -15,6 +15,7 @@ int main(){
 		re double t2=clock();
 		system("cls");
 		printf("Test Case #%d:\n",i);
+		printf("File Name:\n\t     sol.exe/     clt.exe\n");
 		printf("Current:\n\t%9.3lf ms/%9.3lf ms\n",t1-t0,t2-t1);
 		printf("Averange:\n\t%9.3lf ms/%9.3lf ms\n",(T1+=t1-t0)/i,(T2+=t2-t1)/i);
 		if(system("fc data.out data.ans > nul")){

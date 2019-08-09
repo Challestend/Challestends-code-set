@@ -178,29 +178,18 @@ inline void Pow(re int* F,re int* G,re int n,re int k){
 	Exp(tmp,G,n);
 }
 
-inline void Sin(re int* F,re int* G,re int n){
-	int tmp[maxn],tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	for(re int i=0;i<n;++i)
-		tmp[i]=1LL*I*F[i]%mod;
-	Exp(tmp,tmp1,n);
-	Inv(tmp1,tmp2,n);
-	re int v=cltpow(2*I,mod-2);
-	for(re int i=0;i<n;++i)
-		G[i]=1LL*(tmp1[i]-tmp2[i]+mod)*v%mod;
-	for(re int i=n;i<N;++i)
-		G[i]=0;
-}
-
 inline void Cos(re int* F,re int* G,re int n){
 	int tmp[maxn],tmp1[maxn],tmp2[maxn];
 	re int N=1;
 	for(;N<n;N<<=1);
+	for(re int i=0;i<N;++i)
+		tmp1[i]=tmp2[i]=0;
 	for(re int i=0;i<n;++i)
 		tmp[i]=1LL*I*F[i]%mod;
 	Exp(tmp,tmp1,n);
-	Inv(tmp1,tmp2,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=(mod-tmp[i])%mod;
+	Exp(tmp,tmp2,n);
 	re int v=cltpow(2,mod-2);
 	for(re int i=0;i<n;++i)
 		G[i]=1LL*(tmp1[i]+tmp2[i])*v%mod;
@@ -208,28 +197,21 @@ inline void Cos(re int* F,re int* G,re int n){
 		G[i]=0;
 }
 
-inline void Sinh(re int* F,re int* G,re int n){
-	int tmp1[maxn],tmp2[maxn];
+inline void Sin(re int* F,re int* G,re int n){
+	int tmp[maxn],tmp1[maxn],tmp2[maxn];
 	re int N=1;
 	for(;N<n;N<<=1);
-	Exp(F,tmp1,n);
-	Inv(tmp1,tmp2,n);
-	re int v=cltpow(2,mod-2);
+	for(re int i=0;i<N;++i)
+		tmp1[i]=tmp2[i]=0;
+	for(re int i=0;i<n;++i)
+		tmp[i]=1LL*I*F[i]%mod;
+	Exp(tmp,tmp1,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=(mod-tmp[i])%mod;
+	Exp(tmp,tmp2,n);
+	re int v=cltpow(2*I,mod-2);
 	for(re int i=0;i<n;++i)
 		G[i]=1LL*(tmp1[i]-tmp2[i]+mod)*v%mod;
-	for(re int i=n;i<N;++i)
-		G[i]=0;
-}
-
-inline void Cosh(re int* F,re int* G,re int n){
-	int tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	Exp(F,tmp1,n);
-	Inv(tmp1,tmp2,n);
-	re int v=cltpow(2,mod-2);
-	for(re int i=0;i<n;++i)
-		G[i]=1LL*(tmp1[i]+tmp2[i])*v%mod;
 	for(re int i=n;i<N;++i)
 		G[i]=0;
 }
@@ -280,24 +262,35 @@ int main(){
 	cltstream::read(tp);
 	for(re int i=0;i<n;++i)
 		cltstream::read(F[i]);
-	if(tp&5){
-		Sinh(F,G,n);
+	Der(F,G,n);
+	re int N=1;
+	for(;N<(n<<1)-1;N<<=1);
+	if(!tp){
+		NTT(F,N,0);
+		for(re int i=0;i<N;++i)
+			F[i]=(1-1LL*F[i]*F[i]%mod+mod)%mod;
+		NTT(F,N,1);
+		Pow(F,H,n,(mod+1)>>1);
 		for(re int i=0;i<n;++i)
-			cltstream::write(G[i],32);
-		cltstream::pc(10);
+			F[i]=H[i];
 	}
-	if(tp&6){
-		Cosh(F,H,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(H[i],32);
-		cltstream::pc(10);
+	else{
+		NTT(F,N,0);
+		for(re int i=0;i<N;++i)
+			F[i]=(1+1LL*F[i]*F[i]%mod)%mod;
+		NTT(F,N,1);
 	}
-	if(tp&4){
-		Inv(H,G,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(G[i],32);
-		cltstream::pc(10);
-	}
+	for(re int i=n;i<N;++i)
+		F[i]=0;
+	Inv(F,H,n);
+	NTT(G,N,0);
+	NTT(H,N,0);
+	for(re int i=0;i<N;++i)
+		G[i]=1LL*G[i]*H[i]%mod;
+	NTT(G,N,1);
+	Int(G,F,n);
+	for(re int i=0;i<n;++i)
+		cltstream::write(F[i],32);
 	clop();
 	return 0;
 }

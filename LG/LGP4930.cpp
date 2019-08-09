@@ -88,8 +88,9 @@ void getRoot(re int cur,re int ftr){
 }
 
 void calc(re int cur,re int ftr,re int val){
-	ans+=tmp[n+val]?cnt[n-val][0]+cnt[n-val][1]:cnt[n-val][1];
-	stk[++top]=std::make_pair(val,tmp[n+val]>0);
+	ans+=!val||tmp[n+val]?cnt[n-val][0]+cnt[n-val][1]:cnt[n-val][1];
+	ans+=!val&&tmp[n+val];
+	stk[++top]=std::make_pair(val,!val||tmp[n+val]);
 	++tmp[n+val];
 	for(re int i=las[cur];i;i=suc[i])
 		if(des[i]!=ftr&&!vis[des[i]])
@@ -101,7 +102,7 @@ void divide(re int cur){
 	vis[cur]=1;
 	for(re int i=las[cur],j=0;i;i=suc[i])
 		if(!vis[des[i]]){
-			calc(des[i],0,len[i]);
+			calc(des[i],cur,len[i]);
 			for(;j<top;++j,++cnt[n+stk[j].first][stk[j].second]);
 		}
 	for(;top;--cnt[n+stk[top].first][stk[top].second],--top);
@@ -115,7 +116,6 @@ void divide(re int cur){
 }
 
 int main(){
-	freopen("C:\\Users\\Challestend\\Downloads\\testdata(2).in","r",stdin);
 	cltstream::read(n);
 	for(re int i=1;i<n;++i){
 		int x,y,z;
@@ -125,7 +125,6 @@ int main(){
 		connect(x,y,z-!z);
 		connect(y,x,z-!z);
 	}
-	++tmp[n];
 	rt=0;
 	sz=n;
 	getRoot(1,0);

@@ -1,6 +1,6 @@
 #include<cstdio>
 #define re register
-#define maxn 524288
+#define maxn 131072
 #define mod 998244353
 #define I 86583718
 #define swap(a,b) a^=b,b^=a,a^=b
@@ -60,8 +60,8 @@ namespace cltstream{
 }
 
 int unit[2][24],rev[maxn],inv[maxn];
-int n,tp;
-int F[maxn],G[maxn],H[maxn];
+int n,k;
+int a[maxn],F[maxn],Q[maxn],tmp1[maxn],tmp2[maxn];
 
 inline int cltpow(re int x,re int y){
 	re int res=1;
@@ -74,6 +74,8 @@ inline int cltpow(re int x,re int y){
 inline void Der(re int* F,re int* G,re int n){
 	for(re int i=0;i<n-1;++i)
 		G[i]=1LL*(i+1)*F[i+1]%mod;
+	for(re int i=n-1;i<maxn;++i)
+		G[i]=0;
 }
 
 inline void Int(re int* F,re int* G,re int n){
@@ -83,11 +85,15 @@ inline void Int(re int* F,re int* G,re int n){
 	G[0]=0;
 	for(re int i=1;i<=n;++i)
 		G[i]=1LL*inv[i]*F[i-1]%mod;
+	for(re int i=n+1;i<maxn;++i)
+		G[i]=0;
 }
 
 inline void Rev(re int* F,re int n){
 	for(re int i=0;i<n-i-1;++i)
 		swap(F[i],F[n-i-1]);
+	for(re int i=n;i<maxn;++i)
+		F[i]=0;
 }
 
 inline void NTT(re int* F,re int n,re int tp){
@@ -108,9 +114,7 @@ inline void NTT(re int* F,re int n,re int tp){
 
 inline void Inv(re int* F,re int* G,re int n){
 	int tmp[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	for(re int i=0;i<(N<<1);++i)
+	for(re int i=0;i<maxn;++i)
 		G[i]=tmp[i]=0;
 	G[0]=cltpow(F[0],mod-2);
 	for(re int i=1,j=4;i<n;i<<=1,j<<=1){
@@ -124,33 +128,27 @@ inline void Inv(re int* F,re int* G,re int n){
 		for(re int k=(i<<1);k<j;++k)
 			G[k]=0;
 	}
-	for(re int i=n;i<N;++i)
+	for(re int i=n;i<maxn;++i)
 		G[i]=0;
 }
 
 inline void Ln(re int* F,re int* G,re int n){
 	int tmp[maxn];
-	re int N=1;
-	for(;N<(n<<1)-1;N<<=1);
-	for(re int i=0;i<N;++i)
-		G[i]=0;
 	Der(F,G,n);
 	Inv(F,tmp,n);
+	re int N=1;
+	for(;N<(n<<1)-1;N<<=1);
 	NTT(G,N,0);
 	NTT(tmp,N,0);
 	for(re int i=0;i<N;++i)
 		tmp[i]=1LL*G[i]*tmp[i]%mod;
 	NTT(tmp,N,1);
-	Int(tmp,G,n-1);
-	for(re int i=n;i<N;++i)
-		G[i]=0;
+	Int(tmp,G,n);
 }
 
 inline void Exp(re int* F,re int* G,re int n){
 	int tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	for(re int i=0;i<(N<<1);++i)
+	for(re int i=0;i<maxn;++i)
 		G[i]=tmp1[i]=tmp2[i]=0;
 	G[0]=1;
 	for(re int i=1,j=4;i<n;i<<=1,j<<=1){
@@ -166,7 +164,7 @@ inline void Exp(re int* F,re int* G,re int n){
 		for(re int k=(i<<1);k<j;++k)
 			G[k]=0;
 	}
-	for(re int i=n;i<N;++i)
+	for(re int i=n;i<maxn;++i)
 		G[i]=0;
 }
 
@@ -178,59 +176,33 @@ inline void Pow(re int* F,re int* G,re int n,re int k){
 	Exp(tmp,G,n);
 }
 
-inline void Sin(re int* F,re int* G,re int n){
+inline void Cos(re int* F,re int* G,re int n){
 	int tmp[maxn],tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
 	for(re int i=0;i<n;++i)
 		tmp[i]=1LL*I*F[i]%mod;
 	Exp(tmp,tmp1,n);
-	Inv(tmp1,tmp2,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=(mod-tmp[i])%mod;
+	Exp(tmp,tmp2,n);
+	re int v=cltpow(2,mod-2);
+	for(re int i=0;i<n;++i)
+		G[i]=1LL*(tmp1[i]+tmp2[i])*v%mod;
+	for(re int i=n;i<maxn;++i)
+		G[i]=0;
+}
+
+inline void Sin(re int* F,re int* G,re int n){
+	int tmp[maxn],tmp1[maxn],tmp2[maxn];
+	for(re int i=0;i<n;++i)
+		tmp[i]=1LL*I*F[i]%mod;
+	Exp(tmp,tmp1,n);
+	for(re int i=0;i<n;++i)
+		tmp[i]=(mod-tmp[i])%mod;
+	Exp(tmp,tmp2,n);
 	re int v=cltpow(2*I,mod-2);
 	for(re int i=0;i<n;++i)
 		G[i]=1LL*(tmp1[i]-tmp2[i]+mod)*v%mod;
-	for(re int i=n;i<N;++i)
-		G[i]=0;
-}
-
-inline void Cos(re int* F,re int* G,re int n){
-	int tmp[maxn],tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	for(re int i=0;i<n;++i)
-		tmp[i]=1LL*I*F[i]%mod;
-	Exp(tmp,tmp1,n);
-	Inv(tmp1,tmp2,n);
-	re int v=cltpow(2,mod-2);
-	for(re int i=0;i<n;++i)
-		G[i]=1LL*(tmp1[i]+tmp2[i])*v%mod;
-	for(re int i=n;i<N;++i)
-		G[i]=0;
-}
-
-inline void Sinh(re int* F,re int* G,re int n){
-	int tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	Exp(F,tmp1,n);
-	Inv(tmp1,tmp2,n);
-	re int v=cltpow(2,mod-2);
-	for(re int i=0;i<n;++i)
-		G[i]=1LL*(tmp1[i]-tmp2[i]+mod)*v%mod;
-	for(re int i=n;i<N;++i)
-		G[i]=0;
-}
-
-inline void Cosh(re int* F,re int* G,re int n){
-	int tmp1[maxn],tmp2[maxn];
-	re int N=1;
-	for(;N<n;N<<=1);
-	Exp(F,tmp1,n);
-	Inv(tmp1,tmp2,n);
-	re int v=cltpow(2,mod-2);
-	for(re int i=0;i<n;++i)
-		G[i]=1LL*(tmp1[i]+tmp2[i])*v%mod;
-	for(re int i=n;i<N;++i)
+	for(re int i=n;i<maxn;++i)
 		G[i]=0;
 }
 
@@ -271,33 +243,55 @@ inline void Mod(re int* F,re int* G,re int* H,re int n,re int m){
 }
 
 int main(){
+	freopen("C:/Users/Challestend/Downloads/testdata.in","r",stdin);
 	unit[0][23]=cltpow(3,119);
 	unit[1][23]=cltpow(332748118,119);
 	for(re int i=0;i<2;++i)
 		for(re int j=22;j>=0;--j)
 			unit[i][j]=1LL*unit[i][j+1]*unit[i][j+1]%mod;
 	cltstream::read(n);
-	cltstream::read(tp);
-	for(re int i=0;i<n;++i)
+	cltstream::read(k);
+	F[k]=1;
+	for(re int i=k-1;i>=0;--i){
 		cltstream::read(F[i]);
-	if(tp&5){
-		Sinh(F,G,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(G[i],32);
-		cltstream::pc(10);
+		F[i]=F[i]>=0?F[i]:F[i]+mod;
+		F[i]=F[i]>0?mod-F[i]:F[i];
 	}
-	if(tp&6){
-		Cosh(F,H,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(H[i],32);
-		cltstream::pc(10);
+	for(re int i=0;i<k;++i){
+		cltstream::read(a[i]);
+		a[i]=a[i]>=0?a[i]:a[i]+mod;
 	}
-	if(tp&4){
-		Inv(H,G,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(G[i],32);
-		cltstream::pc(10);
+	Q[0]=tmp1[1]=1;
+	re int K=1;
+	for(;K<(k<<1)-1;K<<=1);
+	for(;n;n>>=1){
+		if(n&1){
+			NTT(Q,K,0);
+			NTT(tmp1,K,0);
+			for(re int i=0;i<K;++i)
+				Q[i]=1LL*Q[i]*tmp1[i]%mod;
+			NTT(Q,K,1);
+			NTT(tmp1,K,1);
+			Mod(Q,F,tmp2,(k<<1)-1,k+1);
+			for(re int i=0;i<k;++i)
+				Q[i]=tmp2[i];
+			for(re int i=k;i<(k<<1)-1;++i)
+				Q[i]=0;
+		}
+		NTT(tmp1,K,0);
+		for(re int i=0;i<K;++i)
+			tmp1[i]=1LL*tmp1[i]*tmp1[i]%mod;
+		NTT(tmp1,K,1);
+		Mod(tmp1,F,tmp2,(k<<1)-1,k+1);
+		for(re int i=0;i<k;++i)
+			tmp1[i]=tmp2[i];
+		for(re int i=k;i<(k<<1)-1;++i)
+			tmp1[i]=0;
 	}
+	re int ans=0;
+	for(re int i=0;i<k;++i)
+		ans=(ans+1LL*Q[i]*a[i]%mod)%mod;
+	cltstream::write(ans);
 	clop();
 	return 0;
 }

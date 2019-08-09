@@ -1,7 +1,12 @@
 #include<cstdio>
 #include<algorithm>
 #define re register
-#define maxn 50000
+#define maxn 1000000
+#define maxm 1000000
+#define maxlog 20
+#define min(a,b) ((a)<=(b)?(a):(b))
+#define max(a,b) ((a)>=(b)?(a):(b))
+#define swap(a,b) a^=b^=a^=b
 
 namespace cltstream{
 	#define size 1048576
@@ -57,215 +62,200 @@ namespace cltstream{
 	}
 }
 
-class LinkCutTree{
-	int n,m;
-	struct SplayNode{
-		SplayNode *ftr,*lc,*rc;
-		int val,size,add,rev;
-		long long sum0,sum1,sum2;
-
-		inline int isRoot(){
-			return ftr==NULL||(ftr->lc!=this&&ftr->rc!=this);
-		}
-
-		inline void reverse(){
-			std::swap(lc,rc);
-			sum2=1LL*(size+1)*(size+1)*sum0-2LL*(size+1)*sum1+sum2;
-			sum1=1LL*(size+1)*sum0-sum1;
-			rev^=1;
-		}
-
-		inline void pushDown(){
-			if(add){
-				if(lc!=NULL){
-					lc->val+=add;
-					lc->sum2+=1LL*lc->size*(lc->size+1)*(2*lc->size+1)/6*add;
-					lc->sum1+=1LL*lc->size*(lc->size+1)/2*add;
-					lc->sum0+=1LL*lc->size*add;
-					lc->add+=add;
-				}
-				if(rc!=NULL){
-					rc->val+=add;
-					rc->sum2+=1LL*rc->size*(rc->size+1)*(2*rc->size+1)/6*add;
-					rc->sum1+=1LL*rc->size*(rc->size+1)/2*add;
-					rc->sum0+=1LL*rc->size*add;
-					rc->add+=add;
-				}
-				add=0;
-			}
-			if(rev){
-				if(lc!=NULL)
-					lc->reverse();
-				if(rc!=NULL)
-					rc->reverse();
-				rev=0;
-			}
-		}
-
-		inline void pushUp(){
-			size=1;
-			sum0=sum1=sum2=val;
-			if(lc!=NULL){
-				size+=lc->size;
-				sum2+=lc->sum2+2LL*lc->size*sum1+1LL*lc->size*lc->size*sum0;
-				sum1+=lc->sum1+1LL*lc->size*sum0;
-				sum0+=lc->sum0;
-			}
-			if(rc!=NULL){
-				sum2+=rc->sum2+2LL*size*rc->sum1+1LL*size*size*rc->sum0;
-				sum1+=rc->sum1+1LL*size*rc->sum0;
-				sum0+=rc->sum0;
-				size+=rc->size;
-			}
-		}
-	};
-	SplayNode mempool[maxn+1];
-
-	inline void rotate(re SplayNode* p){
-		re SplayNode* q=p->ftr;
-		q->pushDown();
-		p->pushDown();
-		p->ftr=q->ftr;
-		if(p->ftr!=NULL){
-			if(p->ftr->lc==q)
-				p->ftr->lc=p;
-			if(p->ftr->rc==q)
-				p->ftr->rc=p;
-		}
-		if(q->rc==p){
-			q->rc=p->lc;
-			if(q->rc!=NULL)
-				q->rc->ftr=q;
-			p->lc=q;
-			q->ftr=p;
-		}
-		else{
-			q->lc=p->rc;
-			if(q->lc!=NULL)
-				q->lc->ftr=q;
-			p->rc=q;
-			q->ftr=p;
-		}
-		q->pushUp();
-		p->pushUp();
-	}
-
-	inline void splay(re SplayNode* p){
-		for(;!p->isRoot();rotate(p))
-			if(!p->ftr->isRoot())
-				rotate((p->ftr->ftr->lc==p->ftr)==(p->ftr->lc==p)?p->ftr:p);
-	}
-
-	inline void access(re SplayNode* p){
-		splay(p);
-		p->pushDown();
-		p->rc=NULL;
-		p->pushUp();
-		for(re SplayNode* q=p;q->ftr!=NULL;q=q->ftr){
-			splay(q->ftr);
-			q->ftr->pushDown();
-			q->ftr->rc=q;
-			q->ftr->pushUp();
-		}
-		splay(p);
-	}
-
-	inline void makeRoot(re SplayNode* p){
-		access(p);
-		p->reverse();
-	}
-
-	inline SplayNode* findRoot(re SplayNode* p){
-		access(p);
-		for(;p->lc!=NULL;p=p->lc);
-		splay(p);
-		return p;
-	}
-
-	inline void split(re SplayNode* p,re SplayNode* q){
-		makeRoot(p);
-		access(q);
-	}
-
-	inline void link(re SplayNode* p,re SplayNode* q){
-		makeRoot(p);
-		if(findRoot(q)!=p)
-			p->ftr=q;
-	}
-
-	inline void cut(re SplayNode* p,re SplayNode* q){
-		makeRoot(p);
-		if(findRoot(q)==p&&q->ftr==p&&q->lc==NULL){
-			p->rc=q->ftr=NULL;
-			p->pushUp();
-		}
-	}
-
-	inline long long gcd(re long long x,re long long y){
-		for(;y^=x^=y^=x%=y;);
-		return x;
-	}
-
-	public:
-
-	LinkCutTree(){
-		cltstream::read(n);
-		cltstream::read(m);
-		for(re int i=1;i<=n;++i){
-			cltstream::read((mempool+i)->val);
-			(mempool+i)->pushUp();
-		}
-		for(re int i=1;i<n;++i){
-			int x,y;
-			cltstream::read(x);
-			cltstream::read(y);
-			link(mempool+x,mempool+y);
-		}
-		for(re int i=1;i<=m;++i){
-			int opt,u,v,w,s;
-			long long sum,cnt,g;
-			cltstream::read(opt);
-			cltstream::read(u);
-			cltstream::read(v);
-			switch(opt){
-				case 1:
-					cut(mempool+u,mempool+v);
-					break;
-				case 2:
-					link(mempool+u,mempool+v);
-					break;
-				case 3:
-					cltstream::read(w);
-					if(findRoot(mempool+u)==findRoot(mempool+v)){
-						split(mempool+u,mempool+v);
-						s=(mempool+v)->size;
-						(mempool+v)->val+=w;
-						(mempool+v)->sum2+=1LL*s*(s+1)*(2*s+1)/6*w;
-						(mempool+v)->sum1+=1LL*s*(s+1)/2*w;
-						(mempool+v)->sum0+=1LL*s*w;
-						(mempool+v)->add+=w;
-					}
-					break;
-				case 4:
-					if(findRoot(mempool+u)==findRoot(mempool+v)){
-						split(mempool+u,mempool+v);
-						s=(mempool+v)->size;
-						sum=1LL*(s+1)*(mempool+v)->sum1-(mempool+v)->sum2;
-						cnt=1LL*s*(s+1)/2;
-						g=gcd(sum,cnt);
-						cltstream::write(sum/g,'/');
-						cltstream::write(cnt/g,10);
-					}
-					else
-						cltstream::write(-1,10);
-					break;
-			}
-		}
-		clop();
-	}
+int n,m,rt,ec,vc;
+int p[maxn+1];
+struct query{
+	int id,l,r;
 };
-LinkCutTree CLT;
+query q[maxm+1];
+
+inline bool operator<(const query& p1,const query& p2){
+	return p1.l<p2.l;
+}
+
+int st[maxn+1][maxlog+1],lg[maxn+1];
+long long bit[maxn+1][2];
+int des[2*maxn+1],suc[2*maxn+1],las[maxn+1],ch[maxn+1][2],low[maxn+1][2];
+int f[maxn+1],dep[maxn+1],size[maxn+1],hes[maxn+1],id[maxn+1],top[maxn+1];
+long long depsum[maxn+2],cnt[maxn+2][2],ans[maxm+1];
+
+inline int stmax(re int a,re int b){
+	re int l=lg[b-a+1],x=st[a][l],y=st[b-(1<<l)+1][l];
+	return p[x]>=p[y]?x:y;
+}
+
+inline void update(re int x,re int y){
+	for(re int i=x;i<=n;i+=i&(-i)){
+		bit[i][0]+=y;
+		bit[i][1]+=1LL*x*y;
+	}
+}
+
+inline long long getsum(re int x){
+	re long long res=0;
+	for(re int i=x;i>=1;i-=i&(-i))
+		res+=(x+1)*bit[i][0]-bit[i][1];
+	return res;
+}
+
+inline void connect(re int x,re int y){
+	des[++ec]=y;
+	suc[ec]=las[x];
+	las[x]=ec;
+}
+
+void build(re int l,re int r,re int ftr,re int sd){
+	if(l<=r){
+		re int cur=stmax(l,r);
+		connect(cur,ftr);
+		connect(ftr,cur);
+		ch[ftr][sd]=cur;
+		low[cur][sd]=low[ftr][sd];
+		low[cur][sd^1]=cur;
+		build(l,cur-1,cur,0);
+		build(cur+1,r,cur,1);
+	}
+}
+
+void dfs1(re int cur,re int ftr){
+	f[cur]=ftr;
+	dep[cur]=dep[f[cur]]+1;
+	size[cur]=1;
+	re int maxsize=0;
+	for(re int i=las[cur];i;i=suc[i])
+		if(des[i]!=f[cur]){
+			dfs1(des[i],cur);
+			size[cur]+=size[des[i]];
+			if(maxsize<size[des[i]]){
+				maxsize=size[des[i]];
+				hes[cur]=des[i];
+			}
+		}
+}
+
+void dfs2(re int cur,re int curtop){
+	id[cur]=++vc;
+	top[cur]=curtop;
+	if(hes[cur]){
+		dfs2(hes[cur],curtop);
+		for(re int i=las[cur];i;i=suc[i])
+			if(des[i]!=f[cur]&&des[i]!=hes[cur])
+				dfs2(des[i],des[i]);
+	}
+}
+
+inline void pthupd(re int x,re int y,re int z){
+	for(;top[x]!=top[y];){
+		if(dep[top[x]]>dep[top[y]])
+			swap(x,y);
+		update(id[top[y]],z);
+		update(id[y]+1,-z);
+		y=f[top[y]];
+	}
+	if(dep[x]>dep[y])
+		swap(x,y);
+	update(id[x],z);
+	update(id[y]+1,-z);
+}
+
+inline long long pthsum(re int x,re int y){
+	re long long res=0;
+	for(;top[x]!=top[y];){
+		if(dep[top[x]]>dep[top[y]])
+			swap(x,y);
+		res+=getsum(id[y])-getsum(id[top[y]]-1);
+		y=f[top[y]];
+	}
+	if(dep[x]>dep[y])
+		swap(x,y);
+	return res+getsum(id[y])-getsum(id[x]-1);
+}
 
 int main(){
+	// freopen("data.in","r",stdin);
+	// freopen("data.out","w",stdout);
+	cltstream::read(n);
+	cltstream::read(m);
+	for(re int i=1;i<=n;++i){
+		cltstream::read(p[i]);
+		st[i][0]=i;
+	}
+	for(re int i=1;i<=m;++i)
+		q[i].id=i;
+	for(re int i=1;i<=m;++i)
+		cltstream::read(q[i].l);
+	for(re int i=1;i<=m;++i)
+		cltstream::read(q[i].r);
+	std::sort(q+1,q+m+1);
+	for(re int j=1,k=1;k<=n;++j,k<<=1)
+		for(re int i=1;i+(k<<1)-1<=n;++i)
+			st[i][j]=p[st[i][j-1]]>=p[st[i+k][j-1]]?st[i][j-1]:st[i+k][j-1];
+	for(re int i=2;i<=n;++i)
+		lg[i]=lg[i>>1]+1;
+	rt=stmax(1,n);
+	low[rt][0]=low[rt][1]=rt;
+	build(1,rt-1,rt,0);
+	build(rt+1,n,rt,1);
+	dfs1(rt,0);
+	dfs2(rt,rt);
+	for(re int i=n;i>=1;--i)
+		depsum[i]=depsum[i+1]+(--dep[i]);
+	for(re int i=1;i<=n;++i){
+		// cnt[i][0]=cnt[i-1][0]+pthsum(i,rt)+getsum(id[i]+size[i]-1)-getsum(id[i]);
+		update(id[i],1);
+		update(id[i]+1,-1);
+	}
+	for(re int i=1;i<=n;++i)
+		bit[i][0]=bit[i][1]=0;
+	for(re int i=n;i>=1;--i){
+		cnt[i][1]=cnt[i+1][1]+pthsum(i,rt)+getsum(id[i]+size[i]-1)-getsum(id[i]);
+		update(id[i],1);
+		update(id[i]+1,-1);
+	}
+	for(re int i=1;i<=n;++i){
+		update(id[i],size[i]-1);
+		update(id[i]+1,1-size[i]);
+	}
+	puts("");
+	for(re int i=1;i<=n;++i)
+		printf("%lld ",depsum[i]);
+	puts("");
+	for(re int i=1;i<=n;++i)
+		printf("%lld ",cnt[i][0]);
+	puts("");
+	for(re int i=1;i<=n;++i)
+		printf("%lld ",cnt[i][1]);
+	puts("");
+	for(re int k=1;k<=n;++k)
+		printf("%lld ",getsum(id[k])-getsum(id[k]-1));
+	puts("");
+	for(re int i=1,j=1;i<=m;++i){
+		for(;j<q[i].l;++j){
+			pthupd(j,rt,-1);
+			// re int v=getsum(id[j])-getsum(id[j]-1);
+			// update(id[j],-v);
+			// update(id[j]+1,v);
+			for(re int k=1;k<=n;++k)
+				printf("%lld ",getsum(id[k])-getsum(id[k]-1));
+			puts("");
+		}
+		printf("%d %d\n",q[i].l,q[i].r);
+		re int L=q[i].l-1,R=q[i].r+1;
+		ans[q[i].id]=depsum[R]+cnt[L][0];
+		printf("%lld ",ans[q[i].id]);
+		for(re int k=R;k;k=f[low[low[k][0]][1]]){
+			ans[q[i].id]+=getsum(id[low[k][0]]+size[low[k][0]]-1)-getsum(id[low[k][0]]-1);
+			ans[q[i].id]-=getsum(id[ch[k][0]]+size[ch[k][0]]-1)-getsum(id[ch[k][0]]-1);
+			printf("%lld ",ans[q[i].id]);
+		}
+		// ans[q[i].id]+=n-R+1;
+		ans[q[i].id]-=cnt[R][1];
+		printf("%lld ",ans[q[i].id]);
+		ans[q[i].id]=getsum(n)-ans[q[i].id];
+		printf("%lld\n",ans[q[i].id]);
+	}
+	for(re int i=1;i<=m;++i)
+		cltstream::write(ans[i],32);
+	clop();
 	return 0;
 }
