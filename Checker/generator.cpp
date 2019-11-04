@@ -1,36 +1,28 @@
 #include<cstdio>
 #include<cstdlib>
 #include<ctime>
-#include<algorithm>
 #define re register
-#define maxn 1000000
-#define maxm 1000000
-#define rnd() (rand()*rand())
+#define maxval 100000000
 
-int n=10,m=10;
-int a[maxn+1],l[maxm+1],r[maxm+1];
+int n=100000;
+int f[maxval+1],g[maxval+1];
 
 int main(){
-	srand((1000000007*time(0))^998244353);
+	srand(time(0));
+	srand(998244353);
 	freopen("data.in","w",stdout);
-	printf("%d %d\n",n,m);
-	for(re int i=1;i<=n;++i)
-		a[i]=i;
-	for(re int i=2;i<=n;++i)
-		std::swap(a[i],a[rnd()%(i-1)+1]);
-	for(re int i=1;i<=n;++i)
-		printf("%d ",a[i]);
-	puts("");
-	for(re int i=1;i<=m;++i){
-		re int x=rnd()%n+1;
-		l[i]=rnd()%(n-x+1)+1;
-		r[i]=l[i]+x-1;
+	puts("FAQ");
+	for(re int i=2;i<=maxval;++i){
+		if(!f[i])
+			g[++g[0]]=i;
+		for(re int j=1;j<=g[0]&&i*g[j]<=maxval;++j){
+			f[i*g[j]]=1;
+			if(i%g[j]==0)
+				break;
+		}
 	}
-	for(re int i=1;i<=m;++i)
-		printf("%d ",l[i]);
-	puts("");
-	for(re int i=1;i<=m;++i)
-		printf("%d ",r[i]);
-	puts("");
+	printf("%d\n",n);
+	for(re int i=2;i<=n;++i)
+		printf("%lld %d %d\n",1LL*rand()*rand()%(i-1)+1,i,g[1LL*rand()*rand()%(g[0]/2)+g[0]/2]);
 	return 0;
 }

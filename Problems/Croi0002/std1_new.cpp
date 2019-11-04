@@ -8,7 +8,6 @@
 #define maxt 532
 #define min(a,b) ((a)<=(b)?(a):(b))
 #define max(a,b) ((a)>=(b)?(a):(b))
-#define int short
 
 namespace cltstream{
 	#define size 1048576
@@ -67,15 +66,15 @@ namespace cltstream{
 int n,m;
 short sq[2*maxn+1],id[maxn+1];
 int a[maxn+1],val[maxn+1],len[maxn+1],p[2][maxt+1];
-int sum[maxt+1],prd[maxt+1],upd[maxt+1];
+int sum[maxt+1],prd[maxt+1],tag[maxt+1];
 int ans[4*maxn+1],size[4*maxn+1];
 short cnt[4*maxn+1][maxs+1];
 int vec[4*maxn+1][maxt+1];
-short tag[4*maxn+1];
+short upd[4*maxn+1];
 int c[4*maxn+1];
 short brk[4*maxn+1];
 
-inline void getPow(re int x,re int N){
+inline void perparePow(re int x,re int N){
 	p[0][0]=1;
 	for(re int i=1;i<=sq[N];++i)
 		p[0][i]=p[0][i-1]*x;
@@ -85,45 +84,45 @@ inline void getPow(re int x,re int N){
 }
 
 inline void modify(re int l,re int r,re int x){
-	getPow(x,n);
+	perparePow(x,n);
 	re int L=id[l],R=id[r];
 	if(L<R){
 		sum[L]=0,
 		prd[L]=1;
 		for(re int i=(L-1)*sq[n]+1;i<=l-1;++i)
-			sum[L]+=a[i]=upd[L]?upd[L]:a[i],
-			prd[L]*=a[i]=upd[L]?upd[L]:a[i];
+			sum[L]+=a[i]=tag[L]?tag[L]:a[i],
+			prd[L]*=a[i]=tag[L]?tag[L]:a[i];
 		for(re int i=l;i<=L*sq[n]&&i<=n;++i)
 			sum[L]+=a[i]=x,
 			prd[L]*=a[i]=x;
-		upd[L]=0;
+		tag[L]=0;
 		for(re int i=L+1;i<=R-1;++i)
 			sum[i]=sq[n]*x,
 			prd[i]=p[1][1],
-			upd[i]=x;
+			tag[i]=x;
 		sum[R]=0,
 		prd[R]=1;
 		for(re int i=(R-1)*sq[n]+1;i<=r;++i)
 			sum[R]+=a[i]=x,
 			prd[R]*=a[i]=x;
 		for(re int i=r+1;i<=R*sq[n]&&i<=n;++i)
-			sum[R]+=a[i]=upd[R]?upd[R]:a[i],
-			prd[R]*=a[i]=upd[R]?upd[R]:a[i];
-		upd[R]=0;
+			sum[R]+=a[i]=tag[R]?tag[R]:a[i],
+			prd[R]*=a[i]=tag[R]?tag[R]:a[i];
+		tag[R]=0;
 	}
 	else{
 		sum[L]=0,
 		prd[L]=1;
 		for(re int i=(L-1)*sq[n]+1;i<=l-1;++i)
-			sum[L]+=a[i]=upd[L]?upd[L]:a[i],
-			prd[L]*=a[i]=upd[L]?upd[L]:a[i];
+			sum[L]+=a[i]=tag[L]?tag[L]:a[i],
+			prd[L]*=a[i]=tag[L]?tag[L]:a[i];
 		for(re int i=l;i<=r;++i)
 			sum[L]+=a[i]=x,
 			prd[L]*=a[i]=x;
 		for(re int i=r+1;i<=L*sq[n]&&i<=n;++i)
-			sum[L]+=a[i]=upd[L]?upd[L]:a[i],
-			prd[L]*=a[i]=upd[L]?upd[L]:a[i];
-		upd[L]=0;
+			sum[L]+=a[i]=tag[L]?tag[L]:a[i],
+			prd[L]*=a[i]=tag[L]?tag[L]:a[i];
+		tag[L]=0;
 	}
 }
 
@@ -131,15 +130,15 @@ inline int querySum(re int l,re int r){
 	re int L=id[l],R=id[r],res=0;
 	if(L<R){
 		for(re int i=l;i<=L*sq[n];++i)
-			res+=upd[L]?upd[L]:a[i];
+			res+=tag[L]?tag[L]:a[i];
 		for(re int i=L+1;i<=R-1;++i)
 			res+=sum[i];
 		for(re int i=(R-1)*sq[n]+1;i<=r;++i)
-			res+=upd[R]?upd[R]:a[i];
+			res+=tag[R]?tag[R]:a[i];
 	}
 	else
 		for(re int i=l;i<=r;++i)
-			res+=upd[L]?upd[L]:a[i];
+			res+=tag[L]?tag[L]:a[i];
 	return res;
 }
 
@@ -147,15 +146,15 @@ inline int queryPrd(re int l,re int r){
 	re int L=id[l],R=id[r],res=1;
 	if(L<R){
 		for(re int i=l;i<=L*sq[n];++i)
-			res*=upd[L]?upd[L]:a[i];
+			res*=tag[L]?tag[L]:a[i];
 		for(re int i=L+1;i<=R-1;++i)
 			res*=prd[i];
 		for(re int i=(R-1)*sq[n]+1;i<=r;++i)
-			res*=upd[R]?upd[R]:a[i];
+			res*=tag[R]?tag[R]:a[i];
 	}
 	else
 		for(re int i=l;i<=r;++i)
-			res*=upd[L]?upd[L]:a[i];
+			res*=tag[L]?tag[L]:a[i];
 	return res;
 }
 
@@ -174,19 +173,19 @@ void build(re int cur,re int l,re int r){
 
 inline void pushDown(re int cur,re int l,re int r){
 	re int mid=(l+r)>>1;
-	if(tag[cur]){
-		if(size[cur<<1]&&!(l<mid&&tag[cur<<1]&&!c[cur<<1])){
+	if(upd[cur]){
+		if(size[cur<<1]&&!(l<mid&&upd[cur<<1]&&!c[cur<<1])){
 			ans[cur<<1]=0;
 			if(c[cur]){
 				if(size[cur<<1]<=mid-l+1){
-					getPow(c[cur],size[cur<<1]);
+					perparePow(c[cur],size[cur<<1]);
 					for(re int i=1;i<=sq[size[cur<<1]];++i)
 						ans[cur<<1]+=cnt[cur<<1][i]*p[0][i];
 					for(re int i=1;i<=vec[cur<<1][0];++i)
 						ans[cur<<1]+=p[1][vec[cur<<1][i]/sq[size[cur<<1]]]*p[0][vec[cur<<1][i]%sq[size[cur<<1]]];
 				}
 				else{
-					getPow(c[cur],size[cur<<1|1]);
+					perparePow(c[cur],size[cur<<1|1]);
 					re int tmp=0;
 					for(re int i=1;i<=sq[size[cur<<1|1]];++i)
 						tmp+=cnt[cur<<1|1][i]*p[0][i];
@@ -202,21 +201,21 @@ inline void pushDown(re int cur,re int l,re int r){
 				vec[cur<<1][0]=0,
 				brk[cur<<1]=0;
 			}
-			tag[cur<<1]=tag[cur],
+			upd[cur<<1]=upd[cur],
 			c[cur<<1]=c[cur];
 		}
-		if(size[cur<<1|1]&&!(mid+1<r&&tag[cur<<1|1]&&!c[cur<<1|1])){
+		if(size[cur<<1|1]&&!(mid+1<r&&upd[cur<<1|1]&&!c[cur<<1|1])){
 			ans[cur<<1|1]=0;
 			if(c[cur]){
 				if(size[cur<<1|1]<=r-mid){
-					getPow(c[cur],size[cur<<1|1]);
+					perparePow(c[cur],size[cur<<1|1]);
 					for(re int i=1;i<=sq[size[cur<<1|1]];++i)
 						ans[cur<<1|1]+=cnt[cur<<1|1][i]*p[0][i];
 					for(re int i=1;i<=vec[cur<<1|1][0];++i)
 						ans[cur<<1|1]+=p[1][vec[cur<<1|1][i]/sq[size[cur<<1|1]]]*p[0][vec[cur<<1|1][i]%sq[size[cur<<1|1]]];
 				}
 				else{
-					getPow(c[cur],size[cur<<1]);
+					perparePow(c[cur],size[cur<<1]);
 					re int tmp=0;
 					for(re int i=1;i<=sq[size[cur<<1]];++i)
 						tmp+=cnt[cur<<1][i]*p[0][i];
@@ -232,10 +231,10 @@ inline void pushDown(re int cur,re int l,re int r){
 				vec[cur<<1|1][0]=0,
 				brk[cur<<1|1]=0;
 			}
-			tag[cur<<1|1]=tag[cur],
+			upd[cur<<1|1]=upd[cur],
 			c[cur<<1|1]=c[cur];
 		}
-		tag[cur]=c[cur]=0;
+		upd[cur]=c[cur]=0;
 	}
 	if(brk[cur]){
 		ans[cur<<1]=querySum(l,mid),
@@ -248,7 +247,7 @@ inline void pushDown(re int cur,re int l,re int r){
 		for(re int i=2;i<=sq[size[cur<<1|1]];++i)
 			cnt[cur<<1|1][i]=0;
 		vec[cur<<1|1][0]=0,
-		tag[cur<<1]=tag[cur<<1|1]=0,
+		upd[cur<<1]=upd[cur<<1|1]=0,
 		c[cur<<1]=c[cur<<1|1]=0,
 		brk[cur<<1]=brk[cur<<1|1]=brk[cur],
 		brk[cur]=0;
@@ -307,10 +306,10 @@ int findSuc(re int L,re int cur,re int l,re int r){
 
 void updateTag(re int L,re int R,re int x,re int cur,re int l,re int r){
 	if(l>=L&&r<=R){
-		if(size[cur]&&!(l<r&&tag[cur]&&!c[cur])){
+		if(size[cur]&&!(l<r&&upd[cur]&&!c[cur])){
 			ans[cur]=0;
 			if(x){
-				getPow(x,size[cur]);
+				perparePow(x,size[cur]);
 				for(re int i=1;i<=sq[size[cur]];++i)
 					ans[cur]+=cnt[cur][i]*p[0][i];
 				for(re int i=1;i<=vec[cur][0];++i)
@@ -323,7 +322,7 @@ void updateTag(re int L,re int R,re int x,re int cur,re int l,re int r){
 				vec[cur][0]=0,
 				brk[cur]=0;
 			}
-			tag[cur]=1,
+			upd[cur]=1,
 			c[cur]=x;
 		}
 	}
@@ -364,7 +363,7 @@ void updateBrk(re int L,re int R,re int cur,re int l,re int r){
 		for(re int i=2;i<=sq[size[cur]];++i)
 			cnt[cur][i]=0;
 		vec[cur][0]=0,
-		tag[cur]=c[cur]=0,
+		upd[cur]=c[cur]=0,
 		brk[cur]=1;
 	}
 	else{
@@ -393,7 +392,8 @@ int getAns(re int L,re int R,re int cur,re int l,re int r){
 }
 
 signed main(){
-	freopen("C:\\Users\\Challestend\\Downloads\\data\\l1.in","r",stdin);
+	freopen("F:/clt/challestends-code-set/Problems/Croi0002/data/l1.in","r",stdin);
+	freopen("data.ans","w",stdout);
 	cltstream::read(n),
 	cltstream::read(m);
 	for(re int i=1;i<=n;++i)

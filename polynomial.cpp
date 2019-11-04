@@ -60,8 +60,6 @@ namespace cltstream{
 }
 
 int unit[2][24],rev[maxn],inv[maxn];
-int n,tp;
-int F[maxn],G[maxn],H[maxn];
 
 inline int cltpow(re int x,re int y){
 	re int res=1;
@@ -276,28 +274,6 @@ int main(){
 	for(re int i=0;i<2;++i)
 		for(re int j=22;j>=0;--j)
 			unit[i][j]=1LL*unit[i][j+1]*unit[i][j+1]%mod;
-	cltstream::read(n);
-	cltstream::read(tp);
-	for(re int i=0;i<n;++i)
-		cltstream::read(F[i]);
-	if(tp&5){
-		Sinh(F,G,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(G[i],32);
-		cltstream::pc(10);
-	}
-	if(tp&6){
-		Cosh(F,H,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(H[i],32);
-		cltstream::pc(10);
-	}
-	if(tp&4){
-		Inv(H,G,n);
-		for(re int i=0;i<n;++i)
-			cltstream::write(G[i],32);
-		cltstream::pc(10);
-	}
 	clop();
 	return 0;
 }

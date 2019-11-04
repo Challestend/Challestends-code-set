@@ -1,12 +1,10 @@
 #include<cstdio>
-#include<algorithm>
+#include<cstdlib>
+#include<ctime>
+#include<set>
 #define re register
-#define maxn 1000000
-#define maxm 1000000
-#define maxlog 20
-#define min(a,b) ((a)<=(b)?(a):(b))
-#define max(a,b) ((a)>=(b)?(a):(b))
-#define swap(a,b) a^=b^=a^=b
+#define maxn 100000
+#define maxval 10000
 
 namespace cltstream{
 	#define size 1048576
@@ -62,200 +60,63 @@ namespace cltstream{
 	}
 }
 
-int n,m,rt,ec,vc;
-int p[maxn+1];
-struct query{
-	int id,l,r;
-};
-query q[maxm+1];
+int n,ec;
+int f[maxval+1],g[maxval+1];
+long long h[maxval+1];
+int des[2*maxn+1],suc[2*maxn+1],len[2*maxn+1],las[maxn+1];
+long long val[maxn+1];
+std::multiset<long long> S;
 
-inline bool operator<(const query& p1,const query& p2){
-	return p1.l<p2.l;
+inline void connect(re int u,re int v,re int w){
+	des[++ec]=v;
+	suc[ec]=las[u];
+	len[ec]=w;
+	las[u]=ec;
 }
 
-int st[maxn+1][maxlog+1],lg[maxn+1];
-long long bit[maxn+1][2];
-int des[2*maxn+1],suc[2*maxn+1],las[maxn+1],ch[maxn+1][2],low[maxn+1][2];
-int f[maxn+1],dep[maxn+1],size[maxn+1],hes[maxn+1],id[maxn+1],top[maxn+1];
-long long depsum[maxn+2],cnt[maxn+2][2],ans[maxm+1];
-
-inline int stmax(re int a,re int b){
-	re int l=lg[b-a+1],x=st[a][l],y=st[b-(1<<l)+1][l];
-	return p[x]>=p[y]?x:y;
-}
-
-inline void update(re int x,re int y){
-	for(re int i=x;i<=n;i+=i&(-i)){
-		bit[i][0]+=y;
-		bit[i][1]+=1LL*x*y;
-	}
-}
-
-inline long long getsum(re int x){
-	re long long res=0;
-	for(re int i=x;i>=1;i-=i&(-i))
-		res+=(x+1)*bit[i][0]-bit[i][1];
-	return res;
-}
-
-inline void connect(re int x,re int y){
-	des[++ec]=y;
-	suc[ec]=las[x];
-	las[x]=ec;
-}
-
-void build(re int l,re int r,re int ftr,re int sd){
-	if(l<=r){
-		re int cur=stmax(l,r);
-		connect(cur,ftr);
-		connect(ftr,cur);
-		ch[ftr][sd]=cur;
-		low[cur][sd]=low[ftr][sd];
-		low[cur][sd^1]=cur;
-		build(l,cur-1,cur,0);
-		build(cur+1,r,cur,1);
-	}
-}
-
-void dfs1(re int cur,re int ftr){
-	f[cur]=ftr;
-	dep[cur]=dep[f[cur]]+1;
-	size[cur]=1;
-	re int maxsize=0;
+void dfs(re int cur,re int ftr){
 	for(re int i=las[cur];i;i=suc[i])
-		if(des[i]!=f[cur]){
-			dfs1(des[i],cur);
-			size[cur]+=size[des[i]];
-			if(maxsize<size[des[i]]){
-				maxsize=size[des[i]];
-				hes[cur]=des[i];
-			}
+		if(des[i]!=ftr){
+			val[des[i]]^=val[cur];
+			for(re int j=1;j<=g[0]&&g[j]<=len[i];++j)
+				for(;len[i]%g[j]==0;len[i]/=g[j],val[des[i]]^=h[j]);
+			dfs(des[i],cur);
 		}
-}
-
-void dfs2(re int cur,re int curtop){
-	id[cur]=++vc;
-	top[cur]=curtop;
-	if(hes[cur]){
-		dfs2(hes[cur],curtop);
-		for(re int i=las[cur];i;i=suc[i])
-			if(des[i]!=f[cur]&&des[i]!=hes[cur])
-				dfs2(des[i],des[i]);
-	}
-}
-
-inline void pthupd(re int x,re int y,re int z){
-	for(;top[x]!=top[y];){
-		if(dep[top[x]]>dep[top[y]])
-			swap(x,y);
-		update(id[top[y]],z);
-		update(id[y]+1,-z);
-		y=f[top[y]];
-	}
-	if(dep[x]>dep[y])
-		swap(x,y);
-	update(id[x],z);
-	update(id[y]+1,-z);
-}
-
-inline long long pthsum(re int x,re int y){
-	re long long res=0;
-	for(;top[x]!=top[y];){
-		if(dep[top[x]]>dep[top[y]])
-			swap(x,y);
-		res+=getsum(id[y])-getsum(id[top[y]]-1);
-		y=f[top[y]];
-	}
-	if(dep[x]>dep[y])
-		swap(x,y);
-	return res+getsum(id[y])-getsum(id[x]-1);
 }
 
 int main(){
-	// freopen("data.in","r",stdin);
-	// freopen("data.out","w",stdout);
+	srand(time(0));
+	srand(998244353);
+	freopen("data.in","r",stdin);
+	for(re int i=2;i<=maxval;++i){
+		if(!f[i]){
+			g[++g[0]]=i;
+			h[g[0]]|=((long long)rand())<<45;
+			h[g[0]]|=((long long)rand())<<30;
+			h[g[0]]|=((long long)rand())<<15;
+			h[g[0]]|=((long long)rand());
+		}
+		for(re int j=1;j<=g[0]&&i*g[j]<=maxval;++j){
+			f[i*g[j]]=1;
+			if(i%g[j]==0)
+				break;
+		}
+	}
 	cltstream::read(n);
-	cltstream::read(m);
-	for(re int i=1;i<=n;++i){
-		cltstream::read(p[i]);
-		st[i][0]=i;
+	for(re int i=1;i<n;++i){
+		int u,v,w;
+		cltstream::read(u);
+		cltstream::read(v);
+		cltstream::read(w);
+		connect(u,v,w);
+		connect(v,u,w);
 	}
-	for(re int i=1;i<=m;++i)
-		q[i].id=i;
-	for(re int i=1;i<=m;++i)
-		cltstream::read(q[i].l);
-	for(re int i=1;i<=m;++i)
-		cltstream::read(q[i].r);
-	std::sort(q+1,q+m+1);
-	for(re int j=1,k=1;k<=n;++j,k<<=1)
-		for(re int i=1;i+(k<<1)-1<=n;++i)
-			st[i][j]=p[st[i][j-1]]>=p[st[i+k][j-1]]?st[i][j-1]:st[i+k][j-1];
-	for(re int i=2;i<=n;++i)
-		lg[i]=lg[i>>1]+1;
-	rt=stmax(1,n);
-	low[rt][0]=low[rt][1]=rt;
-	build(1,rt-1,rt,0);
-	build(rt+1,n,rt,1);
-	dfs1(rt,0);
-	dfs2(rt,rt);
-	for(re int i=n;i>=1;--i)
-		depsum[i]=depsum[i+1]+(--dep[i]);
-	for(re int i=1;i<=n;++i){
-		// cnt[i][0]=cnt[i-1][0]+pthsum(i,rt)+getsum(id[i]+size[i]-1)-getsum(id[i]);
-		update(id[i],1);
-		update(id[i]+1,-1);
-	}
+	dfs(1,0);
 	for(re int i=1;i<=n;++i)
-		bit[i][0]=bit[i][1]=0;
-	for(re int i=n;i>=1;--i){
-		cnt[i][1]=cnt[i+1][1]+pthsum(i,rt)+getsum(id[i]+size[i]-1)-getsum(id[i]);
-		update(id[i],1);
-		update(id[i]+1,-1);
-	}
-	for(re int i=1;i<=n;++i){
-		update(id[i],size[i]-1);
-		update(id[i]+1,1-size[i]);
-	}
-	puts("");
-	for(re int i=1;i<=n;++i)
-		printf("%lld ",depsum[i]);
-	puts("");
-	for(re int i=1;i<=n;++i)
-		printf("%lld ",cnt[i][0]);
-	puts("");
-	for(re int i=1;i<=n;++i)
-		printf("%lld ",cnt[i][1]);
-	puts("");
-	for(re int k=1;k<=n;++k)
-		printf("%lld ",getsum(id[k])-getsum(id[k]-1));
-	puts("");
-	for(re int i=1,j=1;i<=m;++i){
-		for(;j<q[i].l;++j){
-			pthupd(j,rt,-1);
-			// re int v=getsum(id[j])-getsum(id[j]-1);
-			// update(id[j],-v);
-			// update(id[j]+1,v);
-			for(re int k=1;k<=n;++k)
-				printf("%lld ",getsum(id[k])-getsum(id[k]-1));
-			puts("");
-		}
-		printf("%d %d\n",q[i].l,q[i].r);
-		re int L=q[i].l-1,R=q[i].r+1;
-		ans[q[i].id]=depsum[R]+cnt[L][0];
-		printf("%lld ",ans[q[i].id]);
-		for(re int k=R;k;k=f[low[low[k][0]][1]]){
-			ans[q[i].id]+=getsum(id[low[k][0]]+size[low[k][0]]-1)-getsum(id[low[k][0]]-1);
-			ans[q[i].id]-=getsum(id[ch[k][0]]+size[ch[k][0]]-1)-getsum(id[ch[k][0]]-1);
-			printf("%lld ",ans[q[i].id]);
-		}
-		// ans[q[i].id]+=n-R+1;
-		ans[q[i].id]-=cnt[R][1];
-		printf("%lld ",ans[q[i].id]);
-		ans[q[i].id]=getsum(n)-ans[q[i].id];
-		printf("%lld\n",ans[q[i].id]);
-	}
-	for(re int i=1;i<=m;++i)
-		cltstream::write(ans[i],32);
+		S.insert(val[i]);
+	re long long ans=0;
+	for(long long v,c;!S.empty();v=*S.begin(),c=S.count(v),ans+=c*(c-1)/2,S.erase(v));
+	cltstream::write(ans);
 	clop();
 	return 0;
 }
