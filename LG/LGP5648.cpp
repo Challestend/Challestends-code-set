@@ -84,8 +84,6 @@ void dfs(re int cur){
 }
 
 int main(){
-	freopen("data.in","r",stdin);
-	freopen("data.out","w",stdout);
 	cltstream::read(n);
 	cltstream::read(m);
 	for(re int i=1;i<=n;++i){

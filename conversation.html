@@ -151,25 +151,20 @@
 					}).then(function() {
 						botui.message.add({
 							delay: 1200,
-							content: "最近也在颓逆转裁判。"
+							content: "最近想要搜集和类似《弹丸论破》《你去死吧》这样的死亡游戏。"
 						}).then(function() {
-							botui.message.add({
+							botui.action.button({
 								delay: 1200,
-								content: "好像还有个放在那里好久没动了的 Muse Dash。"
-							}).then(function() {
-								botui.action.button({
-									delay: 1200,
-									action: [{
-										text: "看番吗？",
-										value: "bangumi"
-									},{
-										text: "推 gal 吗？",
-										value: "gal"
-									}]
-								}).then(function(a) {
-									"bangumi" == a.value && bangumi();
-									"gal" == a.value && gal()
-								})
+								action: [{
+									text: "看番吗？",
+									value: "bangumi"
+								},{
+									text: "推 gal 吗？",
+									value: "gal"
+								}]
+							}).then(function(a) {
+								"bangumi" == a.value && bangumi();
+								"gal" == a.value && gal()
 							})
 						})
 					})

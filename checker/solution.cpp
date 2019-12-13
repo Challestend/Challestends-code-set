@@ -1,98 +1,92 @@
+#include<iostream>
 #include<cstdio>
-#define re register
-#define maxn 100000
-#define maxlog 20
-
-namespace cltstream{
-	#define size 1048576
-	char cltin[size+1],*ih=cltin,*it=cltin;
-	inline char gc(){
-		#ifdef ONLINE_JUDGE
-			if(ih==it){
-				it=(ih=cltin)+fread(cltin,1,size,stdin);
-				if(ih==it)
-					return EOF;
-			}
-			return *ih++;
-		#else
-			return getchar();
-		#endif
-	}
-
-	char cltout[size+1],*oh=cltout,*ot=cltout+size;
-	inline void pc(char c){
-		if(oh==ot){
-			fwrite(cltout,1,size,stdout);
-			oh=cltout;
-		}
-		*oh++=c;
-	}
-	#define clop() fwrite(cltstream::cltout,1,cltstream::oh-cltstream::cltout,stdout),cltstream::oh=cltstream::cltout
-	#undef size
-
-	template <typename _tp>
-	inline void read(_tp& x){
-		int sn=1;
-		char c=gc();
-		for(;c!=45&&(c<48||c>57)&&c!=EOF;c=gc());
-		if(c==45&&c!=EOF)
-			sn=-1,c=gc();
-		for(x=0;c>=48&&c<=57&&c!=EOF;x=(x<<3)+(x<<1)+(c^48),c=gc());
-		x*=sn;
-	}
-
-	template <typename _tp>
-	inline void write(_tp x,char text=-1){
-		if(x<0)
-			pc(45),x=-x;
-		if(!x)
-			pc(48);
-		else{
-			int digit[22];
-			for(digit[0]=0;x;digit[++digit[0]]=x%10,x/=10);
-			for(;digit[0];pc(digit[digit[0]--]^48));
-		}
-		if(text>=0)
-			pc(text);
-	}
+#include<cstring>
+#include<cmath>
+using namespace std;
+typedef long long ll;
+#pragma GCC optimize("Ofast")
+#pragma GCC optimize("inline")
+#pragma GCC optimize(3)
+#define N 500050
+inline int read(){
+    int x=0,f=1;
+    char c=getchar();
+    while(c<'0'||c>'9'){
+        if(c=='-')f=-1;
+        c=getchar();
+    }
+    while(c>='0'&&c<='9'){
+        x=(x<<3)+(x<<1)+c-'0';
+        c=getchar();
+    }
+    return x*f;
 }
-
-int n,m;
-int a[maxn+1],l[maxn+1],r[maxn+1];
-int lg[maxn+1],st[maxn+1][maxlog+1];
-
-inline int stmax(re int l,re int r){
-	re int x=lg[r-l+1];
-	return a[st[l][x]]>=a[st[r-(1<<x)+1][x]]?st[l][x]:st[r-(1<<x)+1][x];
+ll f[N][22],a[N];
+int n,Q,nxt[N][22];
+ll ans;
+int st[N],top;
+int buf[111],p;
+inline void Output(ll x){
+    p=0;
+    while(x)buf[++p]=x%10,x/=10;
+    while(p)putchar(buf[p--]+'0');
+    putchar('\n');
 }
-
-long long F(re int l,re int r){
-	if(l>r)
-		return 0;
-	else{
-		re int m=stmax(l,r);
-		return (r-l+1)+F(l,m-1)+F(m+1,r);
-	}
-}
-
 int main(){
-	cltstream::read(n);
-	cltstream::read(m);
-	for(re int i=1;i<=n;++i)
-		cltstream::read(a[i]);
-	for(re int i=1;i<=m;++i)
-		cltstream::read(l[i]);
-	for(re int i=1;i<=m;++i)
-		cltstream::read(r[i]);
-	for(re int i=2;i<=n;++i)
-		lg[i]=lg[i>>1]+1;
-	for(re int i=1;i<=n;++i)
-		st[i][0]=i;
-	for(re int j=1,k=1;j<=lg[n];++j)
-		for(re int i=1;i+(k<<1)-1<=n;++i)
-			st[i][j]=a[st[i][j-1]]>=a[st[i+k][j-1]]?st[i][j-1]:st[i+k][j-1];
-	for(re int i=1;i<=m;++i)
-		cltstream::write(F(l[i],r[i]),32);
-	clop();
-	return 0;
+	freopen("data.in","r",stdin);
+	freopen("data.ans","w",stdout);
+    n=read(),Q=read();
+    int MX=log2(n)+1;
+    for(int i=1;i<=n;i++){
+        a[i]=read();
+    }
+    for(int i=1;i<=n;i++){
+        while(top&&a[st[top]]<a[i]){
+            nxt[st[top]][0]=i;
+            --top;
+        }
+        st[++top]=i;
+    }
+    while(top)nxt[st[top--]][0]=n+2;
+    nxt[n+1][0]=nxt[n+2][0]=n+2;
+    for(register int i=1;i<=n;++i){
+        f[i][0]=1LL*a[i]*(nxt[i][0]-i);
+    }
+    for(register int j=1;j<=MX;++j){
+        for(register int i=1;i<=n+2;++i){
+            nxt[i][j]=n+2;
+        }
+        for(register int i=1;i+(1<<j)-1<=n;++i){
+            nxt[i][j]=nxt[nxt[i][j-1]][j-1];
+            f[i][j]=f[i][j-1]+f[nxt[i][j-1]][j-1];
+        }
+    }
+    while(Q--){
+        int u=read(),v=read();
+        int l=1+(u^ans)%n,r=(v^(ans+1))%(n-l+1)+l;
+        int pos=l;
+        ans=0;
+        for(register int i=MX;i>=0;--i){
+            if(nxt[pos][i]-1>r)continue;
+            ans+=f[pos][i];
+            pos=nxt[pos][i];
+        }
+        ans+=a[pos]*(r-pos+1);
+        Output(ans);
+    }
+    return 0;
 }
+/*
+10 10
+3 1 4 4 2 1 6 3 2 9
+1 2
+2 3
+1 4
+2 5
+3 6
+4 7
+2 10
+3 4
+1 4
+5 8
+*/
