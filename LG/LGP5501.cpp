@@ -105,10 +105,10 @@ inline long long getSum(re int x){
 
 inline void modify(re int x){
 	re int X=id2[x];
-	for(re int i=x;i<=X*sq2&&i<=a[0];++i)
+	for(re int i=x;i<=X*sq2&&i<=n;++i)
 		++pre0[i],
 		pre1[i]+=x;
-	for(re int i=X;i<=id2[a[0]];++i)
+	for(re int i=X;i<=id2[n];++i)
 		++sum0[i],
 		sum1[i]+=x;
 }
@@ -157,8 +157,9 @@ int main(){
 		modify(a[i]);
 		for(std::vector<querz>::iterator p=v[i].begin();p!=v[i].end();++p){
 			re long long res=0;
-			for(re int j=p->l;j<=p->r;++j)
+			for(re int j=p->l;j<=p->r;++j){
 				res+=1LL*queryCnt(a[j]-1)*a[j]+querySum(a[0])-querySum(a[j]);
+			}
 			ans[p->t]+=p->w*res;
 		}
 	}

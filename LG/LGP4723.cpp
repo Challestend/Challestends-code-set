@@ -243,7 +243,7 @@ inline void Mod(re int* F,re int* G,re int* H,re int n,re int m){
 }
 
 int main(){
-	freopen("C:/Users/Challestend/Downloads/testdata.in","r",stdin);
+	// freopen("C:/Users/Challestend/Downloads/testdata.in","r",stdin);
 	unit[0][23]=cltpow(3,119);
 	unit[1][23]=cltpow(332748118,119);
 	for(re int i=0;i<2;++i)
@@ -287,6 +287,9 @@ int main(){
 			tmp1[i]=tmp2[i];
 		for(re int i=k;i<(k<<1)-1;++i)
 			tmp1[i]=0;
+		for(re int i=0;i<k;++i)
+			printf("%d ",Q[i]);
+		puts("");
 	}
 	re int ans=0;
 	for(re int i=0;i<k;++i)

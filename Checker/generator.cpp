@@ -3,7 +3,7 @@
 #include<ctime>
 #define re register
 
-int n=20,m=20;
+int n=10000,m=10000;
 
 int main(){
 	srand(time(0));
@@ -13,7 +13,11 @@ int main(){
 	for(re int i=1;i<=n;++i)
 		printf("%d ",rand()%n+1);
 	puts("");
-	for(re int i=1;i<=m;++i)
-		printf("%d %d\n",rand(),rand());
+	for(re int i=1;i<=m;++i){
+		re int l=rand()%n+1,r=rand()%n+1;
+		if(l>r)
+			l^=r^=l^=r;
+		printf("%d %d\n",l,r);
+	}
 	return 0;
 }
